@@ -19,9 +19,33 @@
 include("base_func.jl")
 include("const.jl")
 
-const CLN = "https://gitlab.com/librewolf-community/browser/windows.git"
-const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"108.0.2-1"
+const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
+
+function build()
+	@info "Building . . ."
+	cd((@__DIR__)) do
+		cd(SRC)
+		Sys.iswindows() && (@warn "Not allowed."; return)
+		@run [GMK, "all"]
+		dir = mkpath("../$PKG")
+		for f in filter!(isfile, readdir())
+			f |> startswith("firefox-") && cp(f, "$dir/$f", force = true)
+			f |> startswith("snowfox-") && cp(f, "$dir/$f", force = true)
+		end
+	end
+end
+
+function check()
+	@info "Checking . . ."
+	cd((@__DIR__)) do
+		if !isdir(SRC)
+			throw(SystemError(SRC, 20)) # ENOTDIR 20 Not a directory
+		else
+			cd(SRC)
+			@run [GMK, "check"]
+		end
+	end
+end
 
 function clean()
 	@info "Cleaning . . ."
@@ -36,25 +60,9 @@ function fetch()
 		if ispath(SRC)
 			throw(SystemError(SRC, 17)) # EEXIST 17 File exists
 		else
-			@run [GIT, "clone", "--depth=1", CLN, SRC]
+			@run [GIT, "clone", "--depth=1", ["--recurse" "--shallow" "--remote"] .* "-submodules"..., CLN, SRC]
 			@run [JLC..., "move.jl", SRC, "1"]
-			cd(SRC * "linux/") do
-				v1 = VersionNumber(VER.major, VER.minor, VER.patch)
-				v2 = filter(!isempty, filter.(isdigit, string.([VER.prerelease..., 1])))[1]
-				v3 = filter(!isempty, filter.(isdigit, string.([VER.build..., 0])))[1]
-				open("version", "w") do io
-					println(io, v1)
-				end
-				open("source_release", "w") do io
-					println(io, v2)
-				end
-				open("release", "w") do io
-					println(io, v3)
-				end
-				something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "0")), false) || return
-				curl("-LO", "$REL/v$VER/snowfox-v$v1-$v2.source.tar.zst.sha256")
-				curl("-LO", "$REL/v$VER/snowfox-v$v1-$v2.source.tar.zst")
-			end
+			@run [JLC..., "remote.jl"]
 		end
 	end
 end
@@ -79,6 +87,11 @@ while !isempty(ARGS)
 		clean()
 		fetch()
 		patch()
+		build()
+	elseif op ≡ "build"
+		build()
+	elseif op ≡ "check"
+		check()
 	elseif op ≡ "clean"
 		clean()
 	elseif op ≡ "fetch"
