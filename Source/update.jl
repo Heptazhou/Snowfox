@@ -17,7 +17,6 @@
 # julia = "≥ 1.6"
 
 include("base_func.jl")
-include("const.jl")
 
 using Base64: base64encode
 
@@ -169,10 +168,20 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					if (f ≡ "aboutDialog.js")
 						p = "api.github.com"
 						p = replace(website, ("/github.com/" => "/$p/repos/")) * ("/releases")
+						s = replace(s, "\"(Up to date)\"" => "\"(up to date)\"")
+						s = replace(s, "\"(Update available)\"" => "\"(update available)\"")
 						s = replace(s, "https://gitlab.com/api/v4/projects/32320088/releases" => p)
 						s = replace(s, r" = \K(?=AppConstants\.MOZ_APP_VERSION_DISPLAY)", "'v' + ")
 						s = replace(s, r"\.\_links\.self\b", ".html_url")
 						s = replace(s, r"Release = \K\"0\"", "\"1\"")
+						p = """Number(oldVersion?.split(".")[i] || "0")"""
+						q = """Number(newVersion.split(".")[i])"""
+						s = replace(s,
+							"""{\n""" *
+							"""	"""^5 * """if ($q > $p) return true;\n""",
+							"""{\n""" *
+							"""	"""^5 * """if ($q < $p) return false;\n""" *
+							"""	"""^5 * """if ($q > $p) return true;\n""", "p") # ~ do not sort this
 					end
 					if (f ≡ "aboutDialog.xhtml")
 						s = replace(s, r" with the primary\s+goals of privacy, security\K( and user freedom\.)"s, s",\1")
@@ -263,7 +272,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						for p ∈ patches
 							s = replace(s, ("^\\Q$p\\E\n", "m"), "")
 						end
-						p = "../" * "164283e1448523a73f98587a38ac296fe8bf3918.patch" * "\n" *
+						p = "../" * "a9098537ed3ce36abccda98592e07a3aba085407.patch" * "\n" *
 							"patches/removed-patches/allow_dark_preference_with_rfp.patch" * "\n"
 						s = replace(s * p, p * p, p, "p")
 					end
@@ -345,8 +354,11 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, ("\"none\""), ("'none'"))
 						s = replace(s, ("https://dns.quad9.net/dns-query"), ("https://cloudflare-dns.com/dns-query"), "w")
 						for p ∈ [
-							"""("devtools.selfxss.count", 0)"""         => """("devtools.selfxss.count", 5)""", # 0
-							"""("privacy.userContext.enabled", true)""" => """("privacy.userContext.enabled", false)""", # false
+							"""("browser.download.alwaysOpenPanel", false)""" => """("browser.download.alwaysOpenPanel", true)""", # true
+							"""("browser.download.useDownloadDir", false)"""  => """("browser.download.useDownloadDir", true)""", # true
+							"""("devtools.selfxss.count", 0)"""               => """("devtools.selfxss.count", 5)""", # 0
+							"""("privacy.userContext.enabled", true)"""       => """("privacy.userContext.enabled", false)""", # false
+							"""("webgl.disabled", true)"""                    => """("webgl.disabled", false)""", # false
 							#
 							r"""\(("privacy\.query_stripping\.strip_list"), "[^"]+"\)""" => s"""(\1, "@@QUERY_STRIP_LIST@@")""", # ""
 							r"""\(("security\.ssl\.require_safe_negotiation"), true\)""" => s"""(\1, false)""", # false
@@ -377,7 +389,9 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("intl.date_time.pattern_override.time_long", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_medium", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_short", "HH:mm:ss");\n""" *
-							"""defaultPref("snowfox.app.checkVersion.enabled", false);\n""" *
+							"""defaultPref("network.http.useragent.forceVersion", $UAV);\n""" *
+							"""defaultPref("snowfox.app.checkVersion.enabled", true);\n""" *
+							"""defaultPref("snowfox.app.checkVersion.url", "https://api.github.com/repos/0h7z/Snowfox/releases");\n""" *
 							"""lockPref("browser.firefox-view.view-count", 0);\n""" *
 							"""lockPref("privacy.donottrackheader.enabled", true);\n""" *
 							"""\n"""^2, "p", n = 1) # ~ do not move this

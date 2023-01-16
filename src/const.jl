@@ -19,6 +19,7 @@ const GMK = ("make") * (Sys.iswindows() ? ".exe" : "")
 const JLC = ["julia" * (Sys.iswindows() ? ".exe" : ""), "--startup-file=no", "--compile=min", "--color=yes"]
 const PKG = ("pkg/")
 const SRC = ("src/")
+const UAV = (UInt16)(108) # https://oeis.org/A001694
 
 const schemes =
 	[

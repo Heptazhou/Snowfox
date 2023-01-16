@@ -17,7 +17,6 @@
 # julia = "≥ 1.6"
 
 include("base_func.jl")
-include("const.jl")
 
 const SUBMODULES = something(tryparse.(Bool, [ARGS; "0"])...)
 

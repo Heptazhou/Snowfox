@@ -17,11 +17,10 @@
 # julia = "≥ 1.5"
 
 include("base_func.jl")
-include("const.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/windows.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"108.0.2-1"
+const VER = v"109.0-1"
 
 function clean()
 	@info "Cleaning . . ."
@@ -39,7 +38,7 @@ function fetch()
 			@run [GIT, "clone", "--depth=1", CLN, SRC]
 			@run [JLC..., "move.jl", SRC, "1"]
 			cd(SRC * "linux/") do
-				v1 = VersionNumber(VER.major, VER.minor, VER.patch)
+				v1 = string(VersionNumber(VER.major, VER.minor, VER.patch)) |> s -> replace(s, r"\.0$" => "")
 				v2 = filter(!isempty, filter.(isdigit, string.([VER.prerelease..., 1])))[1]
 				v3 = filter(!isempty, filter.(isdigit, string.([VER.build..., 0])))[1]
 				open("version", "w") do io

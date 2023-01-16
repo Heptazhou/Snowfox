@@ -17,7 +17,6 @@
 # julia = "≥ 1.5"
 
 include("base_func.jl")
-include("const.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
 

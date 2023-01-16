@@ -17,7 +17,6 @@
 # julia = "≥ 1.6"
 
 include("base_func.jl")
-include("const.jl")
 
 const website = "https://github.com/0h7z/Snowfox"
 const patches =

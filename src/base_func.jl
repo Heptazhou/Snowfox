@@ -16,11 +16,13 @@
 # [compat]
 # julia = "≥ 1.5"
 
+include("const.jl")
+
 import Base.replace
 
 const Curl(x::String...)::Cmd =
 	Cmd(["curl", "--http2", "--tlsv1.2",
-		"-A\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0\"", x...])
+		"-A\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:$UAV.0) Gecko/20100101 Firefox/$UAV.0\"", x...])
 const Zip7(x::String...)::Cmd =
 	Cmd(["7z", x...])
 

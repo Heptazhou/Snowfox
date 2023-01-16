@@ -17,7 +17,6 @@
 # julia = "≥ 1.5"
 
 include("base_func.jl")
-include("const.jl")
 
 const remotes =
 	[
@@ -49,8 +48,9 @@ function remote(src::String, dst::String)
 	end
 	cd(dst * "browser/branding/snowfox/") do
 		for p ∈ [
-			"stubinstaller/bgstub.jpg" => "bgstub_2x.jpg",
-			"stubinstaller/bgstub.jpg" => "bgstub.jpg",
+			"content/about-logo@2x.png" => "content/about.png",
+			"stubinstaller/bgstub.jpg"  => "bgstub_2x.jpg",
+			"stubinstaller/bgstub.jpg"  => "bgstub.jpg",
 		]
 			isfile.([p...]) |> all || continue
 			cp(p..., force = true, follow_symlinks = true)
