@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/windows.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"109.0-1"
+const VER = v"109.0-2"
 
 function clean()
 	@info "Cleaning . . ."
@@ -37,23 +37,21 @@ function fetch()
 		else
 			@run [GIT, "clone", "--depth=1", CLN, SRC]
 			@run [JLC..., "move.jl", SRC, "1"]
-			cd(SRC * "linux/") do
-				v1 = string(VersionNumber(VER.major, VER.minor, VER.patch)) |> s -> replace(s, r"\.0$" => "")
-				v2 = filter(!isempty, filter.(isdigit, string.([VER.prerelease..., 1])))[1]
-				v3 = filter(!isempty, filter.(isdigit, string.([VER.build..., 0])))[1]
-				open("version", "w") do io
-					println(io, v1)
-				end
-				open("source_release", "w") do io
-					println(io, v2)
-				end
-				open("release", "w") do io
-					println(io, v3)
-				end
-				something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "0")), false) || return
-				curl("-LO", "$REL/v$VER/snowfox-v$v1-$v2.source.tar.zst.sha256")
-				curl("-LO", "$REL/v$VER/snowfox-v$v1-$v2.source.tar.zst")
+			#
+			cd(SRC * "linux/")
+			v1, v2, v3 = v_read(VER)
+			open("version", "w") do io
+				println(io, v1)
 			end
+			open("source_release", "w") do io
+				println(io, v2)
+			end
+			open("release", "w") do io
+				println(io, v3)
+			end
+			something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "0")), false) || return
+			curl("-LO", "$REL/v$VER/snowfox-v$v1-$v2.source.tar.zst.sha256")
+			curl("-LO", "$REL/v$VER/snowfox-v$v1-$v2.source.tar.zst")
 		end
 	end
 end

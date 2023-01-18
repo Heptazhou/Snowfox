@@ -51,7 +51,7 @@ macro run(vec, ret)
 	end
 end
 
-function expand(str::String)::String
+function expands(str::String)::String
 	for pair ∈ [
 		"are"    => "are not",
 		"ca"     => "cannot",
@@ -123,6 +123,13 @@ R <: AbstractString where S <: AbstractString where T <: AbstractPattern
 		(-1 - n) > +100 && error(old => new)
 	end
 	str
+end
+
+function v_read(ver::VersionNumber)::NTuple{3, String}
+	vx = string(VersionNumber(ver.major, ver.minor, ver.patch)) |> s -> replace(s, r"\.0$" => "")
+	vy = filter(!isempty, filter.(isdigit, string.([ver.prerelease..., 1])))[1]
+	vz = filter(!isempty, filter.(isdigit, string.([ver.build..., 0])))[1]
+	vx, vy, vz
 end
 
 # move(dir::String, recursive::Bool = false)

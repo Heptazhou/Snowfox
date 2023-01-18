@@ -46,35 +46,33 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					for p ∈ schemes
 						s = replace(s, p...)
 					end
+					s = replace(s, "\r\n" => "\n")
+					s = replace(s, r"https://\Kraw\.(github)usercontent(\.com/[^/]+/[^/]+)/", s"\1\2/raw/")
+					s = replace(s, r"https://\Ksnowfox(\.net)", s"librewolf\1")
+					s = replace(s, r"https://gitlab\.com/\Ksnowfox(-community)", s"librewolf\1")
+					s = replace(s, r"https://gitlab\.com/librewolf-community/\S*?\Ksnowfox"i, s"librewolf")
+					s = replace(s, r"https://librewolf\.net/\S*?\Ksnowfox"i, s"librewolf")
+					#
 					s = replace(s, "(?<!=['\"])http://(?!www\\.w3\\.org/)", "https://")
 					s = replace(s, "(/github\\.com)/ltGuillaume/(Snowfox-Portable)", s"\1/Heptazhou/\2")
-					s = replace(s, "\r\n" => "\n")
 					s = replace(s, "apt-get", "apt", "w")
+					s = replace(s, "Snowfox Community", "0h7z", "w")
+					s = replace(s, "Snowfox Handler", "Snowfox Document", "w")
 					s = replace(s, "ubuntu:jammy", "ubuntu:rolling", "w")
+					s = replace(s, ("[\t ]+\$", "m"), "")
 					s = replace(s, raw"snowfox-{}-{}" => raw"snowfox-v{}-{}")
 					s = replace(s, raw"snowfox-$(full_version)" => raw"snowfox-v$(full_version)")
 					s = replace(s, raw"snowfox-$(version)" => raw"snowfox-v$(version)")
 					s = replace(s, raw"snowfox-$$(cat version)" => raw"snowfox-v$$(cat version)")
 					s = replace(s, raw"snowfox-v\$\(full_version\)\.source\.tar\K\.gz", (".zst"))
 					s = replace(s, raw"snowfox-v\$\$\(cat version\)-\$\$\(cat source_release\)\.source\.tar\K\.gz", (".zst"))
-					#
-					s = replace(s, r"[\t ]+$"m => "")
-					s = replace(s, r"https://\Kraw\.(github)usercontent(\.com/[^/]+/[^/]+)/", s"\1\2/raw/")
-					s = replace(s, r"https://\Ksnowfox(\.net)", s"librewolf\1")
-					s = replace(s, r"https://gitlab\.com/\Ksnowfox(-community)", s"librewolf\1")
-					s = replace(s, r"https://gitlab\.com/librewolf-community/\S*?\Ksnowfox"i, s"librewolf")
-					s = replace(s, r"https://librewolf\.net/\S*?\Ksnowfox"i, s"librewolf")
 					if (f ≡ "Makefile") || endswith(".mk")(f)
 						p = raw"v$$(cat version)-$$(cat source_release).source.tar.zst"
-						q = raw"https://gitlab.com/librewolf-community/browser/source/"
 						s = replace(s,
-							"""	wget -q -O version "$q-/raw/main/version"\n""" *
-							"""	wget -q -O source_release "$q-/raw/main/release"\n""" *
-							"""	wget -q -O "snowfox-$p.sha256" "$q-/jobs/artifacts/main/raw/librewolf-$p.sha256sum?job=Build"\n""" *
-							"""	wget --progress=bar:force -O "snowfox-$p" "$q-/jobs/artifacts/main/raw/librewolf-$p?job=Build"\n""" *
-							"""	cat "snowfox-$p.sha256"\n""" *
-							"""	sha256sum -c "snowfox-$p.sha256"\n""", # ~ do not sort this
-							"""	sha256sum -c "snowfox-$p.sha256"\n""", "p")
+							"""\nfetch :\n""" * "[\\S\\s]+?\n" * "\\Q" *
+							"""\tsha256sum -c "snowfox-$p.sha256"\n""" * "\\E",
+							"""\nfetch :\n""" *
+							"""\tsha256sum -c "snowfox-$p.sha256"\n""", "e") # ~ do not sort this
 						p = raw"$(release)"
 						s = replace(s, "[ $p -gt 1 ] && echo \"-$p\"" => "[[ $p -ge 1 ]] && echo \"+$p\"")
 						s = replace(s, "s/pkg_version/\$(full_version)/g" => "s/pkg_version/v\$(full_version)/g")
@@ -125,7 +123,10 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"^export MOZ_REQUIRE_SIGNING=\K1?$"m, '"'^2)
 					end
 					if (f ≡ "setup.nsi")
-						s = expand(s)
+						s = expands(s)
+						s = replace(s,
+							raw"""SnowfoxHTM\DefaultIcon" "" "$INSTDIR\snowfox.exe,0""",
+							raw"""SnowfoxHTM\DefaultIcon" "" "$INSTDIR\snowfox.exe,1""", "w")
 					end
 					write(f, s)
 				end

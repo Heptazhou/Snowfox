@@ -76,7 +76,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					s = replace(s, "ubuntu:jammy", "ubuntu:rolling", "w")
 					s = replace(s, "www.snowfox.gitlab.io", "github.com/0h7z", "w")
 					if f ∈ ("appstrings.properties", "snowfox.cfg")
-						s = expand(s)
+						s = expands(s)
 					end
 					p = "(?<!=['\"])http://(?!www\\.w3\\.org/)" => "https://"
 					if endswith(r"\.(diff|patch)")(f)

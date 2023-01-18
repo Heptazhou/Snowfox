@@ -38,7 +38,7 @@ index 61824afe34d9..15b362130bf3 100644
          TOPSRCDIR,
          CONFIG["MOZ_BRANDING_DIRECTORY"],
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 9b56ba74cff1..b6899316e945 100644
+index 9b56ba74cff1..1528f5d3eaeb 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -48,7 +48,7 @@ pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/pri
@@ -137,7 +137,7 @@ index 9b56ba74cff1..b6899316e945 100644
  
  // Controls the empty search behavior in Search Mode:
  //  0 - Show nothing
-@@ -700,11 +700,11 @@ pref("permissions.manager.defaultsUrl", "resource://app/defaults/permissions");
+@@ -700,15 +700,15 @@ pref("permissions.manager.defaultsUrl", "resource://app/defaults/permissions");
  
  // Set default fallback values for site permissions we want
  // the user to be able to globally change.
@@ -154,6 +154,11 @@ index 9b56ba74cff1..b6899316e945 100644
  pref("permissions.default.shortcuts", 0);
  
  pref("permissions.desktop-notification.postPrompt.enabled", true);
+-pref("permissions.desktop-notification.notNow.enabled", false);
++pref("permissions.desktop-notification.notNow.enabled", true);
+ 
+ pref("permissions.fullscreen.allowed", false);
+ 
 @@ -739,7 +739,7 @@ pref("browser.link.open_newwindow.restriction", 2);
  
  // Tabbed browser
@@ -163,11 +168,13 @@ index 9b56ba74cff1..b6899316e945 100644
  pref("browser.tabs.allowTabDetach", true);
  // Open related links to a tab, e.g., link in current tab, at next to the
  // current tab if |insertRelatedAfterCurrent| is true.  Otherwise, always
-@@ -750,17 +750,17 @@ pref("browser.tabs.insertRelatedAfterCurrent", true);
+@@ -749,18 +749,18 @@ pref("browser.tabs.insertRelatedAfterCurrent", true);
+ // if |insertAfterCurrent| is true.  Otherwise, append new tab to the end
  // for non-related links. Note that if this is set to true, it will trump
  // the value of browser.tabs.insertRelatedAfterCurrent.
- pref("browser.tabs.insertAfterCurrent", false);
+-pref("browser.tabs.insertAfterCurrent", false);
 -pref("browser.tabs.warnOnClose", false);
++pref("browser.tabs.insertAfterCurrent", true);
 +pref("browser.tabs.warnOnClose", true);
  pref("browser.tabs.warnOnCloseOtherTabs", true);
  pref("browser.tabs.warnOnOpen", true);
@@ -258,7 +265,14 @@ index 9b56ba74cff1..b6899316e945 100644
  #endif
  
  // By how many times eyedropper will magnify pixels
-@@ -2593,13 +2593,13 @@ pref("devtools.netmonitor.persistlog", false);
+@@ -2587,19 +2587,19 @@ pref("devtools.webconsole.inputHistoryCount", 300);
+ // Persistent logging: |true| if you want the relevant tool to keep all of the
+ // logged messages after reloading the page, |false| if you want the output to
+ // be cleared each time page navigation happens.
+-pref("devtools.webconsole.persistlog", false);
++pref("devtools.webconsole.persistlog", true);
+ pref("devtools.netmonitor.persistlog", false);
+ 
  // Web Console timestamp: |true| if you want the logs and instructions
  // in the Web Console to display a timestamp, or |false| to not display
  // any timestamps.
@@ -302,7 +316,7 @@ index 259a8068c3aa..217d8ff8c9f2 100644
  IDI_NEWTAB ICON NEWTAB_ICO
  IDI_PBMODE ICON PBMODE_ICO
 diff --git a/browser/base/content/browser-addons.js b/browser/base/content/browser-addons.js
-index ab5982b9f45b..474156895d2f 100644
+index ab5982b9f45b..a988c7590fd8 100644
 --- a/browser/base/content/browser-addons.js
 +++ b/browser/base/content/browser-addons.js
 @@ -1468,7 +1468,7 @@ var gUnifiedExtensions = {
@@ -310,7 +324,7 @@ index ab5982b9f45b..474156895d2f 100644
          // have any active extensions listed in the unified extensions panel.
          if (!(await this.hasExtensionsInPanel())) {
 -          await BrowserOpenAddonsMgr("addons://discover/");
-+          await BrowserOpenAddonsMgr("addons://list/theme");
++          await BrowserOpenAddonsMgr("addons://list/extension");
            return;
          }
        }
@@ -390,21 +404,19 @@ index aae36c0bf2a3..83fe2e95e6d1 100644
              <div className="wordmark" />
            </div>
 diff --git a/browser/components/newtab/data/content/activity-stream.bundle.js b/browser/components/newtab/data/content/activity-stream.bundle.js
-index 159e94835276..95f521248090 100644
+index 159e94835276..4a1f2044fe73 100644
 --- a/browser/components/newtab/data/content/activity-stream.bundle.js
 +++ b/browser/components/newtab/data/content/activity-stream.bundle.js
-@@ -14587,7 +14587,10 @@ class _Search extends (external_React_default()).PureComponent {
+@@ -14587,6 +14587,9 @@ class _Search extends (external_React_default()).PureComponent {
      return /*#__PURE__*/external_React_default().createElement("div", {
        className: wrapperClassName
      }, this.props.showLogo && /*#__PURE__*/external_React_default().createElement("div", {
--      className: "logo-and-wordmark"
-+      className: "logo-and-wordmark",
 +      style: {
 +        display: "none"
-+      }
++      },
+       className: "logo-and-wordmark"
      }, /*#__PURE__*/external_React_default().createElement("div", {
        className: "logo"
-     }), /*#__PURE__*/external_React_default().createElement("div", {
 diff --git a/browser/components/newtab/lib/FeatureCalloutMessages.jsm b/browser/components/newtab/lib/FeatureCalloutMessages.jsm
 index 08f64a3b517f..beb6265aa3f9 100644
 --- a/browser/components/newtab/lib/FeatureCalloutMessages.jsm
@@ -882,6 +894,19 @@ index b16d0b0ac35c..e7648b0dd06d 100644
        }
  
        switch (reason) {
+diff --git a/docshell/base/nsAboutRedirector.cpp b/docshell/base/nsAboutRedirector.cpp
+index 0181347078da..c3685595bce7 100644
+--- a/docshell/base/nsAboutRedirector.cpp
++++ b/docshell/base/nsAboutRedirector.cpp
+@@ -102,7 +102,7 @@ static const RedirEntry kRedirMap[] = {
+          nsIAboutModule::IS_SECURE_CHROME_UI},
+     {"logging", "chrome://global/content/aboutLogging.html",
+      nsIAboutModule::ALLOW_SCRIPT},
+-    {"logo", "chrome://branding/content/about.png",
++    {"logo", "chrome://branding/content/about-logo.svg",
+      nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
+          // Linkable for testing reasons.
+          nsIAboutModule::MAKE_LINKABLE},
 diff --git a/dom/base/Document.cpp b/dom/base/Document.cpp
 index b54b5111b7bd..3feac2c54950 100644
 --- a/dom/base/Document.cpp
@@ -1002,6 +1027,49 @@ index b5e705ea7d36..6862701f5c2c 100644
    devices->AppendElement(std::move(info));
  #else
    RefPtr devices = GetDeviceCollection(
+diff --git a/dom/workers/RuntimeService.cpp b/dom/workers/RuntimeService.cpp
+index 60dbd47ed22c..66f0bd423151 100644
+--- a/dom/workers/RuntimeService.cpp
++++ b/dom/workers/RuntimeService.cpp
+@@ -1876,9 +1876,7 @@ uint32_t RuntimeService::ClampedHardwareConcurrency(
+   // The Firefox Hardware Report says 70% of Firefox users have exactly 2 cores.
+   // When the resistFingerprinting pref is set, we want to blend into the crowd
+   // so spoof navigator.hardwareConcurrency = 2 to reduce user uniqueness.
+-  if (MOZ_UNLIKELY(aShouldResistFingerprinting)) {
+-    return 2;
+-  }
++  // Seriously?
+ 
+   // This needs to be atomic, because multiple workers, and even mainthread,
+   // could race to initialize it at once.
+@@ -1905,6 +1903,14 @@ uint32_t RuntimeService::ClampedHardwareConcurrency(
+                                                            numberOfProcessors);
+   }
+ 
++  if (MOZ_UNLIKELY(aShouldResistFingerprinting)) {
++    // https://store.steampowered.com/hwsurvey/
++    if (unclampedHardwareConcurrency <= 4) return 4;
++    if (unclampedHardwareConcurrency <= 6) return 6;
++    if (unclampedHardwareConcurrency <= 8) return 8;
++    return 8;
++  }
++
+   return std::min(uint32_t(unclampedHardwareConcurrency),
+                   StaticPrefs::dom_maxHardwareConcurrency());
+ }
+diff --git a/gfx/webrender_bindings/DCLayerTree.cpp b/gfx/webrender_bindings/DCLayerTree.cpp
+index a39609116177..72b740a67d8a 100644
+--- a/gfx/webrender_bindings/DCLayerTree.cpp
++++ b/gfx/webrender_bindings/DCLayerTree.cpp
+@@ -152,7 +152,7 @@ bool DCLayerTree::Initialize(HWND aHwnd, nsACString& aError) {
+   SupportsSwapChainTearing();
+ 
+   mCompositionTarget->SetRoot(mRootVisual);
+-  // Set interporation mode to nearest, to ensure 1:1 sampling.
++  // Set interpolation mode to nearest, to ensure 1:1 sampling.
+   // By default, a visual inherits the interpolation mode of the parent visual.
+   // If no visuals set the interpolation mode, the default for the entire visual
+   // tree is nearest neighbor interpolation.
 diff --git a/js/src/octane/gbemu-part1.js b/js/src/octane/gbemu-part1.js
 index 10f19e4a195f..38d372b9ae81 100644
 --- a/js/src/octane/gbemu-part1.js
@@ -1153,7 +1221,7 @@ index 22d39aa6e0bb..6d2a7a58bda0 100644
              _analysis_output_always("pcmR",seq,v->pcm[1],v->pcm_current,0,0,totalshift);
  
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index e59da6491222..169bec283628 100644
+index e59da6491222..ae4f971035ae 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -1267,7 +1267,7 @@
@@ -1165,24 +1233,36 @@ index e59da6491222..169bec283628 100644
    mirror: always
  
  # See bug 1710926
+@@ -1343,7 +1343,7 @@
+ #
+ - name: browser.history.maxUrlLength
+   type: uint32_t
+-  value: 2000
++  value: 2048
+   mirror: always
+ 
+ # Max size of push/replaceState data parameter
 @@ -1373,7 +1373,7 @@
    # this value.
  -   name: browser.low_commit_space_threshold_mb
      type: RelaxedAtomicUint32
 -    value: 200
-+    value: 4096
++    value: 1024
      mirror: always
  #endif
  
-@@ -1449,7 +1449,7 @@
+@@ -1449,9 +1449,9 @@
  - name: browser.theme.toolbar-theme
    type: RelaxedAtomicUint32
  #if defined(XP_WIN) || defined(XP_MACOSX)
 -  value: 1
 +  value: 0
  #else
-   value: 2
+-  value: 2
++  value: 0
  #endif
+   mirror: always
+ 
 @@ -2040,7 +2040,7 @@
  
  - name: devtools.console.stdout.chrome
@@ -1192,6 +1272,15 @@ index e59da6491222..169bec283628 100644
    mirror: always
  
  - name: devtools.console.stdout.content
+@@ -3330,7 +3330,7 @@
+     mirror: always
+     do_not_use_directly: true
+ 
+-  # Preference that is used to enable the hack for overrriding xFullPathname in
++  # Preference that is used to enable the hack for overriding xFullPathname in
+   # TelemetryVFS.
+ -   name: dom.quotaManager.overrideXFullPathname
+     type: RelaxedAtomicBool
 @@ -3602,7 +3602,7 @@
  # (some Firefox functionality requests, like OCSP will not be affected)
  - name: dom.security.https_only_mode
@@ -1261,6 +1350,15 @@ index e59da6491222..169bec283628 100644
    mirror: always
  
  # If true, top-level requests in Private Browsing Mode will get
+@@ -4882,7 +4882,7 @@
+ #ifdef XP_MACOSX
+   value: true
+ #else
+-  value: false
++  value: true
+ #endif
+   mirror: always
+ 
 @@ -6957,7 +6957,7 @@
  # 2 = Strict: reject violations of "should" specification directives
  - name: image.avif.compliance_strictness
@@ -1608,7 +1706,7 @@ index dc0fae4f3eb1..b1f5aebfe90b 100644
    }
    #parseLinearization(isLinearized) {
 diff --git a/toolkit/components/resistfingerprinting/nsRFPService.cpp b/toolkit/components/resistfingerprinting/nsRFPService.cpp
-index 9be0b7024ead..8dfb9c3ef2f4 100644
+index 9be0b7024ead..ee69454b9c03 100644
 --- a/toolkit/components/resistfingerprinting/nsRFPService.cpp
 +++ b/toolkit/components/resistfingerprinting/nsRFPService.cpp
 @@ -32,6 +32,7 @@
@@ -1619,7 +1717,7 @@ index 9be0b7024ead..8dfb9c3ef2f4 100644
  #include "mozilla/StaticPrefs_privacy.h"
  #include "mozilla/StaticPtr.h"
  #include "mozilla/TextEvents.h"
-@@ -579,9 +580,32 @@ static const char* GetSpoofedVersion() {
+@@ -579,9 +580,33 @@ static const char* GetSpoofedVersion() {
  #endif
  }
  
@@ -1632,6 +1730,7 @@ index 9be0b7024ead..8dfb9c3ef2f4 100644
 +  // enterprise admins can set this pref to a known-good version (like 99) in an
 +  // enterprise policy file.
 +  uint32_t forceVersion = StaticPrefs::network_http_useragent_forceVersion();
++  // "forceVersion" must be within 3 digits here (due to preallocatedLength).
 +  if (forceVersion <= 0 || 1000 <= forceVersion) {
 +    // Use the default Firefox version.
 +    const char* spoofedVersion = GetSpoofedVersion();
@@ -1652,7 +1751,7 @@ index 9be0b7024ead..8dfb9c3ef2f4 100644
    // This function generates the spoofed value of User Agent.
    // We spoof the values of the platform and Firefox version, which could be
    // used as fingerprinting sources to identify individuals.
-@@ -599,8 +623,6 @@ void nsRFPService::GetSpoofedUserAgent(nsACString& userAgent,
+@@ -599,8 +624,6 @@ void nsRFPService::GetSpoofedUserAgent(nsACString& userAgent,
        2;
    userAgent.SetCapacity(preallocatedLength);
  
@@ -1661,7 +1760,7 @@ index 9be0b7024ead..8dfb9c3ef2f4 100644
    // "Mozilla/5.0 (%s; rv:%d.0) Gecko/%d Firefox/%d.0"
    userAgent.AssignLiteral("Mozilla/5.0 (");
  
-@@ -611,17 +633,17 @@ void nsRFPService::GetSpoofedUserAgent(nsACString& userAgent,
+@@ -611,17 +634,17 @@ void nsRFPService::GetSpoofedUserAgent(nsACString& userAgent,
    }
  
    userAgent.AppendLiteral("; rv:");

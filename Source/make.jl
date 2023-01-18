@@ -19,6 +19,8 @@
 include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
+const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
+const VER = v"109.0-2"
 
 function build()
 	@info "Building . . ."
@@ -37,8 +39,13 @@ end
 function check()
 	@info "Checking . . ."
 	cd((@__DIR__)) do
+		Sys.iswindows() && (@warn "Not allowed."; return)
 		if !isdir(SRC)
-			throw(SystemError(SRC, 20)) # ENOTDIR 20 Not a directory
+			@warn SRC * ": Not a directory"
+			clean()
+			fetch()
+			patch()
+			check()
 		else
 			cd(SRC)
 			@run [GMK, "check"]
@@ -62,6 +69,17 @@ function fetch()
 			@run [GIT, "clone", "--depth=1", ["--recurse" "--shallow" "--remote"] .* "-submodules"..., CLN, SRC]
 			@run [JLC..., "move.jl", SRC, "1"]
 			@run [JLC..., "remote.jl"]
+			cd(SRC)
+			v1, v2, v3 = v_read(VER)
+			open("version", "r") do io
+				v1 ≠ VersionNumber(read(io, String)) && (@warn "Version not matched."; return)
+			end
+			open("version", "w") do io
+				println(io, v1)
+			end
+			open("release", "w") do io
+				println(io, v2)
+			end
 		end
 	end
 end
