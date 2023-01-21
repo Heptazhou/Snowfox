@@ -236,23 +236,25 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"$p -e 's/Mozilla Firefox/Snowfox/g' $q" *
 							"$p -e 's/Mozilla/Snowfox/g' $q" *
 							"$p -e 's/Firefox/Snowfox/g' $q", # ~ do not sort this
-							#
-							"$p -e 's/Firefox and Mozilla/Snowfox, Firefox, and Mozilla/g' $q" *
 							"$p -e 's/Firefox/Snowfox/g' $q" *
-							"$p -e 's/Snowfox Account/Firefox Account/g' $q" *             # 2
-							"$p -e 's/Snowfox Color/Firefox Color/g' $q" *                 # 2
-							"$p -e 's/Snowfox Focus/Firefox Focus/g' $q" *                 # 2
-							"$p -e 's/Snowfox Health Report/Firefox Health Report/g' $q" * # 2
-							# "$p -e 's/Snowfox Home/Firefox Home/g' $q" *                   # -1
-							"$p -e 's/Snowfox Lockwise/Firefox Lockwise/g' $q" *           # 2
-							"$p -e 's/Snowfox Monitor/Firefox Monitor/g' $q" *             # 2
-							"$p -e 's/Snowfox Nightly/Firefox Nightly/g' $q" *             # 1
-							"$p -e 's/Snowfox Profiler/Firefox Profiler/g' $q" *           # 1
-							"$p -e 's/Snowfox Relay/Firefox Relay/g' $q" *                 # 2
-							# "$p -e 's/Snowfox Screenshots/Firefox Screenshots/g' $q" *     # -1
-							"$p -e 's/Snowfox Send/Firefox Send/g' $q" *                   # 2
-							"$p -e 's/Snowfox Translations/Firefox Translations/g' $q" *   # 2
-							# "$p -e 's/Snowfox View/Firefox View/g' $q" *                   # -2
+							"$p -e 's/Snowfox and Mozilla/Snowfox, Firefox, and Mozilla/g' $q" *
+							#
+							# "$p -e 's/Snowfox account/Firefox account/g' $q" * #
+							# "$p -e 's/Snowfox Account/Firefox Account/g' $q" * #
+							"$p -e 's/Snowfox Color/Firefox Color/g' $q" *
+							"$p -e 's/Snowfox Focus/Firefox Focus/g' $q" *
+							"$p -e 's/Snowfox Health Report/Firefox Health Report/g' $q" *
+							# "$p -e 's/Snowfox Home/Firefox Home/g' $q" * #
+							"$p -e 's/Snowfox Lockwise/Firefox Lockwise/g' $q" *
+							"$p -e 's/Snowfox Monitor/Firefox Monitor/g' $q" *
+							"$p -e 's/Snowfox Nightly/Firefox Nightly/g' $q" *
+							"$p -e 's/Snowfox Profiler/Firefox Profiler/g' $q" *
+							"$p -e 's/Snowfox Relay/Firefox Relay/g' $q" *
+							# "$p -e 's/Snowfox Screenshot/Firefox Screenshot/g' $q" * #
+							"$p -e 's/Snowfox Send/Firefox Send/g' $q" *
+							# "$p -e 's/Snowfox Suggest/Firefox Suggest/g' $q" * #
+							"$p -e 's/Snowfox Translation/Firefox Translation/g' $q" *
+							# "$p -e 's/Snowfox View/Firefox View/g' $q" * #
 							#
 							"$p -e 's/\"Fire\" in \"Snowfox\"/\"Fire\" in \"Firefox\"/g' $q" *
 							"$p -e 's/DisableSnowfox/DisableFirefox/g' $q" *
