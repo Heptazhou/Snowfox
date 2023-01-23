@@ -223,6 +223,7 @@ const strip_list =
 		"weibo_id"
 		"wfr"
 		"wxa_abtest"
+		"wxfid"
 		"wxshare_count"
 		"xhsshare"
 	]

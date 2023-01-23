@@ -394,7 +394,10 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("network.http.useragent.forceVersion", $UAV);\n""" *
 							"""defaultPref("snowfox.app.checkVersion.enabled", true);\n""" *
 							"""defaultPref("snowfox.app.checkVersion.url", "https://api.github.com/repos/0h7z/Snowfox/releases");\n""" *
+							"""lockPref("browser.dataFeatureRecommendations.enabled", false);\n""" *
 							"""lockPref("browser.firefox-view.view-count", 0);\n""" *
+							"""lockPref("browser.privacySegmentation.createdShortcut", true);\n""" *
+							"""lockPref("browser.privacySegmentation.preferences.show", false);\n""" *
 							"""lockPref("privacy.donottrackheader.enabled", true);\n""" *
 							"""\n"""^2, "p", n = 1) # ~ do not move this
 					end

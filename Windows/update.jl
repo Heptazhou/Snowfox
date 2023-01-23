@@ -93,12 +93,22 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, ("/$p/$p.* ") => ("/$p/*.ahk "))
 						s = replace(s, r"^.*\bWinUpdater\b.*\n"m => "")
 						s = replace(s,
+							"""	mv work/snowfox/firefox.exe work/snowfox/snowfox.exe\n""" *
+							"""	cp assets/snowfox.ico work/snowfox\n""",
+							"""	mv work/snowfox/firefox.exe work/snowfox/snowfox.exe\n""" *
+							"""	rm work/snowfox/browser/VisualElements/PrivateBrowsing_*\n""" *
+							"""	rm work/snowfox/pingsender.*\n""" *
+							"""	rm work/snowfox/precomplete\n""" *
+							"""	rm work/snowfox/private_browsing.*\n""" *
+							"""	rm work/snowfox/removed-files\n""" *
+							"""	cp assets/snowfox.ico work/snowfox\n""", "p") # ~ do not sort this
+						s = replace(s,
 							"""	( cd work/$q && wine64 ../ahk/Compiler/Ahk2Exe.exe /in $p.ahk /icon $p.ico )\n""" *
-							"""	( cd work/$q && rm -f $p.ahk $p.ico dejsonlz4.exe jsonlz4.exe )\n""", # ~ do not sort this
-							"""	( cd work/$q && rm -f -r  Compiler  &&  mkdir  Compiler )\n""" * # ~ do not move this
+							"""	( cd work/$q && rm -f $p.ahk $p.ico dejsonlz4.exe jsonlz4.exe )\n""",
+							"""	( cd work/$q && rm -f -r  Compiler  &&  mkdir  Compiler )\n""" *
 							"""	( cd work/$q && cp ../ahk/Compiler/*64-bit.bin Compiler )\n""" *
 							"""	( cd work/$q && cp ../ahk/Compiler/Ahk2Exe.exe Compiler )\n""" *
-							"""	( cd work/$q && cp ../snowfox/snowfox.ico ./Snowfox.ico )\n""", "p")
+							"""	( cd work/$q && cp ../snowfox/snowfox.ico ./Snowfox.ico )\n""", "p") # ~ do not sort this
 					end
 					if (f ≡ "mozconfig")
 						p = "ac_add_options"

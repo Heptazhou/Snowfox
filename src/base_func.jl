@@ -101,6 +101,20 @@ function isbinary(f::String)::Bool
 		!isvalid(read(f, String))
 end
 
+function pause(Msg = missing; up::Int = 0, down::Int = 0)
+	isinteractive() && return
+	print('\n'^up)
+	pause(stdin, stdout, Msg)
+	print('\n'^down)
+end
+function pause(In::IO, Out::IO, Msg = missing)
+	print(Out, Msg isa String ? Msg : "Press any key to continue . . . ")
+	ccall(:jl_tty_set_mode, Int32, (Ptr{Cvoid}, Int32), In.handle, 1)
+	read(In, Char)
+	ccall(:jl_tty_set_mode, Int32, (Ptr{Cvoid}, Int32), In.handle, 0)
+	println(Out)
+end
+
 # e => regex, p => plain, w => whole
 function replace(str::R, old::T, new::S, flag::String = "e"; n::Int = -1)::String where
 R <: AbstractString where S <: AbstractString where T <: NTuple{2, AbstractString}

@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"109.0-3"
+const VER = v"109.0-4"
 
 function build()
 	@info "Building . . ."
@@ -70,9 +70,9 @@ function fetch()
 			@run [JLC..., "move.jl", SRC, "1"]
 			@run [JLC..., "remote.jl"]
 			cd(SRC)
-			v1, v2, v3 = v_read(VER)
+			v1, v2, v3 = VER |> v_read
 			open("version", "r") do io
-				v1 ≠ VersionNumber(read(io, String)) && (@warn "Version not matched."; return)
+				v1 ≠ io |> readline && error("Version not matched.")
 			end
 			open("version", "w") do io
 				println(io, v1)

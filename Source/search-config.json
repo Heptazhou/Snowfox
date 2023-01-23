@@ -14,12 +14,12 @@
 					{ "name": "q", "value": "{searchTerms}" }
 				]
 			},
-			"schema": 1673982797783,
+			"schema": 1619432100208,
 			"appliesTo": [{ "included": { "everywhere": true }, "default": "yes" }],
 			"webExtension": { "id": "ddg@search.mozilla.org" },
 			"id": "c0b26c0e-63e6-4235-b2ce-5f16b6a8bf87",
-			"last_modified": 1674147734521
+			"last_modified": 1619450717295
 		}
 	],
-	"timestamp": 1674147734521
+	"timestamp": 1671479975574
 }
