@@ -36,16 +36,14 @@ macro run(vec)
 	quote
 		local x = @eval Cmd($vec)
 		x |> println
-		x = read(x, String)
-		x |> println
-		x
+		x |> run
 	end
 end
 macro run(vec, ret)
 	quote
 		local x = @eval Cmd($vec)
 		x |> println
-		x = read(x, String)
+		x = (read)(x, String)
 		x |> println
 		$(esc(ret)) = x
 	end

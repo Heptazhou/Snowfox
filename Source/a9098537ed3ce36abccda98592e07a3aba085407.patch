@@ -38,7 +38,7 @@ index 61824afe34d9..15b362130bf3 100644
          TOPSRCDIR,
          CONFIG["MOZ_BRANDING_DIRECTORY"],
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 9b56ba74cff1..2c11976d52db 100644
+index 9b56ba74cff1..c26406d465c2 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -48,7 +48,7 @@ pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/pri
@@ -145,11 +145,12 @@ index 9b56ba74cff1..2c11976d52db 100644
 -pref("permissions.default.microphone", 0);
 -pref("permissions.default.geo", 0);
 -pref("permissions.default.xr", 0);
+-pref("permissions.default.desktop-notification", 0);
 +pref("permissions.default.camera", 2);
 +pref("permissions.default.microphone", 2);
 +pref("permissions.default.geo", 2);
 +pref("permissions.default.xr", 2);
- pref("permissions.default.desktop-notification", 0);
++pref("permissions.default.desktop-notification", 2);
  pref("permissions.default.shortcuts", 0);
  
  pref("permissions.desktop-notification.postPrompt.enabled", true);
@@ -239,6 +240,15 @@ index 9b56ba74cff1..2c11976d52db 100644
  pref("browser.newtabpage.activity-stream.discoverystream.hardcoded-basic-layout", false);
  pref("browser.newtabpage.activity-stream.discoverystream.hybridLayout.enabled", false);
  pref("browser.newtabpage.activity-stream.discoverystream.hideCardBackground.enabled", false);
+@@ -1976,7 +1976,7 @@ pref("browser.promo.focus.disallowed_regions", "cn");
+ pref("browser.promo.focus.enabled", true);
+ 
+ // Default to enabling pin promos to be shown where allowed.
+-pref("browser.promo.pin.enabled", true);
++pref("browser.promo.pin.enabled", false);
+ 
+ // Comma separated string of mozilla vpn supported platforms.
+ pref("browser.contentblocking.report.vpn_platforms", "win,mac,linux");
 @@ -2012,10 +2012,10 @@ pref("browser.contentblocking.cfr-milestone.milestone-achieved", 0);
  pref("browser.contentblocking.cfr-milestone.milestones", "[1000, 5000, 10000, 25000, 50000, 100000, 250000, 314159, 500000, 750000, 1000000, 1250000, 1500000, 1750000, 2000000, 2250000, 2500000, 8675309]");
  
@@ -570,6 +580,31 @@ index 09d0699b34cb..8e7c8568045f 100644
      return checkbox.checked ? defaultValue : 0;
    },
  
+diff --git a/browser/components/screenshots/fileHelpers.mjs b/browser/components/screenshots/fileHelpers.mjs
+index 172c8584f250..6188ce29a223 100644
+--- a/browser/components/screenshots/fileHelpers.mjs
++++ b/browser/components/screenshots/fileHelpers.mjs
+@@ -36,7 +36,9 @@ export async function getFilename(filenameTitle, browser) {
+     );
+   }
+   const date = new Date();
++  const host = location?.origin?.replace(/[:/]+|$/g, " ") || "";
+   /* eslint-disable no-control-regex */
++  filenameTitle = host + filenameTitle;
+   filenameTitle = filenameTitle
+     .replace(/[\\/]/g, "_")
+     .replace(/[\u200e\u200f\u202a-\u202e]/g, "")
+@@ -48,8 +50,8 @@ export async function getFilename(filenameTitle, browser) {
+     date.getTime() - date.getTimezoneOffset() * 60 * 1000
+   ).toISOString();
+   const filenameDate = currentDateTime.substring(0, 10);
+-  const filenameTime = currentDateTime.substring(11, 19).replace(/:/g, "-");
+-  let clipFilename = `Screenshot ${filenameDate} at ${filenameTime} ${filenameTitle}`;
++  const filenameTime = currentDateTime.substring(11, 19).replace(/:/g, ".");
++  let clipFilename = `${filenameDate} ${filenameTime} ${filenameTitle}`;
+ 
+   // Crop the filename size at less than 246 bytes, so as to leave
+   // room for the extension and an ellipsis [...]. Note that JS
 diff --git a/browser/components/search/extensions/ddg/manifest.json b/browser/components/search/extensions/ddg/manifest.json
 index 9c71a9712cfb..3e5fa671ba27 100644
 --- a/browser/components/search/extensions/ddg/manifest.json
@@ -660,7 +695,7 @@ index d2e7dcd79795..638510eab7bf 100644
    bookmarks: {
      l10nCommands: ["quickactions-cmd-bookmarks", "quickactions-bookmarks2"],
 diff --git a/browser/components/urlbar/unitconverters/UnitConverterTimezone.sys.mjs b/browser/components/urlbar/unitconverters/UnitConverterTimezone.sys.mjs
-index 50ba924bed90..0d0ea80bc21f 100644
+index 50ba924bed90..bed5b631fd53 100644
 --- a/browser/components/urlbar/unitconverters/UnitConverterTimezone.sys.mjs
 +++ b/browser/components/urlbar/unitconverters/UnitConverterTimezone.sys.mjs
 @@ -93,7 +93,7 @@ export class UnitConverterTimezone {
@@ -681,15 +716,43 @@ index 50ba924bed90..0d0ea80bc21f 100644
      }
  
      const inputOffset = inputTimezone
-@@ -135,7 +135,7 @@ export class UnitConverterTimezone {
+@@ -133,9 +133,9 @@ export class UnitConverterTimezone {
+       outputDate.getUTCMinutes() - inputOffset + outputOffset
+     );
  
-     const time = new Intl.DateTimeFormat("en-US", {
+-    const time = new Intl.DateTimeFormat("en-US", {
++    const time = new Intl.DateTimeFormat("sv", {
        timeStyle: "short",
 -      hour12: isMeridiemNeeded,
-+      hour12: false,
++      // hour12: isMeridiemNeeded,
        timeZone: "UTC",
      }).format(outputDate);
  
+diff --git a/browser/extensions/screenshots/build/shot.js b/browser/extensions/screenshots/build/shot.js
+index 9f4c84e0c229..9353565e1ec4 100644
+--- a/browser/extensions/screenshots/build/shot.js
++++ b/browser/extensions/screenshots/build/shot.js
+@@ -374,7 +374,9 @@ this.shot = (function() {
+     get filename() {
+       let filenameTitle = this.title;
+       const date = new Date(this.createdDate);
++      const host = location?.origin?.replace(/[:/]+|$/g, " ") || "";
+       /* eslint-disable no-control-regex */
++      filenameTitle = host + filenameTitle;
+       filenameTitle = filenameTitle
+         .replace(/[\\/]/g, "_")
+         .replace(/[\u200e\u200f\u202a-\u202e]/g, "")
+@@ -386,8 +388,8 @@ this.shot = (function() {
+         date.getTime() - date.getTimezoneOffset() * 60 * 1000
+       ).toISOString();
+       const filenameDate = currentDateTime.substring(0, 10);
+-      const filenameTime = currentDateTime.substring(11, 19).replace(/:/g, "-");
+-      let clipFilename = `Screenshot ${filenameDate} at ${filenameTime} ${filenameTitle}`;
++      const filenameTime = currentDateTime.substring(11, 19).replace(/:/g, ".");
++      let clipFilename = `${filenameDate} ${filenameTime} ${filenameTitle}`;
+ 
+       // Crop the filename size at less than 246 bytes, so as to leave
+       // room for the extension and an ellipsis [...]. Note that JS
 diff --git a/browser/installer/package-manifest.in b/browser/installer/package-manifest.in
 index 9229a0bd0e04..13bf240f3739 100644
 --- a/browser/installer/package-manifest.in
@@ -969,6 +1032,25 @@ index b16d0b0ac35c..e7648b0dd06d 100644
        }
  
        switch (reason) {
+diff --git a/devtools/server/actors/utils/capture-screenshot.js b/devtools/server/actors/utils/capture-screenshot.js
+index 11b9ab781526..85812db331fb 100644
+--- a/devtools/server/actors/utils/capture-screenshot.js
++++ b/devtools/server/actors/utils/capture-screenshot.js
+@@ -195,12 +195,12 @@ function getFilename(defaultName) {
+   const dateString = `${date.getFullYear()}-${monthString}-${dayString}`;
+ 
+   const timeString = date
+-    .toTimeString()
++    .toLocaleTimeString("sv")
+     .replace(/:/g, ".")
+     .split(" ")[0];
+ 
+   return (
+-    L10N.getFormatStr("screenshotGeneratedFilename", dateString, timeString) +
++    `${dateString} ${timeString} ${location?.origin?.replace(/[:/]+/g, " ")}` +
+     ".png"
+   );
+ }
 diff --git a/dom/base/Document.cpp b/dom/base/Document.cpp
 index b54b5111b7bd..3feac2c54950 100644
 --- a/dom/base/Document.cpp
@@ -1293,7 +1375,7 @@ index 22d39aa6e0bb..6d2a7a58bda0 100644
              _analysis_output_always("pcmR",seq,v->pcm[1],v->pcm_current,0,0,totalshift);
  
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index e59da6491222..22d40ca97569 100644
+index e59da6491222..3fea860e63a1 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -1267,7 +1267,7 @@
@@ -1451,6 +1533,15 @@ index e59da6491222..22d40ca97569 100644
    mirror: always
  
  # Whether we apply container-level transforms like mirroring and rotation
+@@ -6975,7 +6971,7 @@
+ # Whether we attempt to decode JXL images or not.
+ - name: image.jxl.enabled
+   type: RelaxedAtomicBool
+-  value: false
++  value: true
+   mirror: always
+ 
+ #---------------------------------------------------------------------------
 @@ -7351,7 +7347,7 @@
  # Use better error message when accessing property of null or undefined.
  - name: javascript.options.property_error_message_fix
@@ -1698,7 +1789,7 @@ index e59da6491222..22d40ca97569 100644
  
  # Whether the thumb should be rounded for the non-native scrollbars.
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index 5ec8703f2989..fdc329484e4c 100644
+index 5ec8703f2989..856451620685 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -88,7 +88,7 @@ pref("security.crash_tracking.js_load_1.maxCrashes", 0);
@@ -1719,6 +1810,15 @@ index 5ec8703f2989..fdc329484e4c 100644
  
  pref("intl.uidirection", -1); // -1 to set from locale; 0 for LTR; 1 for RTL
  
+@@ -2128,7 +2128,7 @@ pref("plugins.favorfallback.rules", "");
+   #endif
+ #endif
+ 
+-pref("dom.ipc.plugins.reportCrashURL", true);
++pref("dom.ipc.plugins.reportCrashURL", false);
+ 
+ // Force the accelerated direct path for a subset of Flash wmode values
+ pref("dom.ipc.plugins.forcedirect.enabled", true);
 @@ -3318,7 +3318,7 @@ pref("browser.region.network.url", "https://location.services.mozilla.com/v1/cou
  pref("browser.region.network.scan", false);
  // Timeout for whole region request.
@@ -1781,6 +1881,31 @@ index 5ec8703f2989..fdc329484e4c 100644
  
    #ifdef EARLY_BETA_OR_EARLIER
      // Enable the (fairly costly) client/server validation through early Beta, but
+@@ -4073,7 +4073,7 @@ pref("devtools.errorconsole.deprecation_warnings", true);
+ #else
+   // In local builds, enable the browser toolbox by default.
+   pref("devtools.chrome.enabled", true, sticky);
+-  pref("devtools.debugger.remote-enabled", true, sticky);
++  pref("devtools.debugger.remote-enabled", false, sticky);
+ #endif
+ 
+ // Disable service worker debugging on all channels (see Bug 1651605).
+diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
+index 95f1a0c0892f..776d91682fce 100644
+--- a/netwerk/protocol/http/nsHttpHandler.cpp
++++ b/netwerk/protocol/http/nsHttpHandler.cpp
+@@ -208,6 +208,11 @@ already_AddRefed<nsHttpHandler> nsHttpHandler::GetInstance() {
+ static nsCString ImageAcceptHeader() {
+   nsCString mimeTypes;
+ 
++  if (mozilla::StaticPrefs::privacy_resistFingerprinting()) {
++    mimeTypes.Append("image/avif,image/webp,*/*");
++    return mimeTypes;
++  }
++
+   if (mozilla::StaticPrefs::image_avif_enabled()) {
+     mimeTypes.Append("image/avif,");
+   }
 diff --git a/python/mozbuild/mozbuild/resources/html-build-viewer/build_resources.html b/python/mozbuild/mozbuild/resources/html-build-viewer/build_resources.html
 index 9daf30178bb0..7bd0a08e2f7a 100644
 --- a/python/mozbuild/mozbuild/resources/html-build-viewer/build_resources.html
@@ -1982,6 +2107,51 @@ index 190c205f3692..e2c16ac5dd9b 100644
  
        // Set the new engine's icon, if it doesn't yet have one.
        if (!this._iconURI && engineToUpdate._iconURI) {
+diff --git a/toolkit/components/url-classifier/SafeBrowsing.jsm b/toolkit/components/url-classifier/SafeBrowsing.jsm
+index 5c4a619e5592..c3759778e262 100644
+--- a/toolkit/components/url-classifier/SafeBrowsing.jsm
++++ b/toolkit/components/url-classifier/SafeBrowsing.jsm
+@@ -13,8 +13,8 @@ function log(...stuff) {
+     return;
+   }
+ 
+-  var d = new Date();
+-  let msg = "SafeBrowsing: " + d.toTimeString() + ": " + stuff.join(" ");
++  var d = new Date().toLocaleTimeString("sv");
++  let msg = "SafeBrowsing: " + d + ": " + stuff.join(" ");
+   dump(Services.urlFormatter.trimSensitiveURLs(msg) + "\n");
+ }
+ 
+diff --git a/toolkit/components/url-classifier/UrlClassifierHashCompleter.jsm b/toolkit/components/url-classifier/UrlClassifierHashCompleter.jsm
+index 1347b3b964b4..11c382e7a0ec 100644
+--- a/toolkit/components/url-classifier/UrlClassifierHashCompleter.jsm
++++ b/toolkit/components/url-classifier/UrlClassifierHashCompleter.jsm
+@@ -41,8 +41,8 @@ function log(...stuff) {
+     return;
+   }
+ 
+-  var d = new Date();
+-  let msg = "hashcompleter: " + d.toTimeString() + ": " + stuff.join(" ");
++  var d = new Date().toLocaleTimeString("sv");
++  let msg = "hashcompleter: " + d + ": " + stuff.join(" ");
+   dump(Services.urlFormatter.trimSensitiveURLs(msg) + "\n");
+ }
+ 
+diff --git a/toolkit/components/url-classifier/UrlClassifierListManager.jsm b/toolkit/components/url-classifier/UrlClassifierListManager.jsm
+index 0a8bd530f48d..754073f841c4 100644
+--- a/toolkit/components/url-classifier/UrlClassifierListManager.jsm
++++ b/toolkit/components/url-classifier/UrlClassifierListManager.jsm
+@@ -35,8 +35,8 @@ function log(...stuff) {
+     return;
+   }
+ 
+-  var d = new Date();
+-  let msg = "listmanager: " + d.toTimeString() + ": " + stuff.join(" ");
++  var d = new Date().toLocaleTimeString("sv");
++  let msg = "listmanager: " + d + ": " + stuff.join(" ");
+   msg = Services.urlFormatter.trimSensitiveURLs(msg);
+   Services.console.logStringMessage(msg);
+   dump(msg + "\n");
 diff --git a/toolkit/components/utils/ClientEnvironment.jsm b/toolkit/components/utils/ClientEnvironment.jsm
 index 7b8f6c0643d6..808617ed9586 100644
 --- a/toolkit/components/utils/ClientEnvironment.jsm
@@ -2046,11 +2216,133 @@ index ceb57eb15310..effae68da650 100644
      <li data-l10n-id="rights-intro-point-3"></li>
      <li data-l10n-id="rights-intro-point-4"><a href="https://www.mozilla.org/legal/privacy/firefox.html" data-l10n-name="mozilla-privacy-policy-link"></a></li>
      <li data-l10n-id="rights-intro-point-5"><a href="about:rights#webservices" id="showWebServices" data-l10n-name="mozilla-service-terms-link"></a></li>
+diff --git a/toolkit/content/aboutUrlClassifier.js b/toolkit/content/aboutUrlClassifier.js
+index 28a238159391..094e5f9fede2 100644
+--- a/toolkit/content/aboutUrlClassifier.js
++++ b/toolkit/content/aboutUrlClassifier.js
+@@ -301,18 +301,18 @@ var Provider = {
+ 
+       let pref =
+         "browser.safebrowsing.provider." + provider + ".lastupdatetime";
+-      let lut = Services.prefs.getCharPref(pref, "");
+-      values["col-lastupdatetime"] = lut ? new Date(lut * 1) : null;
++      let lut = Services.prefs.getCharPref(pref, "") * 1;
++      values["col-lastupdatetime"] = lut ? new Date(lut).toISOString() : null;
+ 
+       pref = "browser.safebrowsing.provider." + provider + ".nextupdatetime";
+-      let nut = Services.prefs.getCharPref(pref, "");
+-      values["col-nextupdatetime"] = nut ? new Date(nut * 1) : null;
++      let nut = Services.prefs.getCharPref(pref, "") * 1;
++      values["col-nextupdatetime"] = nut ? new Date(nut).toISOString() : null;
+ 
+       let listmanager = Cc[
+         "@mozilla.org/url-classifier/listmanager;1"
+       ].getService(Ci.nsIUrlListManager);
+-      let bot = listmanager.getBackOffTime(provider);
+-      values["col-backofftime"] = bot ? new Date(bot * 1) : null;
++      let bot = listmanager.getBackOffTime(provider) * 1;
++      values["col-backofftime"] = bot ? new Date(bot).toISOString() : null;
+ 
+       for (let key of Object.keys(values)) {
+         let elem = document.getElementById(provider + "-" + key);
+@@ -487,7 +487,7 @@ var Cache = {
+               let tds = [
+                 table,
+                 entry.prefix,
+-                new Date(entry.expiry * 1000).toString(),
++                new Date(entry.expiry * 1000).toISOString(),
+               ];
+               let j = 0;
+               do {
+@@ -498,7 +498,7 @@ var Cache = {
+                   );
+                   let list = [
+                     match.fullhash,
+-                    new Date(match.expiry * 1000).toString(),
++                    new Date(match.expiry * 1000).toISOString(),
+                   ];
+                   tds = tds.concat(list);
+                 } else {
+diff --git a/toolkit/content/aboutwebrtc/aboutWebrtc.js b/toolkit/content/aboutwebrtc/aboutWebrtc.js
+index 707cf537d569..5d42573208de 100644
+--- a/toolkit/content/aboutwebrtc/aboutWebrtc.js
++++ b/toolkit/content/aboutwebrtc/aboutWebrtc.js
+@@ -766,7 +766,7 @@ function renderTransportStats(
+     );
+   }
+ 
+-  const time = new Date(timestamp).toTimeString();
++  const time = new Date(timestamp).toLocaleTimeString("sv");
+   elements.push(renderText("span", `${time} ${type}`));
+ 
+   if (packetsReceived) {
+diff --git a/toolkit/content/widgets/datekeeper.js b/toolkit/content/widgets/datekeeper.js
+index d720491d4b0e..67c88ca98065 100644
+--- a/toolkit/content/widgets/datekeeper.js
++++ b/toolkit/content/widgets/datekeeper.js
+@@ -61,7 +61,7 @@ function DateKeeper(props) {
+       max,
+       step,
+       stepBase,
+-      firstDayOfWeek = 0,
++      firstDayOfWeek = 1,
+       weekends = [0],
+       calViewSize = 42,
+     }) {
+diff --git a/toolkit/content/widgets/datetimebox.js b/toolkit/content/widgets/datetimebox.js
+index 60492aa590b8..f5545ac6e18d 100644
+--- a/toolkit/content/widgets/datetimebox.js
++++ b/toolkit/content/widgets/datetimebox.js
+@@ -169,7 +169,7 @@ this.DateTimeBoxWidget = class {
+     this.mAMIndicator = amString || kDefaultAMString;
+     this.mPMIndicator = pmString || kDefaultPMString;
+ 
+-    this.mHour12 = this.is12HourTime(this.mLocales);
++    this.mHour12 = false;
+     this.mMillisecSeparatorText = ".";
+     this.mMaxLength = 2;
+     this.mMillisecMaxLength = 3;
+@@ -778,7 +778,7 @@ this.DateTimeBoxWidget = class {
+       options.year = options.month = options.day = "numeric";
+     }
+ 
+-    let formatter = Intl.DateTimeFormat(this.mLocales, options);
++    let formatter = Intl.DateTimeFormat("sv", options);
+     formatter.formatToParts(Date.now()).map(part => {
+       switch (part.type) {
+         case "year":
+diff --git a/toolkit/modules/DateTimePickerPanel.sys.mjs b/toolkit/modules/DateTimePickerPanel.sys.mjs
+index dd629194ab4f..c5348b511ae6 100644
+--- a/toolkit/modules/DateTimePickerPanel.sys.mjs
++++ b/toolkit/modules/DateTimePickerPanel.sys.mjs
+@@ -272,7 +272,7 @@ export var DateTimePickerPanel = class {
+       return day === 7 ? 0 : day;
+     }
+ 
+-    let firstDayOfWeek = toDateWeekday(calendarInfo.firstDayOfWeek),
++    let firstDayOfWeek = toDateWeekday(calendarInfo.firstDayOfWeek) || 1,
+       weekend = calendarInfo.weekend;
+ 
+     let weekends = weekend.map(toDateWeekday);
 diff --git a/toolkit/moz.configure b/toolkit/moz.configure
-index e51e97678cbf..89600442320c 100644
+index e51e97678cbf..d7d8c6f2de7f 100644
 --- a/toolkit/moz.configure
 +++ b/toolkit/moz.configure
-@@ -2329,7 +2329,7 @@ with only_when(compile_environment & target_is_windows):
+@@ -703,9 +703,10 @@ set_define("MOZ_AV1", av1)
+ option("--disable-jxl", help="Disable jxl image support")
+ 
+ 
+-@depends("--disable-jxl", milestone.is_nightly)
+-def jxl(value, is_nightly):
+-    if is_nightly and value:
++@depends("--disable-jxl")
++def jxl(value):
++    enabled = bool(value)
++    if enabled:
+         return True
+ 
+ 
+@@ -2329,7 +2330,7 @@ with only_when(compile_environment & target_is_windows):
              return namespace(name=name, path=None)
  
          if windows_sdk_dir:
@@ -2073,7 +2365,7 @@ index 78b5810bec41..8c4ff1d28d64 100644
  
  // SCOPES_SIDELOAD is a bitflag for what scopes we will load new extensions from when we scan the directories.
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
-index fce520053f78..d9b28f9ce8ac 100644
+index fce520053f78..325782129810 100644
 --- a/toolkit/xre/nsAppRunner.cpp
 +++ b/toolkit/xre/nsAppRunner.cpp
 @@ -6187,7 +6187,7 @@ void SetupErrorHandling(const char* progname) {
@@ -2081,7 +2373,7 @@ index fce520053f78..d9b28f9ce8ac 100644
    // Read pref to decide whether to override default locale with US English.
    if (mozilla::Preferences::GetBool("javascript.use_us_english_locale",
 -                                    false)) {
-+                                    true)) {
++                                    !false)) {
      // Set the application-wide C-locale. Needed to resist fingerprinting
      // of Date.toLocaleFormat(). We use the locale to "C.UTF-8" if possible,
      // to avoid interfering with non-ASCII keyboard input on some Linux

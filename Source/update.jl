@@ -20,9 +20,11 @@ include("base_func.jl")
 
 using Base64: base64encode
 
+const zst_cmd = "zstd -T$(Sys.CPU_THREADS) -M1024M -17 --long"
 const website = "https://github.com/0h7z/Snowfox"
 const patches =
 	[
+		"patches/allow-JXL-in-non-nightly-browser.patch"
 		"patches/ui-patches/hide-default-browser.patch"
 		"patches/ui-patches/pref-naming.patch"
 		"patches/ui-patches/privacy-preferences.patch"
@@ -74,6 +76,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					s = replace(s, "snowfox-\$\$(cat version)", "snowfox-v\$\$(cat version)", "p")
 					s = replace(s, "snowfox-community", ("snowfox"), "w")
 					s = replace(s, "ubuntu:jammy", "ubuntu:rolling", "w")
+					s = replace(s, "wget -qO", "curl -Lo", "w")
 					s = replace(s, "www.snowfox.gitlab.io", "github.com/0h7z", "w")
 					if f ∈ ("appstrings.properties", "snowfox.cfg")
 						s = expands(s)
@@ -134,9 +137,9 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					if (f ≡ "Makefile") || endswith(".mk")(f)
 						p = raw"${version}-${release}"
 						s = replace(s, ("\\bsource archive \\K(\\Q$p.\\E)"), s"v\1")
+						s = replace(s, r"_create:=tar\K cfz$"m, " Ifc \"$zst_cmd\"")
 						s = replace(s, r"@echo \"Firefox version\K  ( : \")", s"\1")
-						s = replace(s, r"^archive_create\K:=tar cfz$"m, ":=tar fca")
-						s = replace(s, r"^ext\K:=\.tar\.gz$"m, (":=.tar.zst"))
+						s = replace(s, r"^ext:=\.tar\K\.gz$"m, ".zst")
 						s = replace(s,
 							"""	mv \$(ff_source_dir) \$(sf_source_dir)\n""" *
 							"""	python3 scripts/snowfox-patches.py \$(version) \$(release)\n""",
