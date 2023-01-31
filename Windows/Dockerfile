@@ -16,6 +16,8 @@
 #
 # % time docker build -t snowfox-arch - < Dockerfile
 #
+# % id=$(docker create snowfox-arch) && docker cp $id:/pkg . && docker rm $id
+#
 # % id=$(docker create snowfox-arch)
 # % docker cp $id:/pkg .
 # % docker rm $id
@@ -36,8 +38,11 @@ ENV JULIA_NUM_THREADS=auto \
 	JULIA_SYS_ISDOCKER=1
 
 # Arch
-RUN sed -i 's/NoProgressBar/Color/g' /etc/pacman.conf && \
-	sed -i 's/EUID == 0/EUID < -0/g' /bin/makepkg && \
+RUN echo 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist && \
+	sed -ri 's/(EUID) == 0/\1 <= -1/g'            /bin/makepkg     && \
+	sed -ri 's/^.*Color/DisableDownloadTimeout/g' /etc/pacman.conf && \
+	sed -ri 's/^(ParallelDownloads) = 5/\1 = 8/g' /etc/pacman.conf && \
+	sed -ri 's/^NoProgressBar/Color/g'            /etc/pacman.conf && \
 	pacman -Syu --noconfirm && \
 	pacman -S --needed --noconfirm git grml-zsh-config julia mc nano-syntax-highlighting \
 	mercurial msitools python-pip unzip wget zip && \

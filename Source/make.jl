@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"109.0-5"
+const VER = v"109.0.1-1"
 
 function build()
 	@info "Building . . ."
@@ -72,7 +72,7 @@ function fetch()
 			cd(SRC)
 			v1, v2, v3 = VER |> v_read
 			open("version", "r") do io
-				v1 ≠ io |> readline && error("Version not matched.")
+				readline(io) |> v0 -> v0 ≡ v1 ? @info(v0) : @warn("Version not matched.", v0, v1)
 			end
 			open("version", "w") do io
 				println(io, v1)
