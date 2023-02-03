@@ -48,7 +48,7 @@ const schemes =
 # https://github.com/DandelionSprout/adfilt/discussions/163
 # https://github.com/Heptazhou/Heptazhou.github.io/blob/master/URLenc/main.js
 # https://github.com/the1812/Bilibili-Evolved/blob/master/registry/lib/components/utils/url-params-clean/index.ts
-const strip_list =
+const strip_list_msc =
 	[
 		"_ff"
 		"_ts"
@@ -222,6 +222,7 @@ const strip_list =
 		"visit_id"
 		"weibo_id"
 		"wfr"
+		"wid"
 		"wxa_abtest"
 		"wxfid"
 		"wxshare_count"
@@ -280,4 +281,6 @@ const strip_list_ubo =
 		"wickedid"
 		"yclid"
 	]
+
+const strip_list = String[strip_list_msc; strip_list_ubo]
 

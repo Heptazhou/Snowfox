@@ -21,7 +21,7 @@ include("const.jl")
 import Base.replace
 
 const Curl(x::String...)::Cmd =
-	Cmd(["curl", "--http2", "--tlsv1.2",
+	Cmd(["curl", "--http2-prior-knowledge", "--tls" * "v1.3",
 		"-A\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:$UAV.0) Gecko/20100101 Firefox/$UAV.0\"", x...])
 const Zip7(x::String...)::Cmd =
 	Cmd(["7z", x...])

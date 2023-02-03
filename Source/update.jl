@@ -277,6 +277,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						for p ∈ patches
 							s = replace(s, ("^\\Q$p\\E\n", "m"), "")
 						end
+						p = "patches/rfp-performance-api.patch" * "\n"
+						s = contains(s, p) ? s : s * p
 						p = "../" * "a9098537ed3ce36abccda98592e07a3aba085407.patch" * "\n" *
 							"patches/removed-patches/allow_dark_preference_with_rfp.patch" * "\n"
 						s = replace(s * p, p * p, p, "p")
@@ -401,7 +403,6 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""lockPref("browser.firefox-view.view-count", 0);\n""" *
 							"""lockPref("browser.privacySegmentation.createdShortcut", true);\n""" *
 							"""lockPref("browser.privacySegmentation.preferences.show", false);\n""" *
-							"""lockPref("privacy.donottrackheader.enabled", true);\n""" *
 							"""\n"""^2, "p", n = 1) # ~ do not move this
 					end
 					if (f ≡ "uBOAssets.json")

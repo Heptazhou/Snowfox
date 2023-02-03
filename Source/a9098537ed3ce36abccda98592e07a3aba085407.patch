@@ -1255,6 +1255,31 @@ index f03295f67374..c17deb085788 100644
    }
  
    img {
+diff --git a/layout/style/nsMediaFeatures.cpp b/layout/style/nsMediaFeatures.cpp
+index d3b604a668e0..288d14abbf02 100644
+--- a/layout/style/nsMediaFeatures.cpp
++++ b/layout/style/nsMediaFeatures.cpp
+@@ -26,6 +26,7 @@
+ #include "mozilla/StyleSheet.h"
+ #include "mozilla/StyleSheetInlines.h"
+ #include "mozilla/GeckoBindings.h"
++#include "mozilla/Preferences.h"
+ #include "PreferenceSheet.h"
+ #include "nsGlobalWindowOuter.h"
+ #ifdef XP_WIN
+@@ -60,8 +61,11 @@ static nsSize GetSize(const Document& aDocument) {
+ }
+ 
+ // A helper for three features below.
++// See also dom/base/nsScreen.cpp > nsScreen::GetRect
+ static nsSize GetDeviceSize(const Document& aDocument) {
+-  if (aDocument.ShouldResistFingerprinting()) {
++  if (aDocument.ShouldResistFingerprinting() &&
++      Preferences::GetBool("privacy.resistFingerprinting.letterboxing",
++                           false)) {
+     return GetSize(aDocument);
+   }
+ 
 diff --git a/media/libcubeb/src/cubeb_alsa.c b/media/libcubeb/src/cubeb_alsa.c
 index 7481c1668ef8..4f37996841ae 100644
 --- a/media/libcubeb/src/cubeb_alsa.c
@@ -1340,7 +1365,7 @@ index 22d39aa6e0bb..6d2a7a58bda0 100644
              _analysis_output_always("pcmR",seq,v->pcm[1],v->pcm_current,0,0,totalshift);
  
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index e59da6491222..3fea860e63a1 100644
+index e59da6491222..304e3bb2f637 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -1267,7 +1267,7 @@
@@ -1489,6 +1514,19 @@ index e59da6491222..3fea860e63a1 100644
    mirror: always
  
  #---------------------------------------------------------------------------
+@@ -6106,10 +6102,10 @@
+   mirror: once
+   do_not_use_directly: true
+ 
+-# Enable OffscreenCanvas everywhere.
++# Disable OffscreenCanvas everywhere.
+ - name: gfx.offscreencanvas.enabled
+   type: RelaxedAtomicBool
+-  value: true
++  value: false
+   mirror: always
+ 
+ - name: gfx.omta.background-color
 @@ -6957,7 +6953,7 @@
  # 2 = Strict: reject violations of "should" specification directives
  - name: image.avif.compliance_strictness
