@@ -60,13 +60,20 @@ end
 
 filter!(!=("/"), ARGS)
 if isempty(ARGS)
-	cd(mktempdir()) do
-		@info replace(pwd(), "\\" => "/")
-		u = "https://hg.mozilla.org/mozilla-central/archive/tip.zip/browser/branding/aurora/"
-		curl("-LO", "-J", u)
-		f = something(filter!(x -> isfile(x) && startswith(x, "mozilla-central"), readdir())...)
-		zip7("x", f), rm(f)
-		remote(splitext(f)[1], "$(@__DIR__)/$SRC" * "themes/")
+	try
+		begin
+			DIR = filter!(isdir, "$(@__DIR__)/" .* [["../"^1 "../"^2] .* ["Firefox", "firefox"]...])
+			remote(DIR[1], "$(@__DIR__)/$SRC" * "themes/")
+		end
+	catch
+		cd(mktempdir()) do
+			@info replace(pwd(), "\\" => "/")
+			u = "https://hg.mozilla.org/mozilla-central/archive/tip.zip/browser/branding/aurora/"
+			curl("-LO", "-J", u)
+			f = something(filter!(x -> isfile(x) && startswith(x, "mozilla-central"), readdir())...)
+			zip7("x", f), rm(f)
+			remote(splitext(f)[1], "$(@__DIR__)/$SRC" * "themes/")
+		end
 	end
 else
 	len = length(ARGS)

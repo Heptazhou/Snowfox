@@ -38,7 +38,7 @@ index 61824afe34d9..15b362130bf3 100644
          TOPSRCDIR,
          CONFIG["MOZ_BRANDING_DIRECTORY"],
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 9b56ba74cff1..c26406d465c2 100644
+index 9b56ba74cff1..04f4131cb222 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -48,7 +48,7 @@ pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/pri
@@ -206,6 +206,15 @@ index 9b56ba74cff1..c26406d465c2 100644
  
  // By default, do not export HTML at shutdown.
  // If true, at shutdown the bookmarks in your menu and toolbar will
+@@ -930,7 +930,7 @@ pref("privacy.history.custom",              false);
+ // 4 - Today
+ // 5 - Last 5 minutes
+ // 6 - Last 24 hours
+-pref("privacy.sanitize.timeSpan", 1);
++pref("privacy.sanitize.timeSpan", 0);
+ 
+ pref("privacy.sanitize.migrateFx3Prefs",    false);
+ 
 @@ -1066,9 +1066,9 @@ pref("browser.preferences.search", true);
  #if defined(NIGHTLY_BUILD)
  pref("browser.preferences.experimental", true);
@@ -272,6 +281,29 @@ index 9b56ba74cff1..c26406d465c2 100644
    pref("intl.multilingual.liveReload", true);
    pref("intl.multilingual.liveReloadBidirectional", false);
    pref("intl.multilingual.aboutWelcome.languageMismatchEnabled", true);
+@@ -2365,17 +2365,17 @@ pref("devtools.every-frame-target.enabled", true);
+ 
+ // Controls the hability to debug popups from the same DevTools
+ // of the original tab the popups are coming from
+-pref("devtools.popups.debug", false);
++pref("devtools.popups.debug", true);
+ 
+ // Toolbox Button preferences
+ pref("devtools.command-button-pick.enabled", true);
+ pref("devtools.command-button-frames.enabled", true);
+ pref("devtools.command-button-splitconsole.enabled", true);
+ pref("devtools.command-button-responsive.enabled", true);
+-pref("devtools.command-button-screenshot.enabled", false);
+-pref("devtools.command-button-rulers.enabled", false);
+-pref("devtools.command-button-measure.enabled", false);
+-pref("devtools.command-button-noautohide.enabled", false);
++pref("devtools.command-button-screenshot.enabled", true);
++pref("devtools.command-button-rulers.enabled", true);
++pref("devtools.command-button-measure.enabled", true);
++pref("devtools.command-button-noautohide.enabled", true);
+ pref("devtools.command-button-errorcount.enabled", true);
+ #ifndef MOZILLA_OFFICIAL
+   pref("devtools.command-button-experimental-prefs.enabled", true);
 @@ -2435,7 +2435,7 @@ pref("devtools.layout.grid.opened", true);
  #if defined(NIGHTLY_BUILD)
    pref("devtools.layout.boxmodel.highlightProperty", true);
@@ -281,7 +313,13 @@ index 9b56ba74cff1..c26406d465c2 100644
  #endif
  
  // By how many times eyedropper will magnify pixels
-@@ -2548,8 +2548,8 @@ pref("devtools.screenshot.audio.enabled", true);
+@@ -2543,13 +2543,13 @@ pref("devtools.styleeditor.transitions", true);
+ 
+ // Screenshot Option Settings.
+ pref("devtools.screenshot.clipboard.enabled", false);
+-pref("devtools.screenshot.audio.enabled", true);
++pref("devtools.screenshot.audio.enabled", false);
+ 
  // Make sure the DOM panel is hidden by default
  pref("devtools.dom.enabled", false);
  
@@ -998,10 +1036,10 @@ index b16d0b0ac35c..e7648b0dd06d 100644
  
        switch (reason) {
 diff --git a/devtools/server/actors/utils/capture-screenshot.js b/devtools/server/actors/utils/capture-screenshot.js
-index 11b9ab781526..85812db331fb 100644
+index 11b9ab781526..0e9c2cb4b775 100644
 --- a/devtools/server/actors/utils/capture-screenshot.js
 +++ b/devtools/server/actors/utils/capture-screenshot.js
-@@ -195,12 +195,12 @@ function getFilename(defaultName) {
+@@ -195,12 +195,9 @@ function getFilename(defaultName) {
    const dateString = `${date.getFullYear()}-${monthString}-${dayString}`;
  
    const timeString = date
@@ -1010,11 +1048,11 @@ index 11b9ab781526..85812db331fb 100644
      .replace(/:/g, ".")
      .split(" ")[0];
  
-   return (
+-  return (
 -    L10N.getFormatStr("screenshotGeneratedFilename", dateString, timeString) +
-+    `${dateString} ${timeString} ${location?.origin?.replace(/[:/]+/g, " ")}` +
-     ".png"
-   );
+-    ".png"
+-  );
++  return `${dateString} ${timeString} devtool.png`;
  }
 diff --git a/dom/base/Document.cpp b/dom/base/Document.cpp
 index b54b5111b7bd..3feac2c54950 100644
@@ -1792,7 +1830,7 @@ index e59da6491222..304e3bb2f637 100644
  
  # Whether the thumb should be rounded for the non-native scrollbars.
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index 5ec8703f2989..856451620685 100644
+index 5ec8703f2989..5b1cc87a9fa1 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -88,7 +88,7 @@ pref("security.crash_tracking.js_load_1.maxCrashes", 0);
@@ -1804,6 +1842,45 @@ index 5ec8703f2989..856451620685 100644
  
  #ifndef MOZ_BUILD_APP_IS_BROWSER
  pref("general.warnOnAboutConfig", true);
+@@ -199,7 +199,7 @@ pref("browser.display.auto_quality_min_font_size", 20);
+ // See http://whatwg.org/specs/web-apps/current-work/#ping
+ pref("browser.send_pings", false);
+ pref("browser.send_pings.max_per_link", 1);           // limit the number of pings that are sent per link click
+-pref("browser.send_pings.require_same_host", false);  // only send pings to the same host if this is true
++pref("browser.send_pings.require_same_host", true);   // only send pings to the same host if this is true
+ 
+ pref("browser.helperApps.neverAsk.saveToDisk", "");
+ pref("browser.helperApps.neverAsk.openFile", "");
+@@ -286,9 +286,9 @@ pref("media.videocontrols.picture-in-picture.enabled", false);
+ pref("media.videocontrols.picture-in-picture.display-text-tracks.enabled", true);
+ pref("media.videocontrols.picture-in-picture.video-toggle.enabled", false);
+ pref("media.videocontrols.picture-in-picture.video-toggle.always-show", false);
+-pref("media.videocontrols.picture-in-picture.video-toggle.min-video-secs", 45);
++pref("media.videocontrols.picture-in-picture.video-toggle.min-video-secs", 60);
+ pref("media.videocontrols.picture-in-picture.video-toggle.position", "right");
+-pref("media.videocontrols.picture-in-picture.video-toggle.has-used", false);
++pref("media.videocontrols.picture-in-picture.video-toggle.has-used", true);
+ pref("media.videocontrols.picture-in-picture.display-text-tracks.toggle.enabled", true);
+ pref("media.videocontrols.picture-in-picture.display-text-tracks.size", "medium");
+ pref("media.videocontrols.picture-in-picture.improved-video-controls.enabled", false);
+@@ -296,7 +296,7 @@ pref("media.videocontrols.keyboard-tab-to-all-controls", true);
+ 
+ #ifdef MOZ_WEBRTC
+   pref("media.navigator.video.enabled", true);
+-  pref("media.navigator.video.default_fps",30);
++  pref("media.navigator.video.default_fps", 60);
+   pref("media.navigator.video.use_remb", true);
+   pref("media.navigator.video.use_transport_cc", true);
+   pref("media.peerconnection.video.use_rtx", true);
+@@ -383,7 +383,7 @@ pref("media.peerconnection.dtls.version.min", 771);
+ #ifdef NIGHTLY_BUILD
+   pref("media.peerconnection.dtls.version.max", 772);
+ #else
+-  pref("media.peerconnection.dtls.version.max", 771);
++  pref("media.peerconnection.dtls.version.max", 772);
+ #endif
+ 
+   // These values (aec, agc, and noise) are from:
 @@ -1677,7 +1677,7 @@ pref("intl.regional_prefs.use_os_locales",  false);
  // for ISO-8859-1
  pref("intl.fallbackCharsetList.ISO-8859-1", "windows-1252");
