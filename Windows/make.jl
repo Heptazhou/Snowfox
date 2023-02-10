@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/windows.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"109.0.1-3"
+const VER = v"110.0-1"
 
 function clean()
 	@info "Cleaning . . ."

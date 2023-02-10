@@ -60,19 +60,21 @@ end
 
 filter!(!=("/"), ARGS)
 if isempty(ARGS)
+	DIR = @__DIR__()
 	try
 		begin
-			DIR = filter!(isdir, "$(@__DIR__)/" .* [["../"^1 "../"^2] .* ["Firefox", "firefox"]...])
-			remote(DIR[1], "$(@__DIR__)/$SRC" * "themes/")
+			d = filter!(isdir, "$DIR/" .* ["../" .^ [1 2] .* ["Firefox", "firefox"]...])[1]
+			remote(d, "$(isdir("$DIR/themes/") ? "$DIR/" : "$DIR/$SRC")" .* ("themes/"))
 		end
 	catch
 		cd(mktempdir()) do
 			@info replace(pwd(), "\\" => "/")
 			u = "https://hg.mozilla.org/mozilla-central/archive/tip.zip/browser/branding/aurora/"
 			curl("-LO", "-J", u)
-			f = something(filter!(x -> isfile(x) && startswith(x, "mozilla-central"), readdir())...)
+			f = something(filter!(x -> isfile(x) && startswith(x, "mozilla-cent"), readdir())...)
 			zip7("x", f), rm(f)
-			remote(splitext(f)[1], "$(@__DIR__)/$SRC" * "themes/")
+			d = splitext(f)[1]
+			remote(d, "$(isdir("$DIR/themes/") ? "$DIR/" : "$DIR/$SRC")" .* ("themes/"))
 		end
 	end
 else

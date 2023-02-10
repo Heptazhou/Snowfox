@@ -20,12 +20,21 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"109.0.1-3"
+const VER = v"110.0-1"
 
 function build()
 	@info "Building . . ."
 	cd((@__DIR__)) do
 		cd(SRC)
+		("$VER" |> contains("rc")) && let f = "Makefile"
+			@warn "The build target is a RC version." VER
+			pf = s"https://archive.mozilla.org/pub/firefox"
+			sf = s"source/firefox-$(version).source.tar.xz"
+			v1, v2, v3 = VER |> v_read
+			write(f, replace(read(f, String),
+				"$pf/releases/\$(version)/$sf",
+				"$pf/candidates/$v1-candidates/build$v3/$sf", "p"))
+		end
 		Sys.iswindows() && (@warn "Not allowed."; return)
 		@run [GMK, "all"]
 		dir = mkpath("../$PKG")

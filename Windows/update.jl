@@ -47,11 +47,15 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, p...)
 					end
 					s = replace(s, "\r\n" => "\n")
+					s = replace(s, r"^.*\bEXTRA_PATH.*\n"m => "")
+					s = replace(s, r"^.*\bLOWERCASE_.*\n"m => "")
+					s = replace(s, r"^.*liblowercase.*\n"m => "")
 					s = replace(s, r"https://\Kraw\.(github)usercontent(\.com/[^/]+/[^/]+)/", s"\1\2/raw/")
 					s = replace(s, r"https://\Ksnowfox(\.net)", s"librewolf\1")
 					s = replace(s, r"https://gitlab\.com/\Ksnowfox(-community)", s"librewolf\1")
 					s = replace(s, r"https://gitlab\.com/librewolf-community/\S*?\Ksnowfox"i, s"librewolf")
 					s = replace(s, r"https://librewolf\.net/\S*?\Ksnowfox"i, s"librewolf")
+					s = replace(s, r"WINDOWSSDKDIR=\"(\$MOZBUILD/win-cross/vs).*?\"", s"WINSYSROOT=\"\1\"")
 					#
 					s = replace(s, "(?<!=['\"])http://(?!www\\.w3\\.org/)", "https://")
 					s = replace(s, "(/github\\.com)/ltGuillaume/(Snowfox-Portable)", s"\1/Heptazhou/\2")
@@ -105,13 +109,17 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""	rm work/snowfox/removed-files\n""" *
 							"""	cp assets/snowfox.ico work/snowfox\n""", "p") # ~ do not sort this
 						s = replace(s,
-							"\t-?" *
-							"\\Q( cd work/$q && \$(wine) ../ahk/Compiler/Ahk2Exe.exe /in $p.ahk )\\E" * "[\\S\\s]*" *
-							"\\Q( cd work/$q && rm -f $p.ahk $p.ico dejsonlz4.exe jsonlz4.exe )\n\\E",
+							"\n#[^\n]*ahk-tools" * "[\\S\\s]*?" *
+							"\\Q( cd work/snowfox-v\$(full_version) &&\\E" * "[\\S\\s]*?" * "\\)\n\n",
+							"\n#\n\n" *
+							"""	( cd work && git clone "https://github.com/Heptazhou/$p" )\n""" *
+							"""	( cd work && cp $p/*.ahk $p/*.exe snowfox-v\$(full_version) )\n""" *
+							"""	( cd work && curl -LO "https://www.autohotkey.com/download/ahk.zip" )\n""" *
+							"""	( cd work && mkdir ahk && cd ahk && unzip -q ../ahk.zip )\n""" *
 							"""	( cd work/$q && rm -f -r  Compiler  &&  mkdir  Compiler )\n""" *
 							"""	( cd work/$q && cp ../ahk/Compiler/*64-bit.bin Compiler )\n""" *
 							"""	( cd work/$q && cp ../ahk/Compiler/Ahk2Exe.exe Compiler )\n""" *
-							"""	( cd work/$q && cp ../snowfox/snowfox.ico ./Snowfox.ico )\n""") # ~ do not sort this
+							"""	( cd work/$q && cp ../snowfox/snowfox.ico ./Snowfox.ico )\n""" * "\n") # ~ do not sort this
 					end
 					if (f ≡ "mozconfig")
 						p = "ac_add_options"

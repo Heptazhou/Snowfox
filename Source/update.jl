@@ -47,6 +47,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 				if (f ≠ ".git") && !endswith(".jl")(f) && !isbinary(f)
 					s = read(f, String)
 					if endswith(r"\.(diff|patch)")(f)
+						s = replace(s, " [ab]/browser/components/BrowserGlue\\K\\.jsm", ".sys.mjs")
 						s = replace(s, " [ab]\\K/lw/", "/snowfox/")
 						for p ∈ schemes
 							s = replace(s -> startswith(s, '+') ? replace(s, p...) : s, split(s, '\n')) |> s -> join(s, '\n')
@@ -57,11 +58,15 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						end
 					end
 					s = replace(s, "\r\n" => "\n")
+					s = replace(s, r"^.*\bEXTRA_PATH.*\n"m => "")
+					s = replace(s, r"^.*\bLOWERCASE_.*\n"m => "")
+					s = replace(s, r"^.*liblowercase.*\n"m => "")
 					s = replace(s, r"https://\Kraw\.(github)usercontent(\.com/[^/]+/[^/]+)/", s"\1\2/raw/")
 					s = replace(s, r"https://\Ksnowfox(\.net)", s"librewolf\1")
 					s = replace(s, r"https://gitlab\.com/\Ksnowfox(-community)", s"librewolf\1")
 					s = replace(s, r"https://gitlab\.com/librewolf-community/\S*?\Ksnowfox"i, s"librewolf")
 					s = replace(s, r"https://librewolf\.net/\S*?\Ksnowfox"i, s"librewolf")
+					s = replace(s, r"WINDOWSSDKDIR=\"(\$MOZBUILD/win-cross/vs).*?\"", s"WINSYSROOT=\"\1\"")
 					#
 					s = replace(s, "aboutMenu.checkVersion", "app.checkVersion.enabled", "w")
 					s = replace(s, "aboutMenu.versionCheckGitlabUrl", "app.checkVersion.url", "w")
@@ -278,7 +283,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							s = replace(s, ("^\\Q$p\\E\n", "m"), "")
 						end
 						for p ∈ [
-							"../" * "a9098537ed3ce36abccda98592e07a3aba085407.patch"
+							"../" * "49ecf0cb90a997de129d6f7155b0fef1943fe593.patch"
 							"patches/removed-patches/allow_dark_preference_with_rfp.patch"
 							"patches/rfp-performance-api.patch"
 						]
@@ -293,11 +298,11 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""		"AppUpdateURL": "https://localhost",\n""" *
 							"""		"Cookies": {\n""" *
 							"""			"Allow": [\n""" *
-							"""				"https://librewolf.net",\n""" *
+							"""				"https://example.com",\n""" *
 							"""				"https://localhost"\n""" *
 							"""			],\n""" *
 							"""			"Behavior": "reject-tracker-and-partition-foreign",\n""" *
-							"""			"Locked": true\n""" *
+							"""			"Locked": false\n""" *
 							"""		},\n""" *
 							"""		"EncryptedMediaExtensions": {\n""" *
 							"""			"Enabled": false,\n""" *
@@ -344,6 +349,15 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""				}\n""" *
 							"""			]\n""", "p") # ~ do not sort this
 					end
+					if (f ≡ "remap-links.patch")
+						s = replace(s, ("@@ -751,11 +751,12 @@") => ("@@ -751,13 +751,14 @@"))
+						s = replace(s,
+							"""     document.getElementById("siteDataLearnMoreLink").setAttribute("href", url);\n""" * " \n" *
+							"""     let notificationInfoURL =\n""",
+							"""     document.getElementById("siteDataLearnMoreLink").setAttribute("href", url);\n""" * " \n" *
+							"""     this.initCookieBannerHandling();\n""" * " \n" *
+							"""     let notificationInfoURL =\n""", "p")
+					end
 					if (f ≡ "search-config.json")
 						s = cd(@__DIR__) do
 							read(f, String)
@@ -388,6 +402,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"^\n*"s => "\n"^2)
 						s = replace(s, r"let profile_directory;.+;\n\}\K.*$"s,
 							"""\n"""^2 *
+							"""defaultPref("devtools.performance.new-panel-onboarding", false);\n""" *
 							"""defaultPref("extensions.activeThemeID", "firefox-compact-dark@mozilla.org");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.connector_short", "{1} {0}");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.date_full", "yyyy-MM-dd DDD");\n""" *
@@ -405,7 +420,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""lockPref("browser.firefox-view.view-count", 0);\n""" *
 							"""lockPref("browser.privacySegmentation.createdShortcut", true);\n""" *
 							"""lockPref("browser.privacySegmentation.preferences.show", false);\n""" *
-							"""\n"""^2, "p", n = 1) # ~ do not move this
+							"""\n"""^2, "p", n = 1)
 					end
 					if (f ≡ "uBOAssets.json")
 						s = replace(s, "\t", " "^2)

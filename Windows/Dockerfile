@@ -16,12 +16,13 @@
 #
 # % time docker build -t snowfox-arch - < Dockerfile
 #
-# % id=$(docker create snowfox-arch) && docker cp $id:/pkg . && docker rm $id
+# % id=$(docker create snowfox-arch) && docker cp $id:/pkg . -q && docker rm $id
 #
 # % id=$(docker create snowfox-arch)
-# % docker cp $id:/pkg .
+# % docker cp $id:/pkg . -q
 # % docker rm $id
 #
+# % docker images
 # % docker system prune [-af]
 #
 
