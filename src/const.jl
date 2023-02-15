@@ -55,6 +55,7 @@ const strip_list_msc =
 	[
 		"_at_"
 		"_ff"
+		"_rand"
 		"_ts"
 		"ab_channel"
 		"accept_quality"

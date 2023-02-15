@@ -1,3 +1,16 @@
+diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
+index 46a76ccb28ba..0a7f552491d1 100644
+--- a/browser/actors/EncryptedMediaParent.sys.mjs
++++ b/browser/actors/EncryptedMediaParent.sys.mjs
+@@ -117,7 +117,7 @@ export class EncryptedMediaParent extends JSWindowActorParent {
+           "emeNotifications.drmContentDisabled.message2"
+         );
+         supportPage = "drm-content";
+-        break;
++        return;
+ 
+       case "cdm-not-installed":
+         notificationId = "drmContentCDMInstalling";
 diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
 index 54d6b43fe126..a70d2781b5d9 100644
 --- a/browser/app/Makefile.in

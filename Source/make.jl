@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"110.0-1"
+const VER = v"110.0-2"
 
 function build()
 	@info "Building . . ."

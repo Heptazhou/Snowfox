@@ -64,6 +64,8 @@ RUN echo 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' >> /etc/
 
 RUN julia --compile=min -e 'using InteractiveUtils; versioninfo()'
 
+ADD https://api.github.com/repos/Heptazhou/Snowfox/git/refs/heads/master version.json
+
 RUN git clone https://github.com/Heptazhou/Snowfox.git
 
 WORKDIR /Snowfox/Windows/

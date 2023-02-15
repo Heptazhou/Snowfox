@@ -30,6 +30,7 @@ const patches =
 		"patches/ui-patches/privacy-preferences.patch"
 		"patches/ui-patches/remove-branding-urlbar.patch"
 		"patches/ui-patches/snowfox-logo-devtools.patch"
+		"patches/unified-extensions-dont-show-recommendations.patch"
 	]
 const moz_tmk = "Firefox and the Firefox logos are trademarks of the Mozilla Foundation."
 
@@ -49,6 +50,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					if endswith(r"\.(diff|patch)")(f)
 						s = replace(s, " [ab]/browser/components/BrowserGlue\\K\\.jsm", ".sys.mjs")
 						s = replace(s, " [ab]\\K/lw/", "/snowfox/")
+						s = replace(s, r"^diff --git .+?\K\blibrewolf\b"m, "snowfox")
 						for p ∈ schemes
 							s = replace(s -> startswith(s, '+') ? replace(s, p...) : s, split(s, '\n')) |> s -> join(s, '\n')
 						end
@@ -284,6 +286,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						end
 						for p ∈ [
 							"../" * "49ecf0cb90a997de129d6f7155b0fef1943fe593.patch"
+							"../" * "v111-1788119.patch"
 							"patches/removed-patches/allow_dark_preference_with_rfp.patch"
 							"patches/rfp-performance-api.patch"
 						]
@@ -349,22 +352,23 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""				}\n""" *
 							"""			]\n""", "p") # ~ do not sort this
 					end
-					if (f ≡ "remap-links.patch")
-						s = replace(s, ("@@ -751,11 +751,12 @@") => ("@@ -751,13 +751,14 @@"))
-						s = replace(s,
-							"""     document.getElementById("siteDataLearnMoreLink").setAttribute("href", url);\n""" * " \n" *
-							"""     let notificationInfoURL =\n""",
-							"""     document.getElementById("siteDataLearnMoreLink").setAttribute("href", url);\n""" * " \n" *
-							"""     this.initCookieBannerHandling();\n""" * " \n" *
-							"""     let notificationInfoURL =\n""", "p")
-					end
 					if (f ≡ "search-config.json")
 						s = cd(@__DIR__) do
 							read(f, String)
 						end
 					end
+					if (f ≡ "snowfox-patches.py")
+						s = cd(@__DIR__) do
+							!isfile("binary.patch") ? s :
+							replace(s,
+								"""	patch('../patches/xmas.patch')\n""" * "\n",
+								"""	patch('../patches/xmas.patch')\n""" *
+								"""	os.system('git apply -v --directory=snowfox-v{}-{} ../../binary.patch'""" *
+								""".format(version, release)) == 0 or script_exit(1)\n""" * "\n", "p")
+						end
+					end
 					if (f ≡ "snowfox-pref-pane.patch")
-						p = "browser/themes/shared/preferences/category-librewolf.svg"
+						p = "browser/themes/shared/preferences/category-snowfox.svg"
 						p = "diff --git a/$p b/$p"
 						s = replace(s,
 							"$p\n[^+-]+\n" * "--- [^\n]+\n" * "\\+\\+\\+ [^\n]+\n" *
