@@ -19,7 +19,7 @@
 include("base_func.jl")
 
 const website = "https://github.com/0h7z/Snowfox"
-const patches =
+const patch_b =
 	[
 		"linux/assets/tryfix-reslink-fail.patch";
 	]
@@ -37,7 +37,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 				end
 			end
 			for f ∈ fs
-				if (f ∈ patches .|> basename)
+				if (f ∈ patch_b .|> basename)
 					rm(f)
 					continue
 				end
@@ -91,18 +91,10 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""\nfetch :""" * "\n" *
 							"""\tsha256sum -c "snowfox-$p.sha256"\n""", "e") # ~ do not sort this
 						s = replace(s,
-							"""cd snowfox-v\$(full_version)""" * " && " * r"\K" *
-							"""./mach --no-interactive bootstrap --application-choice=browser""",
-							"""cargo update -p mp4parse""" * " && " * # ./mach vendor rust
-							"""./mach --no-interactive bootstrap --application-choice=browser""", "e") # ~ do not sort this
-						s = replace(s,
 							"""	\${MAKE} -f assets/artifacts.mk artifacts\n""" * "\n",
 							"""	\${MAKE} -f assets/artifacts.mk artifacts\n""" *
 							"""	rm -rf /pkg && mkdir /pkg\n""" *
 							"""	cp -pt /pkg snowfox-*.exe snowfox-*.zip\n""" * "\n", "p") # ~ do not sort this
-						# mach vendor rust
-						# https://firefox-source-docs.mozilla.org/build/buildsystem/rust.html
-						# https://github.com/Heptazhou/Firefox/tree/master/media/mp4parse-rust
 					end
 					if (f ≡ "artifacts.mk")
 						p = "Snowfox-Portable"

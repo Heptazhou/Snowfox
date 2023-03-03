@@ -87,13 +87,14 @@ function isbinary(f::String)::Bool
 		# Firefox/toolkit/components/reputationservice/ApplicationReputation.cpp
 		# > ApplicationReputationService::kBinaryFileExtensions[]
 		# Firefox/toolkit/content/filepicker.properties
-		endswith(r"\.(7z|br|bz2|gz|lz4|rar|tar|xz|zip|zlib|zst)")(f) ||                           # archive
-		endswith(r"\.(a?png|avif|bmp|cur|gif|icns|ico|jfif|jxl|m?jpe?g|pjp(eg)?|svg|webp)")(f) || # image
-		endswith(r"\.(aac|ac3|flac|m4a|mp3|ogg|opus|wav|weba)")(f) ||                             # audio
-		endswith(r"\.(aps|bin|crx|db|der|dll|exe|hyf|jar|mar|pck|pdf|pyc|wasm|xcf|xpi)")(f) ||    # binary
-		endswith(r"\.(bf|otf|ttf|ttx|woff2?)")(f) ||                                              # font
-		endswith(r"\.(cache|cer|dic|lock|map|pem|sig(nature)?)|-lock\.(json|yaml)")(f) ||         # other
-		endswith(r"\.(flv|mkv|mp4|mpeg|ogv|webm)")(f) ||                                          # video
+		endswith(r"\.(7z|br|bz2|gz|lz4|rar|tar|xz|zip|zlib|zstd?)")(f) ||                            # archive
+		endswith(r"\.(a?png|avif|bmp|gif|hei[cf]|jfif|jxl|m?jpe?g|pjp(eg)?|svgz?|tiff?|webp)")(f) || # image
+		endswith(r"\.(aac|ac3|flac|m4a|mp3|ogg|opus|wav|weba)")(f) ||                                # audio
+		endswith(r"\.(aps|bin|crx|db|der|dll|exe|hyf|jar|mar|pck|pdf|pyc|wasm|xcf|xpi)")(f) ||       # binary
+		endswith(r"\.(bf|otf|ttf|ttx|woff2?)")(f) ||                                                 # font
+		endswith(r"\.(cache|cer|dic|lock|map|pem|sig(nature)?)|-lock\.(json|yaml)")(f) ||            # other
+		endswith(r"\.(cur|icns|ico)")(f) ||                                                          # icon
+		endswith(r"\.(f[4l]v|mkv|mov|mp4|mpeg|ogv|webm)")(f) ||                                      # video
 		contains(r"^.+\.(bundle|min|sig(nature)?)\.[-\w]+$")(f) ||
 		contains(r"binary_data"i)(f) ||
 		!isvalid(read(f, String))
@@ -139,7 +140,7 @@ end
 
 function v_read(ver::VersionNumber)::NTuple{3, String}
 	vx = string(VersionNumber(ver.major, ver.minor, ver.patch)) |> s -> replace(s, r"\.0$" => "")
-	vy = filter(!isempty, filter.(isdigit, string.([ver.prerelease..., 1])))[1]
+	vy = filter(!isempty, filter.(isdigit, string.([ver.prerelease..., 0])))[1]
 	vz = filter(!isempty, filter.(isdigit, string.([ver.build..., 0])))[1]
 	vx, vy, vz
 end
@@ -167,7 +168,8 @@ function move(dir::String, recursive::Bool = SUBMODULES)
 				s ≠ d && (@info "$prefix: $(s => d)"; mv(s, d, force = true))
 			end
 			for f ∈ fs
-				if (f) ∈ (".gitignore", ".gitlab-ci.yml") || endswith(r"\.(aps|md)")(f)
+				if (f) ∈ (".gitignore", ".gitlab-ci.yml") || endswith(r"\.(aps|md)")(f) ||
+				   contains(r"^file(_\w+)?\.svg$")(f)
 					rm(f)
 					continue
 				end

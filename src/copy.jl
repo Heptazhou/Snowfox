@@ -20,6 +20,7 @@ const fs = [
 ]
 
 try
+	basename(@__DIR__) ≠ "src" || error("Not allowed.")
 	@isdefined(pause) || include(fs[1])
 	cd(@__DIR__) do
 		for f in fs
