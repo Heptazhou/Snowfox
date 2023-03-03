@@ -36,7 +36,7 @@ RUN yes | pacman -Syu && \
 	mercurial msitools python-pip unzip wget zip \
 	nasm nodejs-lts-hydrogen rustup upx
 
-RUN yes | pacman -Scc && rustup default stable && \
+RUN yes | pacman -Scc && rustup default stable && rustup target add x86_64-pc-windows-msvc && \
 	git config --global init.defaultbranch master && \
 	git config --global pull.rebase true && \
 	git config --global user.email root@localhost && \

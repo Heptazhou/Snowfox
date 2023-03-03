@@ -22,13 +22,22 @@ const zst_cmd = "zstd -17 -M1024M -T$(Sys.CPU_THREADS) --long"
 const url_git = "https://github.com/0h7z/Snowfox"
 const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
-const patches =
+const patch_g =
+	[
+		"../" * "4868d3a3dbc3219372a2a09a53e1230fe1807a04.patch"
+		"patches/removed-patches/allow_dark_preference_with_rfp.patch"
+	]
+const patch_b =
 	[
 		"patches/allow-JXL-in-non-nightly-browser.patch"
+		"patches/mozilla_dirs.patch"
+		"patches/rfp-performance-api.patch"
 		"patches/ui-patches/hide-default-browser.patch"
 		"patches/ui-patches/pref-naming.patch"
 		"patches/ui-patches/privacy-preferences.patch"
+		"patches/ui-patches/remap-links.patch"
 		"patches/ui-patches/remove-branding-urlbar.patch"
+		"patches/ui-patches/remove-cfrprefs.patch"
 		"patches/ui-patches/snowfox-logo-devtools.patch"
 		"patches/unified-extensions-dont-show-recommendations.patch"
 	]
@@ -41,7 +50,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 		occursin(prefix)(r"\bsubmodules\b") && !recursive && continue
 		cd(prefix) do
 			for f ∈ fs
-				if (f ∈ patches .|> basename)
+				if (f ∈ patch_b .|> basename)
 					rm(f)
 					continue
 				end
@@ -193,12 +202,16 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""	"""^5 * """if ($q > $p) return true;\n""", "p") # ~ do not sort this
 					end
 					if (f ≡ "aboutDialog.xhtml")
-						s = replace(s, r"""href=\K"(https://librewolf.net)/?">\1/?</""", "\"$url_git\">$url_git</")
+						s = replace(s, r"""href=\K"(https://librewolf.net)/?">\1/?</""", "\"$url_doc\">$url_doc</")
 						s = replace(s, r"the primary\s+goals of privacy, security\K( and user freedom\.)"s, s",\1")
 					end
 					if (f ≡ "allow_dark_preference_with_rfp.patch")
 						s = replace(s, "return ColorScheme::Light;" => "return ColorScheme::Dark;")
 						s = replace(s, r"^ +\Kvalue: false"m => "value: true")
+					end
+					if (f ≡ "bootstrap-without-vcs.patch")
+						p = "third_party/python/mozilla_repo_urls/mozilla_repo_urls/parser.py"
+						s = replace(s, "--- a/$p\n+++ b/$p\n" * r"[\S\s]+?\n" * "---" => "---")
 					end
 					if (f ≡ "brand.ftl" || f ≡ "brand.properties")
 						s = replace(s, "Firefox Developer Edition", "Snowfox", "w")
@@ -237,6 +250,15 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"MOZ_APP_REMOTINGNAME=snowfox\n" *
 							"MOZ_APP_VENDOR=0h7z\n" *
 							"MOZ_MACBUNDLE_NAME=Snowfox.app\n", "e")
+					end
+					if (f ≡ "firefox-view.patch")
+						s = replace(s,
+							"""   },\n""" *
+							""" \n""" *
+							"""   _updateForNewProtonVersion() {\n""",
+							""" \n""" *
+							"""     // Unified Extensions addon button migration, which puts any browser action\n""" *
+							"""     // buttons in the overflow menu into the addons panel instead.\n""", "p")
 					end
 					if (f ≡ "generate-locales.sh")
 						p = "  " * "find browser/locales/l10n/\$1 -type f -exec sed -i"
@@ -280,16 +302,11 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"^N=8$"m => raw"N=`[[ $(nproc) -ge 8 ]] && nproc || echo 8`")
 					end
 					if (f ≡ "patches.txt")
-						for p ∈ patches
-							s = replace(s, ("^\\Q$p\\E\n", "m"), "")
-						end
-						for p ∈ [
-							"../" * "49ecf0cb90a997de129d6f7155b0fef1943fe593.patch"
-							"../" * "v111-1788119.patch"
-							"patches/removed-patches/allow_dark_preference_with_rfp.patch"
-							"patches/rfp-performance-api.patch"
-						]
+						for p ∈ patch_g
 							s = occursin(p, s) ? s : s * p * "\n"
+						end
+						for p ∈ patch_b
+							s = replace(s, r"^"m * p * "\n", s"")
 						end
 					end
 					if (f ≡ "policies.json")
@@ -369,6 +386,15 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						end
 					end
 					if (f ≡ "snowfox-pref-pane.patch")
+						p = "fxa/fxa-spinner.svg"
+						s = replace(s, "spotlight.css", p, "w")
+						s = replace(s, "$p$(' '^27)(" => "$p$(' '^21)(")
+						p = "fxa/sync-illustration.svg"
+						s = replace(s, "upgradeDialog/abstract.png", p, "w")
+						s = replace(s, "$p$(' '^14)(" => "$p$(' '^15)(")
+						p = "fxa/sync-illustration-issue.svg"
+						s = replace(s, "upgradeDialog/cheers.png", p, "w")
+						s = replace(s, "$p$(' '^16)(" => "$p$(' '^09)(")
 						p = "browser/themes/shared/preferences/category-snowfox.svg"
 						p = "diff --git a/$p b/$p"
 						s = replace(s,
@@ -403,6 +429,14 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							s = replace(s,
 								"""("$(p[1])", "https://gitlab.com/librewolf-community/browser")""",
 								"""("$(p[1])", "$(p[2])")""", "p")
+						end
+						for p ∈ [
+							"app.feedback.baseURL"                # https://ideas.mozilla.org/
+							"app.support.baseURL"                 # https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/
+							"browser.geolocation.warning.infoURL" # https://www.mozilla.org/%LOCALE%/firefox/geolocation/
+							"browser.search.searchEnginesURL"     # https://addons.mozilla.org/%LOCALE%/firefox/search-engines/
+						]
+							s = replace(s, (r"^.*\b"m * p * r"\b.*\n"m) => "")
 						end
 						s = replace(s, r"^\n*"s => "\n"^2)
 						s = replace(s, r"let profile_directory;.+;\n\}\K.*$"s,

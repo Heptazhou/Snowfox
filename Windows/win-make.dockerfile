@@ -25,6 +25,8 @@ FROM snowfox:win-base
 
 WORKDIR /src/
 
+ENV CARGO_BUILD_JOBS=2 CARGO_INCREMENTAL=0
+
 RUN make fetch
 
 RUN make bootstrap
@@ -37,9 +39,7 @@ RUN make package
 
 RUN make artifacts
 
-RUN make veryclean
-
 #
-# % id=$(docker create snowfox:win-make) && docker cp $id:/pkg . -q && docker rm $id
+# % id=$(docker create snowfox:win-make) && docker cp -q $id:pkg . && docker rm $id
 #
 
