@@ -152,7 +152,11 @@ function move(dir::String, recursive::Bool = SUBMODULES)
 		occursin(prefix)(r"\bsubmodules\b") && !recursive && continue
 		cd(prefix) do
 			for d ∈ ds
-				if d ∈ (".gitlab",)
+				if (d) ∈ (".gitlab",)
+					rm(d, recursive = true)
+					continue
+				end
+				if (d) ∈ ("submodules",) && !recursive
 					rm(d, recursive = true)
 					continue
 				end
@@ -164,6 +168,14 @@ function move(dir::String, recursive::Bool = SUBMODULES)
 			end
 			for f ∈ fs
 				if (f) ∈ (".gitignore", ".gitlab-ci.yml") || endswith(r"\.(aps|md)")(f)
+					rm(f)
+					continue
+				end
+				if (f) ∈ (".gitmodules",) && !recursive
+					rm(f)
+					continue
+				end
+				if (f) ∈ ("Dockerfile",) && !isempty(prefix)
 					rm(f)
 					continue
 				end

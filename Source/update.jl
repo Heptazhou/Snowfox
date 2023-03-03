@@ -18,10 +18,10 @@
 
 include("base_func.jl")
 
-using Base64: base64encode
-
-const zst_cmd = "zstd -T$(Sys.CPU_THREADS) -M1024M -17 --long"
-const website = "https://github.com/0h7z/Snowfox"
+const zst_cmd = "zstd -17 -M1024M -T$(Sys.CPU_THREADS) --long"
+const url_git = "https://github.com/0h7z/Snowfox"
+const url_doc = "https://0h7z.com/snowfox/"
+const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patches =
 	[
 		"patches/allow-JXL-in-non-nightly-browser.patch"
@@ -176,8 +176,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""}\n""", "p") # ~ do not sort this
 					end
 					if (f ≡ "aboutDialog.js")
-						p = "api.github.com"
-						p = replace(website, ("/github.com/" => "/$p/repos/")) * ("/releases")
+						p = "$url_api/releases"
 						s = replace(s, "\"(Up to date)\"" => "\"(up to date)\"")
 						s = replace(s, "\"(Update available)\"" => "\"(update available)\"")
 						s = replace(s, "https://gitlab.com/api/v4/projects/32320088/releases" => p)
@@ -194,8 +193,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""	"""^5 * """if ($q > $p) return true;\n""", "p") # ~ do not sort this
 					end
 					if (f ≡ "aboutDialog.xhtml")
-						s = replace(s, r" with the primary\s+goals of privacy, security\K( and user freedom\.)"s, s",\1")
-						s = replace(s, r"""href=\K"(https://librewolf.net)/?">\1/?</""", "\"$website\">$website</")
+						s = replace(s, r"""href=\K"(https://librewolf.net)/?">\1/?</""", "\"$url_git\">$url_git</")
+						s = replace(s, r"the primary\s+goals of privacy, security\K( and user freedom\.)"s, s",\1")
 					end
 					if (f ≡ "allow_dark_preference_with_rfp.patch")
 						s = replace(s, "return ColorScheme::Light;" => "return ColorScheme::Dark;")
@@ -213,15 +212,15 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					if (f ≡ "branding.nsi")
 						s = replace(s, "!define Channel \"aurora\"" => "!define Channel \"release\"")
 						s = replace(s, "(Firefox )?Developer Edition", "Snowfox")
-						s = replace(s, "\"https://support.mozilla.org\"" => "\"$website\"")
-						s = replace(s, "\"https://www.mozilla.org\"" => "\"$(splitdir(website)[1])\"")
+						s = replace(s, "\"https://support.mozilla.org\"" => "\"$url_git\"")
+						s = replace(s, "\"https://www.mozilla.org\"" => "\"$(splitdir(url_git)[1])\"")
 						s = replace(s, "\"mozilla.org\"" => "\"0h7z.com\"")
 						s = replace(s, r"^!(?=\w+ BrandShortName)"m => "#") # ~ must not set if !DEV_EDITION
 						s = replace(s, r"^(?=!define DEV_EDITION)"m => "#")
 						s = replace(s, r"FONT_SIZE 28\b" => "FONT_SIZE 42")
-						s = replace(s, r"https://download\.mozilla\.org/[^\"]+", "$website/releases/latest")
-						s = replace(s, r"https://www\.mozilla\.org/\$[^\"]+", "$website/releases/latest")
-						s = replace(s, r"https://www\.mozilla\.org/firefox/[^\"]*", "$website")
+						s = replace(s, r"https://download\.mozilla\.org/[^\"]+", "$url_git/releases")
+						s = replace(s, r"https://www\.mozilla\.org/\$[^\"]+", "$url_git/releases")
+						s = replace(s, r"https://www\.mozilla\.org/firefox/[^\"]*", "$url_git")
 					end
 					if (f ≡ "configure.sh")
 						s = replace(s, r"^MOZ_APP_DISPLAYNAME=\K.*$"m => "Snowfox")
@@ -294,7 +293,9 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						end
 					end
 					if (f ≡ "policies.json")
-						s = replace(s, "https://gitlab.com/librewolf-community/settings/issues", "$website/issues")
+						p, q = "$url_git/issues", "q={searchTerms}"
+						p = replace(p, "0h7z" => "Heptazhou")
+						s = replace(s, "https://gitlab.com/librewolf-community/settings/issues", p)
 						s = replace(s, # Cookies
 							"""		"AppUpdateURL": "https://localhost",\n""" *
 							"""		"DisableAppUpdate": true,\n""",
@@ -346,9 +347,9 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""					"Description": "Search Google",\n""" *
 							"""					"Alias": "@goog",\n""" *
 							"""					"Method": "GET",\n""" *
-							"""					"URLTemplate": "https://www.google.com/search?hl=en&newwindow=1&q={searchTerms}",\n""" *
-							"""					"SuggestURLTemplate": "https://www.google.com/complete/search?q={searchTerms}",\n""" *
-							"""					"IconURL": "$icon_google"\n""" *
+							"""					"URLTemplate": "https://www.google.com/search?hl=en&newwindow=1&$q",\n""" *
+							"""					"SuggestURLTemplate": "https://www.google.com/complete/search?$q",\n""" *
+							"""					"IconURL": "$icon_goog"\n""" *
 							"""				}\n""" *
 							"""			]\n""", "p") # ~ do not sort this
 					end
@@ -381,23 +382,23 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, ("\"none\""), ("'none'"))
 						s = replace(s, ("https://dns.quad9.net/dns-query"), ("https://cloudflare-dns.com/dns-query"), "w")
 						for p ∈ [
-							"""("browser.download.alwaysOpenPanel", false)""" => """("browser.download.alwaysOpenPanel", true)""", # true
-							"""("browser.download.useDownloadDir", false)"""  => """("browser.download.useDownloadDir", true)""", # true
+							"""("browser.download.alwaysOpenPanel", false)""" => """("browser.download.alwaysOpenPanel", true)""",
+							"""("browser.download.useDownloadDir", false)"""  => """("browser.download.useDownloadDir", true)""",
 							"""("devtools.selfxss.count", 0)"""               => """("devtools.selfxss.count", 5)""", # 0
-							"""("privacy.userContext.enabled", true)"""       => """("privacy.userContext.enabled", false)""", # false
-							"""("webgl.disabled", true)"""                    => """("webgl.disabled", false)""", # false
+							"""("privacy.userContext.enabled", true)"""       => """("privacy.userContext.enabled", false)""",
+							"""("webgl.disabled", true)"""                    => """("webgl.disabled", false)""",
 							#
-							r"""\(("privacy\.query_stripping\.strip_list"), "[^"]+"\)""" => s"""(\1, "@@QUERY_STRIP_LIST@@")""", # ""
-							r"""\(("security\.ssl\.require_safe_negotiation"), true\)""" => s"""(\1, false)""", # false
-							r"@@QUERY_STRIP_LIST@@" => join(strip_list, " "),
+							r"""\(("privacy\.query_stripping\.strip_list"), "[^"]+"\)""" => s"""(\1, "@@STRIP_LIST@@")""", # ""
+							r"""\(("security\.ssl\.require_safe_negotiation"), true\)""" => s"""(\1, false)""",
+							r"@@STRIP_LIST@@" => join(strip_list, " "),
 						]
 							s = replace(s, p)
 						end
 						for p ∈ [
-							"app.releaseNotesURL.aboutDialog" => "$website/releases",
-							"app.releaseNotesURL"             => "$website/releases",
-							"app.update.url.details"          => "$website/releases/latest",
-							"app.update.url.manual"           => "$website/releases/latest",
+							"app.releaseNotesURL.aboutDialog" => "$url_doc#v%VERSION%",
+							"app.releaseNotesURL"             => "$url_doc#v%VERSION%",
+							"app.update.url.details"          => "$url_git/releases",
+							"app.update.url.manual"           => "$url_git/releases",
 						]
 							s = replace(s,
 								"""("$(p[1])", "https://gitlab.com/librewolf-community/browser")""",
@@ -419,11 +420,15 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("intl.date_time.pattern_override.time_short", "HH:mm:ss");\n""" *
 							"""defaultPref("network.http.useragent.forceVersion", $UAV);\n""" *
 							"""defaultPref("snowfox.app.checkVersion.enabled", true);\n""" *
-							"""defaultPref("snowfox.app.checkVersion.url", "https://api.github.com/repos/0h7z/Snowfox/releases");\n""" *
+							"""defaultPref("snowfox.app.checkVersion.url", "$url_api/releases");\n""" *
 							"""lockPref("browser.dataFeatureRecommendations.enabled", false);\n""" *
 							"""lockPref("browser.firefox-view.view-count", 0);\n""" *
 							"""lockPref("browser.privacySegmentation.createdShortcut", true);\n""" *
 							"""lockPref("browser.privacySegmentation.preferences.show", false);\n""" *
+							"""pref("network.http.useragent.forceVersion", $UAV);\n""" *
+							"""pref("privacy.donottrackheader.enabled", true);\n""" *
+							"""pref("security.OCSP.require", true);\n""" *
+							"""pref("security.pki.crlite_mode", 2);\n""" *
 							"""\n"""^2, "p", n = 1)
 					end
 					if (f ≡ "uBOAssets.json")

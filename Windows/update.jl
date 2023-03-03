@@ -71,32 +71,45 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					s = replace(s, raw"snowfox-v\$\(full_version\)\.source\.tar\K\.gz", (".zst"))
 					s = replace(s, raw"snowfox-v\$\$\(cat version\)-\$\$\(cat source_release\)\.source\.tar\K\.gz", (".zst"))
 					if (f ≡ "Makefile") || endswith(".mk")(f)
-						p = raw"v$$(cat version)-$$(cat source_release).source.tar.zst"
-						s = replace(s,
-							"""\nfetch :\n""" * "[\\S\\s]+?\n" * "\\Q" *
-							"""\tsha256sum -c "snowfox-$p.sha256"\n""" * "\\E",
-							"""\nfetch :\n""" *
-							"""\tsha256sum -c "snowfox-$p.sha256"\n""", "e") # ~ do not sort this
 						p = raw"$(release)"
 						s = replace(s, "[ $p -gt 1 ] && echo \"-$p\"" => "[[ $p -ge 1 ]] && echo \"+$p\"")
 						s = replace(s, "s/pkg_version/\$(full_version)/g" => "s/pkg_version/v\$(full_version)/g")
 						s = replace(s, r"^.*\btryfix-reslink-fail\.patch\b.*\n"m => "")
 					end
 					if (f ≡ "Makefile")
+						p = raw"v$$(cat version)-$$(cat source_release).source.tar.zst"
+						s = replace(s, "~/.cargo/bin/" => "")
 						s = replace(s, "Build snowfox and it's windows artifact" => "Build Snowfox and its Windows artifact")
+						s = replace(s, r"^.*@echo\b.*\[debug\].*\n"m => "")
+						s = replace(s, r"^.*\b linux64-nasm \b.*\n"m => "")
+						s = replace(s, r"^.*\b linux64-node \b.*\n"m => "")
+						s = replace(s, r"^.*\bartifact toolchain\b[^&]*&& \K.$"m => "sleep 10 && \\")
 						s = replace(s, r"^.*\brm -f version source_release\b.*"m => "")
+						s = replace(s,
+							"""\nfetch :""" * r"[\S\s]+?" * "\n" *
+							"""\tsha256sum -c "snowfox-$p.sha256"\n""",
+							"""\nfetch :""" * "\n" *
+							"""\tsha256sum -c "snowfox-$p.sha256"\n""", "e") # ~ do not sort this
+						s = replace(s,
+							"""cd snowfox-v\$(full_version)""" * " && " * r"\K" *
+							"""./mach --no-interactive bootstrap --application-choice=browser""",
+							"""cargo update -p mp4parse""" * " && " * # ./mach vendor rust
+							"""./mach --no-interactive bootstrap --application-choice=browser""", "e") # ~ do not sort this
 						s = replace(s,
 							"""	\${MAKE} -f assets/artifacts.mk artifacts\n""" * "\n",
 							"""	\${MAKE} -f assets/artifacts.mk artifacts\n""" *
 							"""	rm -rf /pkg && mkdir /pkg\n""" *
-							"""	cp -pt /pkg snowfox-*.exe snowfox-*.zip\n""" * "\n", "p")
+							"""	cp -pt /pkg snowfox-*.exe snowfox-*.zip\n""" * "\n", "p") # ~ do not sort this
+						# mach vendor rust
+						# https://firefox-source-docs.mozilla.org/build/buildsystem/rust.html
+						# https://github.com/Heptazhou/Firefox/tree/master/media/mp4parse-rust
 					end
 					if (f ≡ "artifacts.mk")
 						p = "Snowfox-Portable"
 						q = "snowfox-v\$(full_version)"
 						s = replace(s, ("/$p/$p.* ") => ("/$p/*.ahk "))
-						s = replace(s, r"^.*\b\t*winecfg\b.*\n"m => "")
 						s = replace(s, r"^.*\bWinUpdater\b.*\n"m => "")
+						s = replace(s, r"^wine=\Kwineconsole\b"m => "~/.mozbuild/wine/bin/wine64")
 						s = replace(s, raw"&&" * " \\\n\n" => " )\n\n")
 						s = replace(s,
 							"""	mv work/snowfox/firefox.exe work/snowfox/snowfox.exe\n""" *
@@ -109,9 +122,9 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""	rm work/snowfox/removed-files\n""" *
 							"""	cp assets/snowfox.ico work/snowfox\n""", "p") # ~ do not sort this
 						s = replace(s,
-							"\n#[^\n]*ahk-tools" * "[\\S\\s]*?" *
-							"\\Q( cd work/snowfox-v\$(full_version) &&\\E" * "[\\S\\s]*?" * "\\)\n\n",
-							"\n#\n\n" *
+							r"#\K[^\n]*" * "ahk-tools" * r"[\S\s]*?" *
+							"""	( cd work/snowfox-v\$(full_version) &&""" * r"[\S\s]*?" * ")\n\n",
+							"""\n\n\n""" *
 							"""	( cd work && git clone "https://github.com/Heptazhou/$p" )\n""" *
 							"""	( cd work && cp $p/*.ahk $p/*.exe snowfox-v\$(full_version) )\n""" *
 							"""	( cd work && curl -LO "https://www.autohotkey.com/download/ahk.zip" )\n""" *
@@ -141,7 +154,9 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"$p MOZ_SERVICES_HEALTHREPORT=0\n" *
 							"$p MOZ_TELEMETRY_REPORTING=0\n", "p", n = 1)
 						s = replace(s, r"^.*--disable-verify-mar\b.*\n"m => "")
+						s = replace(s, r"^# since\b.+\?\n"m => "")
 						s = replace(s, r"^export MOZ_REQUIRE_SIGNING=\K1?$"m, '"'^2)
+						s = replace(s, r"^export WINE=\Kwineconsole\b"m, s"\"$MOZBUILD/wine/bin/wine64\"")
 					end
 					if (f ≡ "setup.nsi")
 						s = expands(s)
