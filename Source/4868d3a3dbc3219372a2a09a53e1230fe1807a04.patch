@@ -1,16 +1,17 @@
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
-index 46a76ccb28ba..0a7f552491d1 100644
+index 46a76ccb28ba..3b9ed2b6829a 100644
 --- a/browser/actors/EncryptedMediaParent.sys.mjs
 +++ b/browser/actors/EncryptedMediaParent.sys.mjs
-@@ -117,7 +117,7 @@ export class EncryptedMediaParent extends JSWindowActorParent {
-           "emeNotifications.drmContentDisabled.message2"
-         );
-         supportPage = "drm-content";
--        break;
-+        return;
+@@ -109,6 +109,9 @@ export class EncryptedMediaParent extends JSWindowActorParent {
  
-       case "cdm-not-installed":
-         notificationId = "drmContentCDMInstalling";
+       case "api-disabled":
+       case "cdm-disabled":
++        if (!Services.prefs.getBoolPref("media.eme.showBrowserMessage", true)) {
++          return;
++        }
+         notificationId = "drmContentDisabled";
+         buttonCallback = () => {
+           this.ensureEMEEnabled(browser, keySystem);
 diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
 index 54d6b43fe126..a70d2781b5d9 100644
 --- a/browser/app/Makefile.in
@@ -1105,18 +1106,18 @@ index 6afeefcd0d91..289160d9de43 100644
  
    if (nsPresContext* pc = GetPresContext()) {
 diff --git a/dom/base/nsScreen.cpp b/dom/base/nsScreen.cpp
-index 9c5442666155..4b7d32613599 100644
+index 9c5442666155..5e6a1aa99cb0 100644
 --- a/dom/base/nsScreen.cpp
 +++ b/dom/base/nsScreen.cpp
 @@ -14,6 +14,7 @@
  #include "nsLayoutUtils.h"
  #include "nsJSUtils.h"
  #include "nsDeviceContext.h"
-+#include "mozilla/Preferences.h"
++#include "mozilla/StaticPrefs_privacy.h"
  #include "mozilla/widget/ScreenManager.h"
  
  using namespace mozilla;
-@@ -79,8 +80,11 @@ nsDeviceContext* nsScreen::GetDeviceContext() {
+@@ -79,8 +80,10 @@ nsDeviceContext* nsScreen::GetDeviceContext() {
  }
  
  nsresult nsScreen::GetRect(CSSIntRect& aRect) {
@@ -1125,12 +1126,11 @@ index 9c5442666155..4b7d32613599 100644
 +  // Return window inner rect to prevent fingerprinting if letterboxing is on.
 +  // Note that this does more harm than good while full screen API is enabled.
 +  if (ShouldResistFingerprinting() &&
-+      Preferences::GetBool("privacy.resistFingerprinting.letterboxing",
-+                           false)) {
++      StaticPrefs::privacy_resistFingerprinting_letterboxing()) {
      return GetWindowInnerRect(aRect);
    }
  
-@@ -111,9 +115,9 @@ nsresult nsScreen::GetRect(CSSIntRect& aRect) {
+@@ -111,9 +114,9 @@ nsresult nsScreen::GetRect(CSSIntRect& aRect) {
  }
  
  nsresult nsScreen::GetAvailRect(CSSIntRect& aRect) {
@@ -1212,7 +1212,7 @@ index b5e705ea7d36..6862701f5c2c 100644
  #else
    RefPtr devices = GetDeviceCollection(
 diff --git a/dom/workers/RuntimeService.cpp b/dom/workers/RuntimeService.cpp
-index 3cc7ccebd23b..55705fd5c6c6 100644
+index 3cc7ccebd23b..4893c48cf2a6 100644
 --- a/dom/workers/RuntimeService.cpp
 +++ b/dom/workers/RuntimeService.cpp
 @@ -1876,9 +1876,7 @@ uint32_t RuntimeService::ClampedHardwareConcurrency(
@@ -1226,21 +1226,44 @@ index 3cc7ccebd23b..55705fd5c6c6 100644
  
    // This needs to be atomic, because multiple workers, and even mainthread,
    // could race to initialize it at once.
-@@ -1905,6 +1903,14 @@ uint32_t RuntimeService::ClampedHardwareConcurrency(
+@@ -1905,6 +1903,13 @@ uint32_t RuntimeService::ClampedHardwareConcurrency(
                                                             numberOfProcessors);
    }
  
 +  if (MOZ_UNLIKELY(aShouldResistFingerprinting)) {
 +    // https://store.steampowered.com/hwsurvey/
 +    if (unclampedHardwareConcurrency <= 4) return 4;
-+    if (unclampedHardwareConcurrency <= 6) return 6;
 +    if (unclampedHardwareConcurrency <= 8) return 8;
-+    return 8;
++    return 16;
 +  }
 +
    return std::min(uint32_t(unclampedHardwareConcurrency),
                    StaticPrefs::dom_maxHardwareConcurrency());
  }
+diff --git a/image/decoders/nsAVIFDecoder.cpp b/image/decoders/nsAVIFDecoder.cpp
+index d382ac355b27..8e601d537098 100644
+--- a/image/decoders/nsAVIFDecoder.cpp
++++ b/image/decoders/nsAVIFDecoder.cpp
+@@ -19,6 +19,7 @@
+ 
+ #include "mozilla/Telemetry.h"
+ #include "mozilla/TelemetryComms.h"
++#include "mozilla/StaticPrefs_image.h"
+ 
+ using namespace mozilla::gfx;
+ 
+@@ -1782,6 +1783,11 @@ nsAVIFDecoder::DecodeResult nsAVIFDecoder::Decode(
+     }
+ 
+     if (isDone) {
++      if (StaticPrefs::image_avif_force_loop()) {
++        PostDecodeDone(-1);
++        return DecodeResult(NonDecoderResult::Complete);
++      }
++
+       switch (mParser->GetInfo().loop_mode) {
+         case MP4PARSE_AVIF_LOOP_MODE_LOOP_BY_COUNT: {
+           auto loopCount = mParser->GetInfo().loop_count;
 diff --git a/js/src/octane/gbemu-part1.js b/js/src/octane/gbemu-part1.js
 index 10f19e4a195f..38d372b9ae81 100644
 --- a/js/src/octane/gbemu-part1.js
@@ -1331,18 +1354,18 @@ index f03295f67374..c17deb085788 100644
  
    img {
 diff --git a/layout/style/nsMediaFeatures.cpp b/layout/style/nsMediaFeatures.cpp
-index 5cd90a4ca6cb..6e36113df36f 100644
+index 5cd90a4ca6cb..c8f657167a8f 100644
 --- a/layout/style/nsMediaFeatures.cpp
 +++ b/layout/style/nsMediaFeatures.cpp
-@@ -27,6 +27,7 @@
+@@ -24,6 +24,7 @@
+ #include "nsContentUtils.h"
+ #include "mozilla/RelativeLuminanceUtils.h"
+ #include "mozilla/StaticPrefs_browser.h"
++#include "mozilla/StaticPrefs_privacy.h"
  #include "mozilla/StyleSheet.h"
  #include "mozilla/StyleSheetInlines.h"
  #include "mozilla/GeckoBindings.h"
-+#include "mozilla/Preferences.h"
- #include "PreferenceSheet.h"
- #include "nsGlobalWindowOuter.h"
- #ifdef XP_WIN
-@@ -61,8 +62,11 @@ static nsSize GetSize(const Document& aDocument) {
+@@ -61,8 +62,10 @@ static nsSize GetSize(const Document& aDocument) {
  }
  
  // A helper for three features below.
@@ -1350,8 +1373,7 @@ index 5cd90a4ca6cb..6e36113df36f 100644
  static nsSize GetDeviceSize(const Document& aDocument) {
 -  if (aDocument.ShouldResistFingerprinting()) {
 +  if (aDocument.ShouldResistFingerprinting() &&
-+      Preferences::GetBool("privacy.resistFingerprinting.letterboxing",
-+                           false)) {
++      StaticPrefs::privacy_resistFingerprinting_letterboxing()) {
      return GetSize(aDocument);
    }
  
@@ -1440,7 +1462,7 @@ index 22d39aa6e0bb..6d2a7a58bda0 100644
              _analysis_output_always("pcmR",seq,v->pcm[1],v->pcm_current,0,0,totalshift);
  
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index 0cd32d65bf9c..ddb7945fcfb8 100644
+index 0cd32d65bf9c..0d1ea389ea5e 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -1321,7 +1321,7 @@
@@ -1611,7 +1633,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  # Whether we apply container-level transforms like mirroring and rotation
-@@ -7086,20 +7082,20 @@
+@@ -7086,20 +7082,26 @@
  # Whether to allow decoding of animated AVIF sequences.
  - name: image.avif.sequence.enabled
    type: RelaxedAtomicBool
@@ -1625,6 +1647,12 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    type: RelaxedAtomicBool
 -  value: false
 +  value: true
++  mirror: always
++
++# Whether to always loop animated AVIF sequences.
++- name: image.avif.force-loop
++  type: RelaxedAtomicBool
++  value: true
    mirror: always
  
  # Whether we attempt to decode JXL images or not.
@@ -1635,7 +1663,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  #---------------------------------------------------------------------------
-@@ -7475,7 +7471,7 @@
+@@ -7475,7 +7477,7 @@
  # Use better error message when accessing property of null or undefined.
  - name: javascript.options.property_error_message_fix
    type: bool
@@ -1644,7 +1672,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  # Support for weak references in JavaScript (WeakRef and FinalizationRegistry).
-@@ -8492,13 +8488,13 @@
+@@ -8492,13 +8494,13 @@
  #   3 - also user-installed fonts
  - name: layout.css.font-visibility.standard
    type: int32_t
@@ -1660,7 +1688,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  # font-visibility setting when Resist Fingerprinting is enabled
-@@ -8513,7 +8509,7 @@
+@@ -8513,7 +8515,7 @@
  # private-browsing level specified by this pref.)
  - name: layout.css.font-visibility.private
    type: int32_t
@@ -1669,7 +1697,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  # Is support for GeometryUtils.getBoxQuads enabled?
-@@ -9250,7 +9246,7 @@
+@@ -9250,7 +9252,7 @@
  - name: layout.word_select.eat_space_to_next_word
    type: bool
  #ifdef XP_WIN
@@ -1678,7 +1706,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
  #else
    value: false
  #endif
-@@ -9361,16 +9357,16 @@
+@@ -9361,16 +9363,16 @@
  
  
  # This pref defines what the blocking policy would be used in blocking autoplay.
@@ -1698,7 +1726,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  # Whether to allow autoplay on extension background pages.
-@@ -9383,13 +9379,13 @@
+@@ -9383,13 +9385,13 @@
  # 0=Allowed, 1=Blocked, 5=All Blocked
  - name: media.autoplay.default
    type: int32_t
@@ -1714,7 +1742,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  # File-backed MediaCache size.
-@@ -10460,7 +10456,7 @@
+@@ -10460,7 +10462,7 @@
  
  - name: media.autoplay.block-event.enabled
    type: bool
@@ -1723,7 +1751,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  - name: media.media-capabilities.enabled
-@@ -11690,7 +11686,7 @@
+@@ -11690,7 +11692,7 @@
  # Default global TRR provider
  - name: network.trr.default_provider_uri
    type: String
@@ -1732,7 +1760,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: never
  
  # If true, retry TRR for recoverable errors once.
-@@ -12741,13 +12737,13 @@
+@@ -12741,13 +12743,13 @@
  # 2 - spoof
  - name: privacy.spoof_english
    type: RelaxedAtomicUint32
@@ -1749,7 +1777,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  # Potentially send "global privacy control" HTTP header and set navigator
-@@ -12807,7 +12803,7 @@
+@@ -12807,10 +12809,17 @@
  
  - name: privacy.resistFingerprinting
    type: RelaxedAtomicBool
@@ -1758,7 +1786,17 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
    do_not_use_directly: true
  
-@@ -12858,7 +12854,7 @@
++# Letterboxing applies margins around windows, in order to return a limited
++# set of rounded resolutions.
++- name: privacy.resistFingerprinting.letterboxing
++  type: RelaxedAtomicBool
++  value: false
++  mirror: always
++
+ # We automatically decline canvas permission requests if they are not initiated
+ # from user input. Just in case that breaks something, we allow the user to
+ # revert this behavior with this obscure pref. We do not intend to support this
+@@ -12858,7 +12867,7 @@
  
  - name: privacy.resistFingerprinting.target_video_res
    type: uint32_t
@@ -1767,7 +1805,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  # Bitfield for selectively disabling RFP
-@@ -13002,7 +12998,7 @@
+@@ -13002,7 +13011,7 @@
  # Partition the OCSP cache by the partitionKey.
  - name: privacy.partition.network_state.ocsp_cache
    type: RelaxedAtomicBool
@@ -1776,7 +1814,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  # Partition the OCSP cache by the partitionKey for private browsing mode.
-@@ -13456,9 +13452,9 @@
+@@ -13456,9 +13465,9 @@
  - name: security.OCSP.enabled
    type: RelaxedAtomicUint32
  #ifdef ANDROID
@@ -1788,7 +1826,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
  #endif
    mirror: always
  
-@@ -13468,7 +13464,7 @@
+@@ -13468,7 +13477,7 @@
  # false => soft-fail (if an OCSP request times out, continue the connection)
  - name: security.OCSP.require
    type: RelaxedAtomicBool
@@ -1797,7 +1835,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  # How many milliseconds to wait for an OCSP response before assuming it failed
-@@ -13486,7 +13482,11 @@
+@@ -13486,7 +13495,11 @@
  # (when fetching for hard-fail).
  - name: security.OCSP.timeoutMilliseconds.hard
    type: RelaxedAtomicUint32
@@ -1809,7 +1847,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  # Whether or not to enable OCSP must-staple (in other words, TLS-feature with
-@@ -13579,7 +13579,7 @@
+@@ -13579,7 +13592,7 @@
  # 3: Consult CRLite and enforce "Not Revoked" results, but defer to OCSP for "Revoked".
  - name: security.pki.crlite_mode
    type: RelaxedAtomicUint32
@@ -1818,7 +1856,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  - name: security.tls.version.min
-@@ -13615,9 +13615,9 @@
+@@ -13615,9 +13628,9 @@
  - name: security.tls.ech.grease_probability
    type: RelaxedAtomicUint32
  #ifdef NIGHTLY_BUILD
@@ -1830,7 +1868,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
  #endif
    mirror: always
  
-@@ -13645,12 +13645,12 @@
+@@ -13645,12 +13658,12 @@
  
  - name: security.tls.enable_0rtt_data
    type: RelaxedAtomicBool
@@ -1845,7 +1883,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  - name: security.ssl.require_safe_negotiation
-@@ -14347,7 +14347,7 @@
+@@ -14347,7 +14360,7 @@
  
  - name: view_source.wrap_long_lines
    type: bool
@@ -1854,7 +1892,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  - name: view_source.syntax_highlight
-@@ -14482,7 +14482,7 @@
+@@ -14482,7 +14495,7 @@
  
  - name: webgl.enable-debug-renderer-info
    type: RelaxedAtomicBool
@@ -1863,7 +1901,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  - name: webgl.enable-draft-extensions
-@@ -14497,7 +14497,7 @@
+@@ -14497,7 +14510,7 @@
  
  - name: webgl.enable-renderer-query
    type: RelaxedAtomicBool
@@ -1872,7 +1910,7 @@ index 0cd32d65bf9c..ddb7945fcfb8 100644
    mirror: always
  
  - name: webgl.enable-surface-texture
-@@ -14763,7 +14763,7 @@
+@@ -14763,7 +14776,7 @@
  # The minimum size of the scroll thumb, in the scrollbar direction.
  - name: widget.non-native-theme.gtk.scrollbar.thumb-cross-size
    type: uint32_t

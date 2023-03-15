@@ -81,10 +81,15 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, "~/.cargo/bin/" => "")
 						s = replace(s, "Build snowfox and it's windows artifact" => "Build Snowfox and its Windows artifact")
 						s = replace(s, r"^.*@echo\b.*\[debug\].*\n"m => "")
-						s = replace(s, r"^.*\b linux64-nasm \b.*\n"m => "")
-						s = replace(s, r"^.*\b linux64-node \b.*\n"m => "")
+						s = replace(s, r"^.*\b linux64-nasm &&.*\n"m => "")
+						s = replace(s, r"^.*\b linux64-node &&.*\n"m => "")
 						s = replace(s, r"^.*\bartifact toolchain\b[^&]*&& \K.$"m => "sleep 10 && \\")
+						s = replace(s, r"^.*\blinux64-binutils\b.*\n"m => "")
+						s = replace(s, r"^.*\blinux64-cbindgen\b.*\n"m => "")
+						s = replace(s, r"^.*\blinux64-dump_syms\b.*\n"m => "")
+						s = replace(s, r"^.*\blinux64-rust-cross\b.*\n"m => "")
 						s = replace(s, r"^.*\brm -f version source_release\b.*"m => "")
+						s = replace(s, r"^.*\bx86_64-pc-windows-msvc\b.*\n"m => "")
 						s = replace(s,
 							"""\nfetch :""" * r"[\S\s]+?" * "\n" *
 							"""\tsha256sum -c "snowfox-$p.sha256"\n""",

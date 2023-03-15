@@ -34,7 +34,7 @@ RUN yes | pacman -Syu && \
 	yes | pacman -S --needed \
 	git grml-zsh-config julia mc nano-syntax-highlighting \
 	mercurial msitools python-pip unzip wget zip \
-	nasm nodejs-lts-hydrogen rustup upx
+	cbindgen cross dump_syms nasm nodejs-lts-hydrogen rustup upx
 
 RUN yes | pacman -Scc && rustup default stable && rustup target add x86_64-pc-windows-msvc && \
 	git config --global init.defaultbranch master && \

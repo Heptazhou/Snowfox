@@ -31,11 +31,9 @@ const patch_b =
 	[
 		"patches/allow-JXL-in-non-nightly-browser.patch"
 		"patches/mozilla_dirs.patch"
-		"patches/rfp-performance-api.patch"
 		"patches/ui-patches/hide-default-browser.patch"
 		"patches/ui-patches/pref-naming.patch"
 		"patches/ui-patches/privacy-preferences.patch"
-		"patches/ui-patches/remap-links.patch"
 		"patches/ui-patches/remove-branding-urlbar.patch"
 		"patches/ui-patches/remove-cfrprefs.patch"
 		"patches/ui-patches/snowfox-logo-devtools.patch"
@@ -155,6 +153,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, ("\\bsource archive \\K(\\Q$p.\\E)"), s"v\1")
 						s = replace(s, r"_create:=tar\K cfz$"m, " Ifc \"$zst_cmd\"")
 						s = replace(s, r"@echo \"Firefox version\K  ( : \")", s"\1")
+						s = replace(s, r"^.*\btouch\b.*\n"m => (("")))
 						s = replace(s, r"^ext:=\.tar\K\.gz$"m, ".zst")
 						s = replace(s,
 							"""	mv \$(ff_source_dir) \$(sf_source_dir)\n""" *
@@ -251,15 +250,6 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"MOZ_APP_VENDOR=0h7z\n" *
 							"MOZ_MACBUNDLE_NAME=Snowfox.app\n", "e")
 					end
-					if (f ≡ "firefox-view.patch")
-						s = replace(s,
-							"""   },\n""" *
-							""" \n""" *
-							"""   _updateForNewProtonVersion() {\n""",
-							""" \n""" *
-							"""     // Unified Extensions addon button migration, which puts any browser action\n""" *
-							"""     // buttons in the overflow menu into the addons panel instead.\n""", "p")
-					end
 					if (f ≡ "generate-locales.sh")
 						p = "  " * "find browser/locales/l10n/\$1 -type f -exec sed -i"
 						q = "{} \\;\n"
@@ -299,7 +289,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"$p -z -r 's/(import-from-firefox\\s*=\\s*\\.label\\s*=\\s*)Snowfox/\\1Firefox/g' $q" *
 							#
 							"$p -e 's/Mozilla Snowfox/Snowfox/g' $q", "p")
-						s = replace(s, r"^N=8$"m => raw"N=`[[ $(nproc) -ge 8 ]] && nproc || echo 8`")
+						s = replace(s, r"^N=\K\d+$"m => max(Sys.CPU_THREADS, 8))
 					end
 					if (f ≡ "patches.txt")
 						for p ∈ patch_g
@@ -386,15 +376,6 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						end
 					end
 					if (f ≡ "snowfox-pref-pane.patch")
-						p = "fxa/fxa-spinner.svg"
-						s = replace(s, "spotlight.css", p, "w")
-						s = replace(s, "$p$(' '^27)(" => "$p$(' '^21)(")
-						p = "fxa/sync-illustration.svg"
-						s = replace(s, "upgradeDialog/abstract.png", p, "w")
-						s = replace(s, "$p$(' '^14)(" => "$p$(' '^15)(")
-						p = "fxa/sync-illustration-issue.svg"
-						s = replace(s, "upgradeDialog/cheers.png", p, "w")
-						s = replace(s, "$p$(' '^16)(" => "$p$(' '^09)(")
 						p = "browser/themes/shared/preferences/category-snowfox.svg"
 						p = "diff --git a/$p b/$p"
 						s = replace(s,
@@ -452,6 +433,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("intl.date_time.pattern_override.time_long", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_medium", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_short", "HH:mm:ss");\n""" *
+							"""defaultPref("media.eme.showBrowserMessage", false);\n""" *
 							"""defaultPref("network.http.useragent.forceVersion", $UAV);\n""" *
 							"""defaultPref("snowfox.app.checkVersion.enabled", true);\n""" *
 							"""defaultPref("snowfox.app.checkVersion.url", "$url_api/releases");\n""" *
