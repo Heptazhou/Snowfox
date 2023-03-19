@@ -19,6 +19,7 @@
 include("base_func.jl")
 
 const zst_cmd = "zstd -17 -M1024M -T$(Sys.CPU_THREADS) --long"
+const url_spt = "https://support.mozilla.org/1/firefox/$UAV.0/%OS%/%LOCALE%/" # %VERSION% -> $UAV.0
 const url_git = "https://github.com/0h7z/Snowfox"
 const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
@@ -58,6 +59,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, " [ab]/browser/components/BrowserGlue\\K\\.jsm", ".sys.mjs")
 						s = replace(s, " [ab]\\K/lw/", "/snowfox/")
 						s = replace(s, r"^diff --git .+?\K\blibrewolf\b"m, "snowfox")
+						s = replace(s, r"^rename to\ .+?\K\blibrewolf\b"m, "snowfox")
 						for p ∈ schemes
 							s = replace(s -> startswith(s, '+') ? replace(s, p...) : s, split(s, '\n')) |> s -> join(s, '\n')
 						end
@@ -83,7 +85,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					s = replace(s, "github.com/Snowfox-Browser", "github.com/0h7z", "w")
 					s = replace(s, "io.gitlab", "com.0h7z", "w")
 					s = replace(s, "io/gitlab", "com/0h7z", "w")
-					s = replace(s, "referes", s"referrers", "w")
+					s = replace(s, "overriden", "overridden", "w")
+					s = replace(s, "referes", "referrers", "w")
 					s = replace(s, "snowfox-{}-{}", "snowfox-v{}-{}", "p")
 					s = replace(s, "snowfox-\$(full_version)", "snowfox-v\$(full_version)", "p")
 					s = replace(s, "snowfox-\$(version)", "snowfox-v\$(version)", "p")
@@ -404,16 +407,16 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						for p ∈ [
 							"app.releaseNotesURL.aboutDialog" => "$url_doc#v%VERSION%",
 							"app.releaseNotesURL"             => "$url_doc#v%VERSION%",
+							"app.support.baseURL"             => "$url_spt",
 							"app.update.url.details"          => "$url_git/releases",
 							"app.update.url.manual"           => "$url_git/releases",
 						]
 							s = replace(s,
-								"""("$(p[1])", "https://gitlab.com/librewolf-community/browser")""",
-								"""("$(p[1])", "$(p[2])")""", "p")
+								"""("$(p[1])", "[^\"]*?")""" |> s -> escape_string(s, "(.)"),
+								"""("$(p[1])", "$(p[2])")""", n = 1)
 						end
 						for p ∈ [
 							"app.feedback.baseURL"                # https://ideas.mozilla.org/
-							"app.support.baseURL"                 # https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/
 							"browser.geolocation.warning.infoURL" # https://www.mozilla.org/%LOCALE%/firefox/geolocation/
 							"browser.search.searchEnginesURL"     # https://addons.mozilla.org/%LOCALE%/firefox/search-engines/
 						]
@@ -439,7 +442,6 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("snowfox.app.checkVersion.url", "$url_api/releases");\n""" *
 							"""lockPref("browser.dataFeatureRecommendations.enabled", false);\n""" *
 							"""lockPref("browser.firefox-view.view-count", 0);\n""" *
-							"""lockPref("browser.privacySegmentation.createdShortcut", true);\n""" *
 							"""lockPref("browser.privacySegmentation.preferences.show", false);\n""" *
 							"""pref("network.http.useragent.forceVersion", $UAV);\n""" *
 							"""pref("privacy.donottrackheader.enabled", true);\n""" *
@@ -484,7 +486,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 	end
 end
 
-const SUBMODULES = something(tryparse.(Bool, ARGS)..., false)
+const SUBMODULES = something(tryparse.(Bool, [ARGS; "0"])...)
 
 filter!(!=("/"), ARGS)
 if isempty(ARGS)

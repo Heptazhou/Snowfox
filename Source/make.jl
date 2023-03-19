@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"111.0-2"
+const VER = v"111.0-3"
 
 function build()
 	@info "Building . . ."
@@ -38,7 +38,7 @@ function build()
 		Sys.iswindows() && (@warn "Not allowed."; return)
 		v = v_read(VER)[begin]
 		f = ["../", ""] .* "firefox-$v.source.tar.xz"
-		f .|> isfile == ([true, false]) && cp(f...)
+		f .|> isfile == [1, 0] && cp(f...)
 		@run [GMK, "all"]
 		dir = mkpath("../$PKG")
 		for f in filter!(isfile, readdir())

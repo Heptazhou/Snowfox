@@ -23,6 +23,8 @@ const patch_b =
 	[
 		"linux/assets/tryfix-reslink-fail.patch";
 	]
+const ahk_zip = "https://github.com/Heptazhou/AutoHotKey/releases/latest/download/ahk.zip"
+# https://github.com/Heptazhou/AutoHotKey | v1.1.36.02
 
 function update(dir::String, recursive::Bool = SUBMODULES)
 	@info dir recursive
@@ -68,12 +70,14 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					s = replace(s, raw"snowfox-$(full_version)" => raw"snowfox-v$(full_version)")
 					s = replace(s, raw"snowfox-$(version)" => raw"snowfox-v$(version)")
 					s = replace(s, raw"snowfox-$$(cat version)" => raw"snowfox-v$$(cat version)")
+					s = replace(s, raw"snowfox-v([^/\s\.]+)\.en-US\.", s"snowfox-\1.en-US.")
 					s = replace(s, raw"snowfox-v\$\(full_version\)\.source\.tar\K\.gz", (".zst"))
 					s = replace(s, raw"snowfox-v\$\$\(cat version\)-\$\$\(cat source_release\)\.source\.tar\K\.gz", (".zst"))
 					if (f ≡ "Makefile") || endswith(".mk")(f)
 						p = raw"$(release)"
 						s = replace(s, "[ $p -gt 1 ] && echo \"-$p\"" => "[[ $p -ge 1 ]] && echo \"+$p\"")
 						s = replace(s, "s/pkg_version/\$(full_version)/g" => "s/pkg_version/v\$(full_version)/g")
+						s = replace(s, r"\bfirefox\b" => "snowfox")
 						s = replace(s, r"^.*\btryfix-reslink-fail\.patch\b.*\n"m => "")
 					end
 					if (f ≡ "Makefile")
@@ -99,7 +103,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""	\${MAKE} -f assets/artifacts.mk artifacts\n""" * "\n",
 							"""	\${MAKE} -f assets/artifacts.mk artifacts\n""" *
 							"""	rm -rf /pkg && mkdir /pkg\n""" *
-							"""	cp -pt /pkg snowfox-*.exe snowfox-*.zip\n""" * "\n", "p") # ~ do not sort this
+							"""	cp -pt /pkg snowfox-v*.exe snowfox-v*.zip\n""" * "\n", "p") # ~ do not sort this
 					end
 					if (f ≡ "artifacts.mk")
 						p = "Snowfox-Portable"
@@ -109,22 +113,19 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"^wine=\Kwineconsole\b"m => "~/.mozbuild/wine/bin/wine64")
 						s = replace(s, raw"&&" * " \\\n\n" => " )\n\n")
 						s = replace(s,
-							"""	mv work/snowfox/firefox.exe work/snowfox/snowfox.exe\n""" *
+							"""	mv work/snowfox work/snowfox\n""" *
+							"""	mv work/snowfox/snowfox.exe work/snowfox/snowfox.exe\n""" *
 							"""	cp assets/snowfox.ico work/snowfox\n""",
-							"""	mv work/snowfox/firefox.exe work/snowfox/snowfox.exe\n""" *
-							"""	rm work/snowfox/browser/VisualElements/PrivateBrowsing_*\n""" *
-							"""	rm work/snowfox/pingsender.*\n""" *
-							"""	rm work/snowfox/precomplete\n""" *
-							"""	rm work/snowfox/private_browsing.*\n""" *
+							"""	rm work/snowfox/pingsender.exe\n""" *
 							"""	rm work/snowfox/removed-files\n""" *
 							"""	cp assets/snowfox.ico work/snowfox\n""", "p") # ~ do not sort this
 						s = replace(s,
 							r"#\K[^\n]*" * "ahk-tools" * r"[\S\s]*?" *
 							"""	( cd work/snowfox-v\$(full_version) &&""" * r"[\S\s]*?" * ")\n\n",
 							"""\n\n\n""" *
-							"""	( cd work && git clone "https://github.com/Heptazhou/$p" )\n""" *
+							"""	( cd work && git clone https://github.com/Heptazhou/$p )\n""" *
 							"""	( cd work && cp $p/*.ahk $p/*.exe snowfox-v\$(full_version) )\n""" *
-							"""	( cd work && curl -LO "https://www.autohotkey.com/download/ahk.zip" )\n""" *
+							"""	( cd work && curl -LO $ahk_zip )\n""" *
 							"""	( cd work && mkdir ahk && cd ahk && unzip -q ../ahk.zip )\n""" *
 							"""	( cd work/$q && rm -f -r  Compiler  &&  mkdir  Compiler )\n""" *
 							"""	( cd work/$q && cp ../ahk/Compiler/*64-bit.bin Compiler )\n""" *
@@ -136,7 +137,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s,
 							"$p --with-app-name=\\w+\n" *
 							"$p --with-branding=browser/branding/\\w+\n",
-							"$p --with-app-name=firefox\n" *
+							"$p --with-app-name=snowfox\n" *
 							"$p --enable-update-channel=release\n" *
 							"$p --with-branding=browser/branding/snowfox\n", "e") # ~ do not sort this
 						p = "mk_add_options"
@@ -168,7 +169,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 	end
 end
 
-const SUBMODULES = something(tryparse.(Bool, ARGS)..., false)
+const SUBMODULES = something(tryparse.(Bool, [ARGS; "0"])...)
 
 filter!(!=("/"), ARGS)
 if isempty(ARGS)

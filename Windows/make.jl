@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/windows.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"111.0-2"
+const VER = v"111.0-3"
 
 function clean()
 	@info "Cleaning . . ."
@@ -49,7 +49,7 @@ function fetch()
 			open("release", "w") do io
 				println(io, v3)
 			end
-			something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "0")), false) || return
+			something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "")), false) || return
 			cd(@__DIR__)
 			for f in "$REL/v$VER/snowfox-v$v1-$v2.source.tar.zst" .* [".sha256", ""]
 				f |> basename |> ispath || curl("-LO", f)
