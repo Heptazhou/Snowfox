@@ -108,6 +108,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					if (f ≡ "artifacts.mk")
 						p = "Snowfox-Portable"
 						q = "snowfox-v\$(full_version)"
+						r = """lockPref("browser.privacySegmentation.createdShortcut", true)\\n"""
 						s = replace(s, ("/$p/$p.* ") => ("/$p/*.ahk "))
 						s = replace(s, r"^.*\bWinUpdater\b.*\n"m => "")
 						s = replace(s, r"^wine=\Kwineconsole\b"m => "~/.mozbuild/wine/bin/wine64")
@@ -121,16 +122,18 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""	cp assets/snowfox.ico work/snowfox\n""", "p") # ~ do not sort this
 						s = replace(s,
 							r"#\K[^\n]*" * "ahk-tools" * r"[\S\s]*?" *
-							"""	( cd work/snowfox-v\$(full_version) &&""" * r"[\S\s]*?" * ")\n\n",
+							"""	( cd work/$q &&""" * r"[\S\s]*?" * ")\n\n",
 							"""\n\n\n""" *
 							"""	( cd work && git clone https://github.com/Heptazhou/$p )\n""" *
-							"""	( cd work && cp $p/*.ahk $p/*.exe snowfox-v\$(full_version) )\n""" *
+							"""	( cd work && cp $p/*.ahk $p/*.exe $q )\n""" *
 							"""	( cd work && curl -LO $ahk_zip )\n""" *
 							"""	( cd work && mkdir ahk && cd ahk && unzip -q ../ahk.zip )\n""" *
 							"""	( cd work/$q && rm -f -r  Compiler  &&  mkdir  Compiler )\n""" *
 							"""	( cd work/$q && cp ../ahk/Compiler/*64-bit.bin Compiler )\n""" *
 							"""	( cd work/$q && cp ../ahk/Compiler/Ahk2Exe.exe Compiler )\n""" *
-							"""	( cd work/$q && cp ../snowfox/snowfox.ico ./Snowfox.ico )\n""" * "\n") # ~ do not sort this
+							"""	( cd work/$q && cp ../snowfox/snowfox.ico ./Snowfox.ico )\n""" *
+							"""	( cd work/$q && echo -e '$r' \\\n\t> Profiles/Default/snowfox.config.js )""" *
+							"""\n\n\n""", "e") # ~ do not sort this
 					end
 					if (f ≡ "mozconfig")
 						p = "ac_add_options"
