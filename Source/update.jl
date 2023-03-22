@@ -25,7 +25,7 @@ const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "4868d3a3dbc3219372a2a09a53e1230fe1807a04.patch"
+		"../" * "6a2f6f119c23b1b63aa2b8a72cfc850b4fb5049a.patch"
 		"patches/removed-patches/allow_dark_preference_with_rfp.patch"
 	]
 const patch_b =
@@ -443,6 +443,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""lockPref("browser.dataFeatureRecommendations.enabled", false);\n""" *
 							"""lockPref("browser.firefox-view.view-count", 0);\n""" *
 							"""lockPref("browser.privacySegmentation.preferences.show", false);\n""" *
+							"""pref("network.http.useragent.forceRVOnly", 0);\n""" *
 							"""pref("network.http.useragent.forceVersion", $UAV);\n""" *
 							"""pref("privacy.donottrackheader.enabled", true);\n""" *
 							"""pref("security.OCSP.require", true);\n""" *
