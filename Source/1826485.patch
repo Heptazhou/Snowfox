@@ -1,0 +1,430 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 27d732be56ec..62391c92752e 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -3425,7 +3425,7 @@ dependencies = [
+  "libc",
+  "log",
+  "miow",
+- "ntapi",
++ "ntapi 0.3.999",
+  "winapi",
+ ]
+ 
+@@ -3856,9 +3856,16 @@ dependencies = [
+ 
+ [[package]]
+ name = "ntapi"
+-version = "0.3.7"
++version = "0.3.999"
++dependencies = [
++ "ntapi 0.4.0",
++]
++
++[[package]]
++name = "ntapi"
++version = "0.4.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "c28774a7fd2fbb4f0babd8237ce554b73af68021b5f695a3cebd6c59bac0980f"
++checksum = "bc51db7b362b205941f71232e56c625156eb9a929f8cf74a428fd5bc094a4afc"
+ dependencies = [
+  "winapi",
+ ]
+diff --git a/Cargo.toml b/Cargo.toml
+index 63dc1a1f991d..ba30153af03a 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -130,6 +130,9 @@ memoffset = { path = "build/rust/memoffset" }
+ # Patch nom 6 to 7
+ nom = { path = "build/rust/nom" }
+ 
++# Patch ntapi 0.3 to 0.4
++ntapi = { path = "build/rust/ntapi" }
++
+ # Patch nix 0.24 to 0.25
+ nix = { path = "build/rust/nix" }
+ 
+diff --git a/build/rust/ntapi/Cargo.toml b/build/rust/ntapi/Cargo.toml
+new file mode 100644
+index 000000000000..ad1b4c85d0c2
+--- /dev/null
++++ b/build/rust/ntapi/Cargo.toml
+@@ -0,0 +1,11 @@
++[package]
++name = "ntapi"
++version = "0.3.999"
++edition = "2018"
++license = "MPL-2.0"
++
++[lib]
++path = "lib.rs"
++
++[dependencies.ntapi]
++version = "0.4"
+diff --git a/build/rust/ntapi/lib.rs b/build/rust/ntapi/lib.rs
+new file mode 100644
+index 000000000000..dad8b6bf78f3
+--- /dev/null
++++ b/build/rust/ntapi/lib.rs
+@@ -0,0 +1,5 @@
++/* This Source Code Form is subject to the terms of the Mozilla Public
++ * License, v. 2.0. If a copy of the MPL was not distributed with this
++ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
++
++pub use ntapi::*;
+diff --git a/supply-chain/audits.toml b/supply-chain/audits.toml
+index f35e59af59c4..971a5d17c274 100644
+--- a/supply-chain/audits.toml
++++ b/supply-chain/audits.toml
+@@ -1435,6 +1435,11 @@ criteria = "safe-to-deploy"
+ version = "0.2.1"
+ notes = "Maintained by the CryptoEng team at Mozilla."
+ 
++[[audits.ntapi]]
++who = "Mike Hommey <mh+mozilla@glandium.org>"
++criteria = "safe-to-deploy"
++delta = "0.3.7 -> 0.4.0"
++
+ [[audits.num]]
+ who = "Josh Stone <jistone@redhat.com>"
+ criteria = "safe-to-deploy"
+diff --git a/third_party/rust/ntapi/.cargo-checksum.json b/third_party/rust/ntapi/.cargo-checksum.json
+index 8a9d4be0f7f9..7d42314b246c 100644
+--- a/third_party/rust/ntapi/.cargo-checksum.json
++++ b/third_party/rust/ntapi/.cargo-checksum.json
+@@ -1 +1 @@
+-{"files":{"Cargo.toml":"766a317c4703d827a8405fca763dcc4aab451c7424b666bfccd39caad3341c85","LICENSE-APACHE":"cf90d659de5c1e6418267ab8043b756e65508ee5d8d50b29eb2d2fe444c2c3eb","LICENSE-MIT":"11a7964ccc0dd115d16720ab1d826c5d03e52838748ffaba3d21bae8bcacd82a","README.md":"3be48f39b5fea8f1091aeef02338ef2c0ca7321750ec043bee9ab3c7ac990e54","build.rs":"13a274ea4cb1886872626b8a98269e9bf2e1f93cb1068fc8c797e421746cac7e","src/lib.rs":"5bd23124340783c9d7ba365b85dd7b78efe7345ccfa6a734ecb4a13604f423c9","src/macros.rs":"b0a852ebea2e1aed3e7d70eeadc8356778b064d2eca6e796598e9ab37ac54175","src/ntapi_base.rs":"b2edefaf68709c32f7fb4377ea21457afd3c7546ba59596f9f25bbaeb220f4d4","src/ntdbg.rs":"f891d4b26ef9d6c68ca098ab70bb4b1dd4d7e1d05e0f65c32bc6cb1151528f91","src/ntexapi.rs":"9dc7765b30daddc21068b7ca7a2c07f96b97e2f80f81ef631f8cc8b979a4c8c9","src/ntgdi.rs":"9fa6610566d77e95294432957f8cb8564cef3bb09d2d8d0adcf23047fa3a5221","src/ntioapi.rs":"577f3c3d83a95a965fff62efbdaa01769e9b3cf713f0d296a948f34cdfddcedc","src/ntkeapi.rs":"1ede6613c94303e6087e30e64ee1f1623eada9d088ce50992904e1812b263923","src/ntldr.rs":"c9be16003da83f82599a419995fbf4f15e047f24166f700dd4b08c0e58adb5a8","src/ntlpcapi.rs":"da5070b1c1adad34091aedd01d2b888daa4dc9446fdcd69668565e6eeb2db11f","src/ntmisc.rs":"4904e383065828b86013ebd3b85d45b384b522899954ac89c561963061acc962","src/ntmmapi.rs":"3a371e9edb7df91d1242f9dae92bf6d295c9b6c3ca65846c8d1ebbba55bdf7ee","src/ntnls.rs":"ef90b985da124d2f4c4b8cb0addab766a0928843b4afa4bce40b3a9fcddaf163","src/ntobapi.rs":"3071d8bc73e40d92d769e4093744820c0a5e116ecf4a94676ca3cdc008adfd8e","src/ntpebteb.rs":"94a9fbc1b3c48fa368f1b602fa205d41d3201e4d8c638c0898402eb3ebb5b72a","src/ntpfapi.rs":"37270db61f2562cd5481302c2a5a64be186b8c7126eacfe12b6c66e9bec4bf61","src/ntpnpapi.rs":"cfcaa3dd6110f25a48c51c011bb8369e83e3817e142afb412e40d6e4b868a036","src/ntpoapi.rs":"a535206a89cd42f81e3b931e5802f8b3343fd35387e9f3fedd9b042a78853f34","src/ntpsapi.rs":"5f4b3d176bbbbe6aee3d38a905990911732dbf08569c1fe4e273b38e46d63d49","src/ntregapi.rs":"a6f5a830b48e88fd0a4824036fffda2d2d80d1cad07baf37607121142f2c4777","src/ntrtl.rs":"9ac601ec4425cde859e7fda902a77fe2ff6612fb13c28168e83fe528ec78d64a","src/ntsam.rs":"dc59cfa944c27cf02b782fdbf110de4757ca6ae77806820a64a17742670242b4","src/ntseapi.rs":"c87688e028aa05513e361bb72288ef3af2f3dfe8e923745a84409d8fdeee57fd","src/ntsmss.rs":"6ac1f029b56a2a8856569c3acbedd7c560d2ccfac030aa2f2178f52d9312cdc5","src/nttmapi.rs":"7092c8b35aae642572c333b0fef1fe4a32f5a9c563249b585766317051670db5","src/nttp.rs":"47be534d36af7d6a715c87ef646824162bd3eb47f86a85ed8357c987c1a4fcdd","src/ntwow64.rs":"725baf7b32d24c0800abf730b58335e682332b821636ca699c40e80ba7148f94","src/ntxcapi.rs":"54fcadd43a0e146ade8ebdd750b09872d0e8f7a1295a9646910529048d5f6dca","src/ntzwapi.rs":"012932586fdbcac8eff57d90ce640e10d20e150dc7702100d1ea46f6f261f868","src/string.rs":"ac0e73f37384e03f14d9dc47fcfb3620a4157e122481f30c82b16fb21ab86a40","src/subprocesstag.rs":"4c85e44c91521cb20e5c6624b0cf4b27ca6ac7c3e560854ad34e0e66fb809971","src/winapi_local.rs":"2003099deec5e7039e5d2dd0aa6a43120816f67e94f4d9909c7f6689b62747e4","src/winapi_local/um.rs":"48859dfb53520bdd569c052ac26d06de2d16c57403ffbe4febbc1e1f25847f45","src/winapi_local/um/winioctl.rs":"00020fcda499ce558edfa4d684f5b4e198cbcfa5b3b8e9b62a122c0aca46514f","src/winapi_local/um/winnt.rs":"fc1a3ba99e305ec752528a00ceb02457fe73f4a7875370fe2ffaaaa5336ebfbf","src/winsta.rs":"c5a28c5c55f08745b2b100a5a374af821cf173b053eb8ee54ae19a85455d3fac"},"package":"c28774a7fd2fbb4f0babd8237ce554b73af68021b5f695a3cebd6c59bac0980f"}
+\ No newline at end of file
++{"files":{"Cargo.toml":"c590838810b459f0055af8724e1ac392570a0dcf223bf403b87f728a14c6a500","LICENSE-APACHE":"cf90d659de5c1e6418267ab8043b756e65508ee5d8d50b29eb2d2fe444c2c3eb","LICENSE-MIT":"11a7964ccc0dd115d16720ab1d826c5d03e52838748ffaba3d21bae8bcacd82a","README.md":"748712a61ff52ec28ed1695b01975a379125f9c3e8a4ad5b2e9b64096c2a3df1","build.rs":"13a274ea4cb1886872626b8a98269e9bf2e1f93cb1068fc8c797e421746cac7e","src/lib.rs":"261643e01f42e3b04cc0760811da090348923d40761c863eebb4735af6294207","src/macros.rs":"b0a852ebea2e1aed3e7d70eeadc8356778b064d2eca6e796598e9ab37ac54175","src/ntapi_base.rs":"b2edefaf68709c32f7fb4377ea21457afd3c7546ba59596f9f25bbaeb220f4d4","src/ntdbg.rs":"f891d4b26ef9d6c68ca098ab70bb4b1dd4d7e1d05e0f65c32bc6cb1151528f91","src/ntexapi.rs":"9be1b1d061055b6f5276093db8346ecf148d0ad6e438d185a16b126acb514c22","src/ntgdi.rs":"9fa6610566d77e95294432957f8cb8564cef3bb09d2d8d0adcf23047fa3a5221","src/ntioapi.rs":"577f3c3d83a95a965fff62efbdaa01769e9b3cf713f0d296a948f34cdfddcedc","src/ntkeapi.rs":"1ede6613c94303e6087e30e64ee1f1623eada9d088ce50992904e1812b263923","src/ntldr.rs":"e70ac420828f47d35dade883efee4231b6455d53ff4d317ecf6d809d7bc5a2bc","src/ntlpcapi.rs":"da5070b1c1adad34091aedd01d2b888daa4dc9446fdcd69668565e6eeb2db11f","src/ntmisc.rs":"4904e383065828b86013ebd3b85d45b384b522899954ac89c561963061acc962","src/ntmmapi.rs":"3a371e9edb7df91d1242f9dae92bf6d295c9b6c3ca65846c8d1ebbba55bdf7ee","src/ntnls.rs":"ef90b985da124d2f4c4b8cb0addab766a0928843b4afa4bce40b3a9fcddaf163","src/ntobapi.rs":"3071d8bc73e40d92d769e4093744820c0a5e116ecf4a94676ca3cdc008adfd8e","src/ntpebteb.rs":"94a9fbc1b3c48fa368f1b602fa205d41d3201e4d8c638c0898402eb3ebb5b72a","src/ntpfapi.rs":"37270db61f2562cd5481302c2a5a64be186b8c7126eacfe12b6c66e9bec4bf61","src/ntpnpapi.rs":"cfcaa3dd6110f25a48c51c011bb8369e83e3817e142afb412e40d6e4b868a036","src/ntpoapi.rs":"a535206a89cd42f81e3b931e5802f8b3343fd35387e9f3fedd9b042a78853f34","src/ntpsapi.rs":"2ed2af3e90054aaf260952adcc4e46d6935db1efd57f843124f942388ecfc6ce","src/ntregapi.rs":"a6f5a830b48e88fd0a4824036fffda2d2d80d1cad07baf37607121142f2c4777","src/ntrtl.rs":"d970ae6cba47f346eef103d6bcac7260bb7fc70ebb7ec226b09acb6c5bc1f6c6","src/ntsam.rs":"dc59cfa944c27cf02b782fdbf110de4757ca6ae77806820a64a17742670242b4","src/ntseapi.rs":"c87688e028aa05513e361bb72288ef3af2f3dfe8e923745a84409d8fdeee57fd","src/ntsmss.rs":"6ac1f029b56a2a8856569c3acbedd7c560d2ccfac030aa2f2178f52d9312cdc5","src/nttmapi.rs":"7092c8b35aae642572c333b0fef1fe4a32f5a9c563249b585766317051670db5","src/nttp.rs":"47be534d36af7d6a715c87ef646824162bd3eb47f86a85ed8357c987c1a4fcdd","src/ntwow64.rs":"725baf7b32d24c0800abf730b58335e682332b821636ca699c40e80ba7148f94","src/ntxcapi.rs":"54fcadd43a0e146ade8ebdd750b09872d0e8f7a1295a9646910529048d5f6dca","src/ntzwapi.rs":"012932586fdbcac8eff57d90ce640e10d20e150dc7702100d1ea46f6f261f868","src/string.rs":"ac0e73f37384e03f14d9dc47fcfb3620a4157e122481f30c82b16fb21ab86a40","src/subprocesstag.rs":"4c85e44c91521cb20e5c6624b0cf4b27ca6ac7c3e560854ad34e0e66fb809971","src/winapi_local.rs":"2003099deec5e7039e5d2dd0aa6a43120816f67e94f4d9909c7f6689b62747e4","src/winapi_local/um.rs":"48859dfb53520bdd569c052ac26d06de2d16c57403ffbe4febbc1e1f25847f45","src/winapi_local/um/winioctl.rs":"00020fcda499ce558edfa4d684f5b4e198cbcfa5b3b8e9b62a122c0aca46514f","src/winapi_local/um/winnt.rs":"2640f7d4027632d45708fc085baaf90f55f792e9b9802625f2b7d4e7655f9da4","src/winsta.rs":"c5a28c5c55f08745b2b100a5a374af821cf173b053eb8ee54ae19a85455d3fac"},"package":"bc51db7b362b205941f71232e56c625156eb9a929f8cf74a428fd5bc094a4afc"}
+\ No newline at end of file
+diff --git a/third_party/rust/ntapi/Cargo.toml b/third_party/rust/ntapi/Cargo.toml
+index 35516ff80ed2..910602308637 100644
+--- a/third_party/rust/ntapi/Cargo.toml
++++ b/third_party/rust/ntapi/Cargo.toml
+@@ -12,29 +12,58 @@
+ [package]
+ edition = "2018"
+ name = "ntapi"
+-version = "0.3.7"
++version = "0.4.0"
+ authors = ["MSxDOS <melcodos@gmail.com>"]
+-include = ["src/**/*", "Cargo.toml", "build.rs", "README.md", "LICENSE-APACHE", "LICENSE-MIT"]
++include = [
++    "src/**/*",
++    "Cargo.toml",
++    "build.rs",
++    "README.md",
++    "LICENSE-APACHE",
++    "LICENSE-MIT",
++]
+ description = "FFI bindings for Native API"
+ documentation = "https://docs.rs/ntapi/*/x86_64-pc-windows-msvc/ntapi/"
+ readme = "README.md"
+-keywords = ["windows", "ffi", "ntapi", "native", "win32"]
+-categories = ["external-ffi-bindings", "no-std", "os::windows-apis"]
++keywords = [
++    "windows",
++    "ffi",
++    "ntapi",
++    "native",
++    "win32",
++]
++categories = [
++    "external-ffi-bindings",
++    "no-std",
++    "os::windows-apis",
++]
+ license = "Apache-2.0 OR MIT"
+ repository = "https://github.com/MSxDOS/ntapi"
++
+ [package.metadata.docs.rs]
+ default-target = "x86_64-pc-windows-msvc"
+-features = ["beta"]
+-targets = ["aarch64-pc-windows-msvc", "i686-pc-windows-msvc", "x86_64-pc-windows-msvc"]
++targets = [
++    "aarch64-pc-windows-msvc",
++    "i686-pc-windows-msvc",
++    "x86_64-pc-windows-msvc",
++]
++
+ [dependencies.winapi]
+ version = "0.3.9"
+-features = ["cfg", "evntrace", "in6addr", "inaddr", "minwinbase", "ntsecapi", "windef", "winioctl"]
++features = [
++    "cfg",
++    "evntrace",
++    "in6addr",
++    "inaddr",
++    "minwinbase",
++    "ntsecapi",
++    "windef",
++    "winioctl",
++]
+ 
+ [features]
+-beta = []
+ default = ["user"]
+ func-types = []
+ impl-default = ["winapi/impl-default"]
+ kernel = []
+-nightly = ["beta"]
+ user = []
+diff --git a/third_party/rust/ntapi/README.md b/third_party/rust/ntapi/README.md
+index d438de3e259f..5011accad55a 100644
+--- a/third_party/rust/ntapi/README.md
++++ b/third_party/rust/ntapi/README.md
+@@ -3,7 +3,7 @@
+ Rust FFI bindings for Native API. Mostly based on Process Hacker [phnt](https://github.com/processhacker/processhacker/tree/master/phnt) headers as the most complete source of bindings to be found. The comments there also contain useful information on how to use specific things.
+ 
+ ### Minimum supported Rust
+-Always the latest stable. Some [features][docs_link] require a beta compiler.
++1.64
+ 
+ [appveyor_link]: https://ci.appveyor.com/project/MSxDOS/ntapi
+ [appveyor_badge]: https://ci.appveyor.com/api/projects/status/i1fcmm0c5b7c6b6u/branch/master?svg=true
+diff --git a/third_party/rust/ntapi/src/lib.rs b/third_party/rust/ntapi/src/lib.rs
+index 6b06b6c57e00..0f7708cbe879 100644
+--- a/third_party/rust/ntapi/src/lib.rs
++++ b/third_party/rust/ntapi/src/lib.rs
+@@ -3,26 +3,7 @@
+ //! **`impl-default`** -- Implement [`Default`] for structs and unions.<br/>
+ //! **`user`** *(default)* -- Link to `ntdll`.<br/>
+ //! **`kernel`** -- Link to `ntoskrnl` on MSVC targets.<br/>
+-//! **`beta`** --  Unlock unstable features that require a beta compiler:
+-//! - [`NtCurrentTeb`]
+-//! - [`__readfsdword`]
+-//! - [`__readgsqword`]
+-//! - [`_bittest64`]
+-//! - [`NtCurrentPeb`]
+-//! - [`NtCurrentProcessId`]
+-//! - [`NtCurrentThreadId`]
+-//! - [`RtlProcessHeap`]
+-//! - [`RtlCheckBit`] implementation using [`_bittest64`] on x86_64.
+ //!
+-//! [`NtCurrentTeb`]: winapi_local/um/winnt/fn.NtCurrentTeb.html
+-//! [`__readfsdword`]: winapi_local/um/winnt/fn.__readfsdword.html
+-//! [`__readgsqword`]: winapi_local/um/winnt/fn.__readgsqword.html
+-//! [`_bittest64`]: winapi_local/um/winnt/fn._bittest64.html
+-//! [`NtCurrentPeb`]: ntpsapi/fn.NtCurrentPeb.html
+-//! [`NtCurrentProcessId`]: ntpsapi/fn.NtCurrentProcessId.html
+-//! [`NtCurrentThreadId`]: ntpsapi/fn.NtCurrentThreadId.html
+-//! [`RtlProcessHeap`]: ntrtl/fn.RtlProcessHeap.html
+-//! [`RtlCheckBit`]: ntrtl/fn.RtlCheckBit.html
+ //! [fn_ptr]: https://doc.rust-lang.org/reference/types.html#function-pointer-types
+ //! [`Default`]: https://doc.rust-lang.org/std/default/trait.Default.html#tymethod.default
+ #![cfg(all(windows, any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64")))]
+diff --git a/third_party/rust/ntapi/src/ntexapi.rs b/third_party/rust/ntapi/src/ntexapi.rs
+index 5fa47c913728..08a0ddf9efa2 100644
+--- a/third_party/rust/ntapi/src/ntexapi.rs
++++ b/third_party/rust/ntapi/src/ntexapi.rs
+@@ -1,7 +1,9 @@
+-use core::mem::uninitialized;
++use core::mem::MaybeUninit;
++#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
++use core::ptr::addr_of;
+ use core::ptr::read_volatile;
+ #[cfg(target_arch = "x86")]
+-use core::sync::atomic::spin_loop_hint;
++use core::hint::spin_loop;
+ use crate::ntapi_base::{CLIENT_ID, KPRIORITY, KSYSTEM_TIME, PRTL_ATOM, RTL_ATOM};
+ use crate::ntioapi::{BUS_DATA_TYPE, FILE_IO_COMPLETION_INFORMATION, INTERFACE_TYPE};
+ use crate::ntkeapi::{KPROFILE_SOURCE, KTHREAD_STATE, KWAIT_REASON};
+@@ -2778,9 +2780,9 @@ pub type PKUSER_SHARED_DATA = *mut KUSER_SHARED_DATA;
+ pub const USER_SHARED_DATA: *const KUSER_SHARED_DATA = 0x7ffe0000 as *const _;
+ #[inline]
+ pub unsafe fn NtGetTickCount64() -> ULONGLONG {
+-    let mut tick_count: ULARGE_INTEGER = uninitialized();
++    let mut tick_count: ULARGE_INTEGER = MaybeUninit::uninit().assume_init();
+     #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))] {
+-        *tick_count.QuadPart_mut() = read_volatile(&(*USER_SHARED_DATA).u.TickCountQuad);
++        *tick_count.QuadPart_mut() = read_volatile(addr_of!((*USER_SHARED_DATA).u.TickCountQuad));
+     }
+     #[cfg(target_arch = "x86")] {
+         loop {
+@@ -2792,7 +2794,7 @@ pub unsafe fn NtGetTickCount64() -> ULONGLONG {
+             {
+                 break;
+             }
+-            spin_loop_hint();
++            spin_loop();
+         }
+     }
+     (UInt32x32To64(tick_count.s().LowPart, (*USER_SHARED_DATA).TickCountMultiplier) >> 24)
+@@ -2804,11 +2806,11 @@ pub unsafe fn NtGetTickCount64() -> ULONGLONG {
+ #[inline]
+ pub unsafe fn NtGetTickCount() -> ULONG {
+     #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))] {
+-        ((read_volatile(&(*USER_SHARED_DATA).u.TickCountQuad)
++        ((read_volatile(addr_of!((*USER_SHARED_DATA).u.TickCountQuad))
+             * (*USER_SHARED_DATA).TickCountMultiplier as u64) >> 24) as u32
+     }
+     #[cfg(target_arch = "x86")] {
+-        let mut tick_count: ULARGE_INTEGER = uninitialized();
++        let mut tick_count: ULARGE_INTEGER = MaybeUninit::uninit().assume_init();
+         loop {
+             tick_count.s_mut().HighPart = read_volatile(&(*USER_SHARED_DATA).u.TickCount.High1Time)
+                 as u32;
+@@ -2818,7 +2820,7 @@ pub unsafe fn NtGetTickCount() -> ULONG {
+             {
+                 break;
+             }
+-            spin_loop_hint();
++            spin_loop();
+         }
+         ((UInt32x32To64(tick_count.s().LowPart, (*USER_SHARED_DATA).TickCountMultiplier) >> 24)
+             + UInt32x32To64(
+diff --git a/third_party/rust/ntapi/src/ntldr.rs b/third_party/rust/ntapi/src/ntldr.rs
+index 1114dd8e2ae2..4b4bcb62922b 100644
+--- a/third_party/rust/ntapi/src/ntldr.rs
++++ b/third_party/rust/ntapi/src/ntldr.rs
+@@ -201,7 +201,7 @@ pub const fn LDR_IS_IMAGEMAPPING(DllHandle: ULONG_PTR) -> bool {
+ }
+ #[inline]
+ pub const fn LDR_IS_RESOURCE(DllHandle: ULONG_PTR) -> bool {
+-    (LDR_IS_IMAGEMAPPING(DllHandle) | LDR_IS_DATAFILE(DllHandle)) as u8 != 0 //fixme
++    LDR_IS_IMAGEMAPPING(DllHandle) || LDR_IS_DATAFILE(DllHandle)
+ }
+ EXTERN!{extern "system" {
+     fn LdrLoadDll(
+diff --git a/third_party/rust/ntapi/src/ntpsapi.rs b/third_party/rust/ntapi/src/ntpsapi.rs
+index b2ba28afee30..2a0d3cde0f30 100644
+--- a/third_party/rust/ntapi/src/ntpsapi.rs
++++ b/third_party/rust/ntapi/src/ntpsapi.rs
+@@ -19,7 +19,7 @@ use winapi::um::winnt::{
+     PROCESS_MITIGATION_STRICT_HANDLE_CHECK_POLICY, PROCESS_MITIGATION_SYSTEM_CALL_DISABLE_POLICY,
+     PROCESS_MITIGATION_SYSTEM_CALL_FILTER_POLICY, PSECURITY_QUALITY_OF_SERVICE,
+ };
+-#[cfg(all(feature = "beta", not(target_arch = "aarch64")))]
++#[cfg(not(target_arch = "aarch64"))]
+ use crate::winapi_local::um::winnt::NtCurrentTeb;
+ pub const GDI_HANDLE_BUFFER_SIZE32: usize = 34;
+ pub const GDI_HANDLE_BUFFER_SIZE64: usize = 60;
+@@ -932,7 +932,7 @@ pub const NtCurrentThread: HANDLE = -2isize as *mut c_void;
+ pub const ZwCurrentThread: HANDLE = NtCurrentThread;
+ pub const NtCurrentSession: HANDLE = -3isize as *mut c_void;
+ pub const ZwCurrentSession: HANDLE = NtCurrentSession;
+-#[inline] #[cfg(all(feature = "beta", not(target_arch = "aarch64")))]
++#[inline] #[cfg(not(target_arch = "aarch64"))]
+ pub unsafe fn NtCurrentPeb() -> PPEB {
+     (*NtCurrentTeb()).ProcessEnvironmentBlock
+ }
+@@ -940,11 +940,11 @@ pub const NtCurrentProcessToken: HANDLE = -4isize as *mut c_void;
+ pub const NtCurrentThreadToken: HANDLE = -5isize as *mut c_void;
+ pub const NtCurrentEffectiveToken: HANDLE = -6isize as *mut c_void;
+ pub const NtCurrentSilo: HANDLE = -1isize as *mut c_void;
+-#[inline] #[cfg(all(feature = "beta", not(target_arch = "aarch64")))]
++#[inline] #[cfg(not(target_arch = "aarch64"))]
+ pub unsafe fn NtCurrentProcessId() -> HANDLE {
+     (*NtCurrentTeb()).ClientId.UniqueProcess
+ }
+-#[inline] #[cfg(all(feature = "beta", not(target_arch = "aarch64")))]
++#[inline] #[cfg(not(target_arch = "aarch64"))]
+ pub unsafe fn NtCurrentThreadId() -> HANDLE {
+     (*NtCurrentTeb()).ClientId.UniqueThread
+ }
+@@ -1121,14 +1121,22 @@ ENUM!{enum PS_ATTRIBUTE_NUM {
+ }}
+ #[inline]
+ pub const fn PsAttributeValue(
+-    Number: PS_ATTRIBUTE_NUM,
++    mut Number: PS_ATTRIBUTE_NUM,
+     Thread: bool,
+     Input: bool,
+     Additive: bool,
+-) -> ULONG_PTR { //fixme
+-    (Number & PS_ATTRIBUTE_NUMBER_MASK | [0, PS_ATTRIBUTE_THREAD][Thread as usize]
+-    | [0, PS_ATTRIBUTE_INPUT][Input as usize] | [0, PS_ATTRIBUTE_ADDITIVE][Additive as usize]
+-    ) as usize
++) -> ULONG_PTR {
++    Number &= PS_ATTRIBUTE_NUMBER_MASK;
++    if Thread {
++        Number |= PS_ATTRIBUTE_THREAD;
++    }
++    if Input {
++        Number |= PS_ATTRIBUTE_INPUT;
++    }
++    if Additive {
++        Number |= PS_ATTRIBUTE_ADDITIVE;
++    }
++    Number as _
+ }
+ pub const PS_ATTRIBUTE_PARENT_PROCESS: ULONG_PTR = 0x00060000;
+ pub const PS_ATTRIBUTE_DEBUG_PORT: ULONG_PTR = 0x00060001;
+diff --git a/third_party/rust/ntapi/src/ntrtl.rs b/third_party/rust/ntapi/src/ntrtl.rs
+index 9dfa19f7c025..abbc3862a6a6 100644
+--- a/third_party/rust/ntapi/src/ntrtl.rs
++++ b/third_party/rust/ntapi/src/ntrtl.rs
+@@ -2196,7 +2196,7 @@ EXTERN!{extern "system" {
+         MakeReadOnly: BOOLEAN,
+     );
+ }}
+-#[inline] #[cfg(all(feature = "beta", not(target_arch = "aarch64")))]
++#[inline] #[cfg(not(target_arch = "aarch64"))]
+ pub unsafe fn RtlProcessHeap() -> PVOID {
+     use crate::ntpsapi::NtCurrentPeb;
+     (*NtCurrentPeb()).ProcessHeap
+@@ -2506,7 +2506,7 @@ EXTERN!{extern "system" {
+ }}
+ #[inline]
+ pub const fn RtlIsEqualLuid(L1: &LUID, L2: &LUID) -> bool {
+-    ((L1.LowPart == L2.LowPart) & (L1.HighPart == L2.HighPart)) as u8 != 0 //fixme
++    (L1.LowPart == L2.LowPart) && (L1.HighPart == L2.HighPart)
+ }
+ #[inline]
+ pub const fn RtlIsZeroLuid(L1: &LUID) -> bool {
+@@ -2944,15 +2944,10 @@ EXTERN!{extern "system" {
+ }}
+ #[inline]
+ pub unsafe fn RtlCheckBit(BitMapHeader: &RTL_BITMAP, BitPosition: ULONG) -> u8 {
+-    #[cfg(all(target_arch = "x86_64", feature = "beta"))] {
+-        use crate::winapi_local::um::winnt::_bittest64;
+-        _bittest64(BitMapHeader.Buffer as *const i64, BitPosition as i64)
++    #[cfg(target_arch = "x86_64")] {
++        core::arch::x86_64::_bittest64(BitMapHeader.Buffer as *const i64, BitPosition as i64)
+     }
+-    #[cfg(any(
+-        target_arch = "x86",
+-        all(target_arch = "x86_64", not(feature = "beta")),
+-        target_arch = "aarch64",
+-    ))] {
++    #[cfg(any(target_arch = "x86", target_arch = "aarch64"))] {
+         (*BitMapHeader.Buffer.offset(BitPosition as isize / 32) >> (BitPosition % 32) & 1) as u8
+     }
+ }
+diff --git a/third_party/rust/ntapi/src/winapi_local/um/winnt.rs b/third_party/rust/ntapi/src/winapi_local/um/winnt.rs
+index 5c4f7b2fb1e5..0c8efb26251c 100644
+--- a/third_party/rust/ntapi/src/winapi_local/um/winnt.rs
++++ b/third_party/rust/ntapi/src/winapi_local/um/winnt.rs
+@@ -1,5 +1,3 @@
+-#[cfg(all(feature = "beta", not(target_arch = "aarch64")))]
+-use core::arch::asm;
+ use winapi::shared::basetsd::{DWORD64, SIZE_T, ULONG64};
+ use winapi::shared::minwindef::DWORD;
+ use winapi::um::winnt::{HANDLE, PVOID};
+@@ -8,24 +6,11 @@ use winapi::um::winnt::{HANDLE, PVOID};
+ pub const fn UInt32x32To64(a: u32, b: u32) -> u64 {
+     a as u64 * b as u64
+ }
+-#[cfg(all(feature = "beta", not(target_arch = "aarch64")))]
++#[cfg(not(target_arch = "aarch64"))]
+ IFDEF!{
++use core::arch::asm;
+ use crate::ntpebteb::TEB;
+ #[inline]
+-#[cfg(target_pointer_width = "64")]
+-pub unsafe fn _bittest64(Base: *const i64, Offset: i64) -> u8 {
+-    let out: u8;
+-    asm!(
+-        "bt {1}, {2}",
+-        "setb {0}",
+-        out(reg_byte) out,
+-        in(reg) Base,
+-        in(reg) Offset,
+-        options(nostack, pure, readonly),
+-    );
+-    out
+-}
+-#[inline]
+ pub unsafe fn __readfsdword(Offset: DWORD) -> DWORD {
+     let out: u32;
+     asm!(

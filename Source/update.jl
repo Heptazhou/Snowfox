@@ -25,12 +25,17 @@ const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
+		"../" * "1826485.patch"
 		"../" * "6a2f6f119c23b1b63aa2b8a72cfc850b4fb5049a.patch"
+		"../" * "jxl.patch"
 		"patches/removed-patches/allow_dark_preference_with_rfp.patch"
 	]
 const patch_b =
 	[
 		"patches/allow-JXL-in-non-nightly-browser.patch"
+		"patches/flatpak-autoconf.patch"
+		"patches/JXL_enable_by_default.patch"
+		"patches/JXL_improved_support.patch"
 		"patches/mozilla_dirs.patch"
 		"patches/ui-patches/hide-default-browser.patch"
 		"patches/ui-patches/pref-naming.patch"
@@ -38,7 +43,6 @@ const patch_b =
 		"patches/ui-patches/remove-branding-urlbar.patch"
 		"patches/ui-patches/remove-cfrprefs.patch"
 		"patches/ui-patches/snowfox-logo-devtools.patch"
-		"patches/unified-extensions-dont-show-recommendations.patch"
 	]
 const moz_tmk = "Firefox and the Firefox logos are trademarks of the Mozilla Foundation."
 

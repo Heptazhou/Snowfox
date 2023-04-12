@@ -24,7 +24,7 @@ const DIR = !isdir(SRC) ? "$(@__DIR__)/" : "$(@__DIR__)/$SRC"
 
 try
 	cd((DIR) * "linux/") do
-		dir = filter!(isdir, "$(@__DIR__)/" .* [["../"^1 "../"^2] .* ["Firefox", "firefox"]...])
+		dir = filter!(isdir, "$(@__DIR__)/" .* ["../" .^ [1 2] .* ["Firefox", "firefox"]...])
 		dir = something(filter!(x -> isdir(x) && startswith(x, "snowfox"), readdir())..., dir...)
 		dir *= "/browser/branding/aurora"
 		rm("$DIR" * "linux/assets/librewolf.ico", force = true)

@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/windows.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"112.0-1"
+const VER = v"112.0.1-1"
 
 function clean()
 	@info "Cleaning . . ."
@@ -35,7 +35,7 @@ function fetch()
 		if ispath(SRC)
 			throw(SystemError(SRC, 17)) # EEXIST 17 File exists
 		else
-			@run [GIT, "clone", "--depth=1", CLN, SRC]
+			@run [GIT, "clone", "--depth=1", CLN, SRC, "-b", "v112.0-1"]
 			@run [JLC..., "move.jl", SRC, "1"]
 			#
 			cd(SRC * "linux/")

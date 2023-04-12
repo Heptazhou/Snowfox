@@ -20,6 +20,7 @@ const JLC = ["julia" * (Sys.iswindows() ? ".exe" : ""), "--startup-file=no", "--
 const PKG = ("pkg/")
 const SRC = ("src/")
 const UAV = (UInt16)(108) # https://oeis.org/A001694
+#&  64, 72, 81, 100, 108, 121, 125, 128, 144, 169, 196, 200
 
 const schemes =
 	[
@@ -143,6 +144,7 @@ const strip_list_msc =
 		"quality_description"
 		"querylist"
 		"rand"
+		"rdfrom"
 		"referfrom"
 		"req_id"
 		"retcode"

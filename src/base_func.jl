@@ -20,16 +20,21 @@ include("const.jl")
 
 import Base.replace
 
-const Curl(x::String...)::Cmd =
-	Cmd(["curl", "--http2-prior-knowledge", "--tls" * "v1.3",
+const Curl(x::String...; v::String)::Cmd =
+	Cmd(["curl", "--http2-prior-knowledge", "--tls" * "v$v",
 		"-A\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:$UAV.0) Gecko/20100101 Firefox/$UAV.0\"", x...])
 const Zip7(x::String...)::Cmd =
 	Cmd(["7z", x...])
 
-const Curl(x::Vector{String})::Cmd = Curl(x...)
-const Zip7(x::Vector{String})::Cmd = Zip7(x...)
+const Curl(x::Vector{String}; kw...)::Cmd = Curl(x...; kw...)
+const Zip7(x::Vector{String}; kw...)::Cmd = Zip7(x...; kw...)
 
-const curl(x...) = Curl(x...) |> run
+const curl(x...) =
+	try
+		Curl(x...; v = "1.3") |> run
+	catch
+		Curl(x...; v = "1.2") |> run
+	end
 const zip7(x...) = Zip7(x...) |> run
 
 macro run(vec)

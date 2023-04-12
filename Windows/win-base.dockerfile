@@ -26,14 +26,14 @@ FROM snowfox:win-arch
 ENV JULIA_NUM_THREADS=auto \
 	JULIA_SYS_ISDOCKER=1
 
-RUN yes | pacman -Syu && yes | pacman -Scc && rustup update && cd / && \
+RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
 	git clone https://github.com/Heptazhou/Snowfox.git && cd /Snowfox/Windows && \
 	julia --compile=min --color=yes make.jl all && \
 	sha256sum -c *.sha256
 
 ADD https://api.github.com/repos/Heptazhou/Snowfox/git/refs/heads/master version.json
 
-RUN yes | pacman -Syu && yes | pacman -Scc && rustup update && cd / && \
+RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
 	cd /Snowfox/Windows && git pull -ftp && \
 	julia --compile=min --color=yes make.jl all && \
 	sha256sum -c *.sha256

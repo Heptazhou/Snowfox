@@ -93,12 +93,15 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"^.*\blinux64-dump_syms\b.*\n"m => "")
 						s = replace(s, r"^.*\blinux64-rust-cross\b.*\n"m => "")
 						s = replace(s, r"^.*\brm -f version source_release\b.*"m => "")
-						s = replace(s, r"^.*\bx86_64-pc-windows-msvc\b.*\n"m => "")
+						s = replace(s, r"^.*\bx86_64-linux-gnu\b.*\n(?!\n)"m => "")
+						s = replace(s, r"^.*\bx86_64-pc-windows-msvc\b.*\n(?!\n)"m => "")
 						s = replace(s,
 							"""\nfetch :""" * r"[\S\s]+?" * "\n" *
 							"""\tsha256sum -c "snowfox-$p.sha256"\n""",
 							"""\nfetch :""" * "\n" *
-							"""\tsha256sum -c "snowfox-$p.sha256"\n""", "e") # ~ do not sort this
+							"""\tsha256sum -c "snowfox-$p.sha256"\n""" *
+							"""\trustup default stable\n""" *
+							"""\trustup target add x86_64-pc-windows-msvc\n""", "e") # ~ do not sort this
 						s = replace(s,
 							"""	\${MAKE} -f assets/artifacts.mk artifacts\n""" * "\n",
 							"""	\${MAKE} -f assets/artifacts.mk artifacts\n""" *
@@ -154,6 +157,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"$p MOZ_DATA_REPORTING=0\n" *
 							"$p MOZ_SERVICES_HEALTHREPORT=0\n" *
 							"$p MOZ_TELEMETRY_REPORTING=0\n", "p", n = 1)
+						s = replace(s, r"\$MOZBUILD/clang/bin/(?!clang-cl)"m => "/bin/")
 						s = replace(s, r"^.*--disable-verify-mar\b.*\n"m => "")
 						s = replace(s, r"^# since\b.+\?\n"m => "")
 						s = replace(s, r"^export MOZ_REQUIRE_SIGNING=\K1?$"m, '"'^2)

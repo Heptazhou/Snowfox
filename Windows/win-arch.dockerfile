@@ -34,12 +34,12 @@ RUN yes | pacman -Syu && \
 	yes | pacman -S --needed \
 	git grml-zsh-config julia mc nano-syntax-highlighting \
 	mercurial msitools python-pip unzip wget zip \
-	cbindgen cross dump_syms nasm nodejs-lts-hydrogen rustup upx
+	cbindgen clang cross dump_syms nasm nodejs-lts-hydrogen rustup upx && \
+	yes | pacman -Scc
 
-RUN yes | pacman -Scc && rustup default stable && rustup target add x86_64-pc-windows-msvc && \
+RUN ln -s /bin/clear /bin/cls && ln -s /bin/nano /bin/nn && \
 	git config --global init.defaultbranch master && \
 	git config --global pull.rebase true && \
 	git config --global user.email root@localhost && \
-	git config --global user.name root && \
-	ln -s /bin/clear /bin/cls && ln -s /bin/nano /bin/nn
+	git config --global user.name root
 
