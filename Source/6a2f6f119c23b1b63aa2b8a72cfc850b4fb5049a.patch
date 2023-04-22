@@ -13,9 +13,24 @@ index 46a76ccb28ba..3b9ed2b6829a 100644
          buttonCallback = () => {
            this.ensureEMEEnabled(browser, keySystem);
 diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
-index 54d6b43fe126..a70d2781b5d9 100644
+index 54d6b43fe126..202c0933f7f1 100644
 --- a/browser/app/Makefile.in
 +++ b/browser/app/Makefile.in
+@@ -27,11 +27,11 @@ CXX += -march=pentiumpro
+ endif
+ 
+ ifeq ($(OS_ARCH),WINNT)
+-# Rebuild firefox.exe if the manifest changes - it's included by splash.rc.
+-# (this dependency should really be just for firefox.exe, not other targets)
++# Rebuild snowfox.exe if the manifest changes - it's included by splash.rc.
++# (this dependency should really be just for snowfox.exe, not other targets)
+ # Note the manifest file exists in the tree, so we use the explicit filename
+ # here.
+-EXTRA_DEPS += $(srcdir)/firefox.exe.manifest
++EXTRA_DEPS += $(srcdir)/snowfox.exe.manifest
+ endif
+ 
+ PROGRAMS_DEST = $(DIST)/bin
 @@ -95,7 +95,7 @@ tools repackage:: $(DIST)/bin/$(MOZ_APP_NAME) $(objdir)/macbuild/Contents/MacOS-
  	rsync -aL --include-from='$(srcdir)/macbuild/Contents/MacOS-files-copy.in' --exclude '*' $(DIST)/bin/ '$(dist_dest)/Contents/MacOS'
  	$(RM) '$(dist_dest)/Contents/MacOS/$(MOZ_APP_NAME)'
@@ -387,6 +402,26 @@ index 894bba3ff833..59cfad590fef 100644
  #endif
  
  // Mozilla-controlled domains that are allowed to use non-standard
+diff --git a/browser/app/firefox.exe.manifest b/browser/app/snowfox.exe.manifest
+similarity index 96%
+rename from browser/app/firefox.exe.manifest
+rename to browser/app/snowfox.exe.manifest
+index 995b2fc869c1..09b2a52f43c6 100644
+--- a/browser/app/firefox.exe.manifest
++++ b/browser/app/snowfox.exe.manifest
+@@ -3,10 +3,10 @@
+ <assemblyIdentity
+         version="1.0.0.0"
+         processorArchitecture="*"
+-        name="Firefox"
++        name="Snowfox"
+         type="win32"
+ />
+-<description>Firefox</description>
++<description>Snowfox</description>
+ <dependency>
+         <dependentAssembly>
+                 <assemblyIdentity
 diff --git a/browser/app/splash.rc b/browser/app/splash.rc
 index 259a8068c3aa..217d8ff8c9f2 100644
 --- a/browser/app/splash.rc
@@ -452,6 +487,19 @@ index 7713424cb9b8..4c280def7805 100644
            );
          }
        }
+diff --git a/browser/components/enterprisepolicies/schemas/policies-schema.json b/browser/components/enterprisepolicies/schemas/policies-schema.json
+index f22f64725301..a24582581f11 100644
+--- a/browser/components/enterprisepolicies/schemas/policies-schema.json
++++ b/browser/components/enterprisepolicies/schemas/policies-schema.json
+@@ -1181,7 +1181,7 @@
+     },
+ 
+     "SearchEngines": {
+-      "enterprise_only": true,
++      "enterprise_only": false,
+ 
+       "type": "object",
+       "properties": {
 diff --git a/browser/components/installerprefs/InstallerPrefs.jsm b/browser/components/installerprefs/InstallerPrefs.jsm
 index 668f25c12f1b..7aabc68293ab 100644
 --- a/browser/components/installerprefs/InstallerPrefs.jsm
@@ -516,18 +564,10 @@ index 0996ecde45e7..358e5b6ab793 100644
        .replace("{{ MARKUP }}", markup)
        .replace("{{ CACHE_TIME }}", cacheTime);
 diff --git a/browser/components/preferences/main.inc.xhtml b/browser/components/preferences/main.inc.xhtml
-index 5e9379e6d08a..f7f9af874277 100644
+index 5e9379e6d08a..fcc469d042b3 100644
 --- a/browser/components/preferences/main.inc.xhtml
 +++ b/browser/components/preferences/main.inc.xhtml
-@@ -29,6 +29,7 @@
-   <vbox id="startupPageBox">
-     <checkbox id="browserRestoreSession"
-               data-l10n-id="startup-restore-windows-and-tabs"/>
-+    <label id="sessionRestoreLearnMore" is="text-link" class="learnMore indent" data-l10n-id="session-restore-learn-more"/>
-   </vbox>
- 
- #ifdef HAVE_SHELL_SERVICE
-@@ -38,7 +39,7 @@
+@@ -38,7 +38,7 @@
                data-l10n-id="always-check-default"/>
      <stack id="setDefaultPane">
        <hbox id="isNotDefaultPane" align="center" class="indent">
@@ -536,7 +576,7 @@ index 5e9379e6d08a..f7f9af874277 100644
          <label id="isNotDefaultLabel" flex="1" data-l10n-id="is-not-default"/>
          <button id="setDefaultButton"
                  is="highlightable-button"
-@@ -47,7 +48,7 @@
+@@ -47,7 +47,7 @@
                  preference="pref.general.disable_button.default_browser"/>
        </hbox>
        <hbox id="isDefaultPane" align="center" class="indent">
@@ -545,7 +585,7 @@ index 5e9379e6d08a..f7f9af874277 100644
          <label id="isDefaultLabel" flex="1" data-l10n-id="is-default"/>
        </hbox>
      </stack>
-@@ -742,7 +743,7 @@
+@@ -742,7 +742,7 @@
            support-page="media-keyboard-control"
      />
    </hbox>
@@ -554,7 +594,7 @@ index 5e9379e6d08a..f7f9af874277 100644
      <checkbox id="cfrRecommendations"
              class="tail-with-learn-more"
              data-l10n-id="browsing-cfr-recommendations"
-@@ -752,7 +753,7 @@
+@@ -752,7 +752,7 @@
            support-page="extensionrecommendations"
      />
    </hbox>
@@ -715,6 +755,22 @@ index ab919d58f57f..9abaead5c673 100644
    },
    bookmarks: {
      l10nCommands: ["quickactions-cmd-bookmarks", "quickactions-bookmarks2"],
+diff --git a/browser/components/urlbar/UrlbarProviderInterventions.sys.mjs b/browser/components/urlbar/UrlbarProviderInterventions.sys.mjs
+index 33859050d5ed..c1c248a4c846 100644
+--- a/browser/components/urlbar/UrlbarProviderInterventions.sys.mjs
++++ b/browser/components/urlbar/UrlbarProviderInterventions.sys.mjs
+@@ -457,9 +457,11 @@ class ProviderInterventions extends UrlbarProvider {
+           ["mozilla", ["mozila"]],
+         ]),
+       });
++      /*
+       for (let [id, phrases] of Object.entries(DOCUMENTS)) {
+         queryScorer.addDocument({ id, phrases });
+       }
++       */
+       return queryScorer;
+     });
+   }
 diff --git a/browser/components/urlbar/unitconverters/UnitConverterTimezone.sys.mjs b/browser/components/urlbar/unitconverters/UnitConverterTimezone.sys.mjs
 index 50ba924bed90..bed5b631fd53 100644
 --- a/browser/components/urlbar/unitconverters/UnitConverterTimezone.sys.mjs
@@ -877,19 +933,6 @@ index a456af1bd9c8..155f6ebb417c 100644
  
  policy-DisableFirefoxStudies = Prevent { -brand-short-name } from running studies.
  
-diff --git a/browser/locales/en-US/browser/preferences/preferences.ftl b/browser/locales/en-US/browser/preferences/preferences.ftl
-index c153b456f3f9..3437130917cf 100644
---- a/browser/locales/en-US/browser/preferences/preferences.ftl
-+++ b/browser/locales/en-US/browser/preferences/preferences.ftl
-@@ -128,6 +128,8 @@ search-results-help-link = Need help? Visit <a data-l10n-name="url">{ -brand-sho
- 
- startup-header = Startup
- 
-+session-restore-learn-more = What if it does not work?
-+
- always-check-default =
-     .label = Always check if { -brand-short-name } is your default browser
-     .accesskey = y
 diff --git a/browser/locales/shipped-locales b/browser/locales/shipped-locales
 index 5c4696cc2c82..fc94a913da65 100644
 --- a/browser/locales/shipped-locales
@@ -1226,6 +1269,30 @@ index ecafc907fa17..9002dcd9a17d 100644
    return std::min(uint32_t(unclampedHardwareConcurrency),
                    StaticPrefs::dom_maxHardwareConcurrency());
  }
+diff --git a/image/DecoderFactory.cpp b/image/DecoderFactory.cpp
+index 6070e16061bd..9139a47e91b8 100644
+--- a/image/DecoderFactory.cpp
++++ b/image/DecoderFactory.cpp
+@@ -217,6 +217,9 @@ nsresult DecoderFactory::CreateAnimationDecoder(
+   }
+ 
+   MOZ_ASSERT(aType == DecoderType::GIF || aType == DecoderType::PNG ||
++#ifdef MOZ_JXL
++                 aType == DecoderType::JXL ||
++#endif
+                  aType == DecoderType::WEBP || aType == DecoderType::AVIF,
+              "Calling CreateAnimationDecoder for non-animating DecoderType");
+ 
+@@ -272,6 +275,9 @@ already_AddRefed<Decoder> DecoderFactory::CloneAnimationDecoder(
+   // rediscover it is animated).
+   DecoderType type = aDecoder->GetType();
+   MOZ_ASSERT(type == DecoderType::GIF || type == DecoderType::PNG ||
++#ifdef MOZ_JXL
++                 type == DecoderType::JXL ||
++#endif
+                  type == DecoderType::WEBP || type == DecoderType::AVIF,
+              "Calling CloneAnimationDecoder for non-animating DecoderType");
+ 
 diff --git a/image/decoders/nsAVIFDecoder.cpp b/image/decoders/nsAVIFDecoder.cpp
 index 0aad6476ed24..f806fe9be3d5 100644
 --- a/image/decoders/nsAVIFDecoder.cpp
@@ -1250,6 +1317,337 @@ index 0aad6476ed24..f806fe9be3d5 100644
        switch (mParser->GetInfo().loop_mode) {
          case MP4PARSE_AVIF_LOOP_MODE_LOOP_BY_COUNT: {
            auto loopCount = mParser->GetInfo().loop_count;
+diff --git a/image/decoders/nsJXLDecoder.cpp b/image/decoders/nsJXLDecoder.cpp
+index 145fd9454340..4311a7d3b7c2 100644
+--- a/image/decoders/nsJXLDecoder.cpp
++++ b/image/decoders/nsJXLDecoder.cpp
+@@ -45,9 +45,20 @@ nsJXLDecoder::nsJXLDecoder(RasterImage* aImage)
+              Transition::TerminateSuccess()),
+       mDecoder(JxlDecoderMake(nullptr)),
+       mParallelRunner(
+-          JxlThreadParallelRunnerMake(nullptr, PreferredThreadCount())) {
+-  JxlDecoderSubscribeEvents(mDecoder.get(),
+-                            JXL_DEC_BASIC_INFO | JXL_DEC_FULL_IMAGE);
++          JxlThreadParallelRunnerMake(nullptr, PreferredThreadCount())),
++      mUsePipeTransform(true),
++      mCMSLine(nullptr),
++      mNumFrames(0),
++      mTimeout(FrameTimeout::Forever()),
++      mSurfaceFormat(SurfaceFormat::OS_RGBX),
++      mContinue(false) {
++  int events = JXL_DEC_BASIC_INFO | JXL_DEC_FRAME | JXL_DEC_FULL_IMAGE;
++
++  if (mCMSMode != CMSMode::Off) {
++    events |= JXL_DEC_COLOR_ENCODING;
++  }
++
++  JxlDecoderSubscribeEvents(mDecoder.get(), events);
+   JxlDecoderSetParallelRunner(mDecoder.get(), JxlThreadParallelRunner,
+                               mParallelRunner.get());
+ 
+@@ -58,6 +69,10 @@ nsJXLDecoder::nsJXLDecoder(RasterImage* aImage)
+ nsJXLDecoder::~nsJXLDecoder() {
+   MOZ_LOG(sJXLLog, LogLevel::Debug,
+           ("[this=%p] nsJXLDecoder::~nsJXLDecoder", this));
++
++  if (mCMSLine) {
++    free(mCMSLine);
++  }
+ }
+ 
+ size_t nsJXLDecoder::PreferredThreadCount() {
+@@ -86,14 +101,20 @@ LexerResult nsJXLDecoder::DoDecode(SourceBufferIterator& aIterator,
+ 
+ LexerTransition<nsJXLDecoder::State> nsJXLDecoder::ReadJXLData(
+     const char* aData, size_t aLength) {
+-  const uint8_t* input = (const uint8_t*)aData;
+-  size_t length = aLength;
+-  if (mBuffer.length() != 0) {
+-    JXL_TRY_BOOL(mBuffer.append(aData, aLength));
+-    input = mBuffer.begin();
+-    length = mBuffer.length();
++  // Ignore data we have already read.
++  // This will only occur as a result of a yield for animation.
++  if (!mContinue) {
++    const uint8_t* input = (const uint8_t*)aData;
++    size_t length = aLength;
++    if (mBuffer.length() != 0) {
++      JXL_TRY_BOOL(mBuffer.append(aData, aLength));
++      input = mBuffer.begin();
++      length = mBuffer.length();
++    }
++
++    JXL_TRY(JxlDecoderSetInput(mDecoder.get(), input, length));
+   }
+-  JXL_TRY(JxlDecoderSetInput(mDecoder.get(), input, length));
++  mContinue = false;
+ 
+   while (true) {
+     JxlDecoderStatus status = JxlDecoderProcessInput(mDecoder.get());
+@@ -106,49 +127,226 @@ LexerTransition<nsJXLDecoder::State> nsJXLDecoder::ReadJXLData(
+         size_t remaining = JxlDecoderReleaseInput(mDecoder.get());
+         mBuffer.clear();
+         JXL_TRY_BOOL(mBuffer.append(aData + aLength - remaining, remaining));
++
++        if (mNumFrames == 0 && InFrame()) {
++          // If an image was flushed by JxlDecoderFlushImage, then we know that
++          // JXL_DEC_FRAME has already been run and there is a pipe.
++          if (JxlDecoderFlushImage(mDecoder.get()) == JXL_DEC_SUCCESS) {
++            // A full frame partial image is written to the buffer.
++            mPipe.ResetToFirstRow();
++            for (uint8_t* rowPtr = mOutBuffer.begin();
++                 rowPtr < mOutBuffer.end(); rowPtr += mInfo.xsize * mChannels) {
++              uint8_t* rowToWrite = rowPtr;
++
++              if (!mUsePipeTransform && mTransform) {
++                qcms_transform_data(mTransform, rowToWrite, mCMSLine,
++                                    mInfo.xsize);
++                rowToWrite = mCMSLine;
++              }
++
++              mPipe.WriteBuffer(reinterpret_cast<uint32_t*>(rowToWrite));
++            }
++
++            if (Maybe<SurfaceInvalidRect> invalidRect =
++                    mPipe.TakeInvalidRect()) {
++              PostInvalidation(invalidRect->mInputSpaceRect,
++                               Some(invalidRect->mOutputSpaceRect));
++            }
++          }
++        }
++
+         return Transition::ContinueUnbuffered(State::JXL_DATA);
+       }
+ 
+       case JXL_DEC_BASIC_INFO: {
+         JXL_TRY(JxlDecoderGetBasicInfo(mDecoder.get(), &mInfo));
+         PostSize(mInfo.xsize, mInfo.ysize);
++
+         if (mInfo.alpha_bits > 0) {
++          mSurfaceFormat = SurfaceFormat::OS_RGBA;
+           PostHasTransparency();
+         }
++
++        if (!mInfo.have_animation && IsMetadataDecode()) {
++          return Transition::TerminateSuccess();
++        }
++
++        // If CMS is off or the image is RGB, always output in RGBA.
++        // If the image is grayscale, then the pipe transform can't be used.
++        if (mCMSMode != CMSMode::Off) {
++          mChannels = mInfo.num_color_channels == 1
++                          ? 1 + (mInfo.alpha_bits > 0 ? 1 : 0)
++                          : 4;
++        } else {
++          mChannels = 4;
++        }
++
++        mFormat = {mChannels, JXL_TYPE_UINT8, JXL_LITTLE_ENDIAN, 0};
++
++        break;
++      }
++
++      case JXL_DEC_COLOR_ENCODING: {
++        size_t size = 0;
++        JXL_TRY(JxlDecoderGetICCProfileSize(
++            mDecoder.get(), &mFormat, JXL_COLOR_PROFILE_TARGET_DATA, &size))
++        std::vector<uint8_t> icc_profile(size);
++        JXL_TRY(JxlDecoderGetColorAsICCProfile(mDecoder.get(), &mFormat,
++                                               JXL_COLOR_PROFILE_TARGET_DATA,
++                                               icc_profile.data(), size))
++
++        mInProfile = qcms_profile_from_memory((char*)icc_profile.data(), size);
++
++        uint32_t profileSpace = qcms_profile_get_color_space(mInProfile);
++
++        // Skip color management if color profile is not compatible with number
++        // of channels.
++        if (profileSpace != icSigRgbData &&
++            (mInfo.num_color_channels == 3 || profileSpace != icSigGrayData)) {
++          break;
++        }
++
++        mUsePipeTransform =
++            profileSpace == icSigRgbData && mInfo.num_color_channels == 3;
++
++        qcms_data_type inType;
++        if (mInfo.num_color_channels == 3) {
++          inType = QCMS_DATA_RGBA_8;
++        } else if (mInfo.alpha_bits > 0) {
++          inType = QCMS_DATA_GRAYA_8;
++        } else {
++          inType = QCMS_DATA_GRAY_8;
++        }
++
++        if (!mUsePipeTransform) {
++          mCMSLine =
++              static_cast<uint8_t*>(malloc(sizeof(uint32_t) * mInfo.xsize));
++        }
++
++        int intent = gfxPlatform::GetRenderingIntent();
++        if (intent == -1) {
++          intent = qcms_profile_get_rendering_intent(mInProfile);
++        }
++
++        mTransform =
++            qcms_transform_create(mInProfile, inType, GetCMSOutputProfile(),
++                                  QCMS_DATA_RGBA_8, (qcms_intent)intent);
++
++        break;
++      }
++
++      case JXL_DEC_FRAME: {
++        if (mInfo.have_animation) {
++          JXL_TRY(JxlDecoderGetFrameHeader(mDecoder.get(), &mFrameHeader));
++          int32_t duration = (int32_t)(1000.0 * mFrameHeader.duration *
++                                       mInfo.animation.tps_denominator /
++                                       mInfo.animation.tps_numerator);
++
++          mTimeout = FrameTimeout::FromRawMilliseconds(duration);
++
++          if (!HasAnimation()) {
++            PostIsAnimated(mTimeout);
++          }
++        }
++
++        bool is_last = mInfo.have_animation ? mFrameHeader.is_last : true;
++        MOZ_LOG(sJXLLog, LogLevel::Debug,
++                ("[this=%p] nsJXLDecoder::ReadJXLData - frame %d, is_last %d, "
++                 "metadata decode %d, first frame decode %d\n",
++                 this, mNumFrames, is_last, IsMetadataDecode(),
++                 IsFirstFrameDecode()));
++
+         if (IsMetadataDecode()) {
+           return Transition::TerminateSuccess();
+         }
++
++        OrientedIntSize size(mInfo.xsize, mInfo.ysize);
++
++        Maybe<AnimationParams> animParams;
++        if (!IsFirstFrameDecode()) {
++          animParams.emplace(FullFrame().ToUnknownRect(), mTimeout, mNumFrames,
++                             BlendMethod::SOURCE, DisposalMethod::CLEAR);
++        }
++
++        SurfacePipeFlags pipeFlags = SurfacePipeFlags();
++
++        if (mNumFrames == 0) {
++          // The first frame may be displayed progressively.
++          pipeFlags |= SurfacePipeFlags::PROGRESSIVE_DISPLAY;
++        }
++
++        if (mSurfaceFormat == SurfaceFormat::OS_RGBA &&
++            !(GetSurfaceFlags() & SurfaceFlags::NO_PREMULTIPLY_ALPHA)) {
++          pipeFlags |= SurfacePipeFlags::PREMULTIPLY_ALPHA;
++        }
++
++        qcms_transform* pipeTransform =
++            mUsePipeTransform ? mTransform : nullptr;
++
++        Maybe<SurfacePipe> pipe = SurfacePipeFactory::CreateSurfacePipe(
++            this, size, OutputSize(), FullFrame(), SurfaceFormat::R8G8B8A8,
++            mSurfaceFormat, animParams, pipeTransform, pipeFlags);
++
++        if (!pipe) {
++          MOZ_LOG(sJXLLog, LogLevel::Debug,
++                  ("[this=%p] nsJXLDecoder::ReadJXLData - no pipe\n", this));
++          return Transition::TerminateFailure();
++        }
++
++        mPipe = std::move(*pipe);
++
+         break;
+       }
+ 
+       case JXL_DEC_NEED_IMAGE_OUT_BUFFER: {
+         size_t size = 0;
+-        JxlPixelFormat format{4, JXL_TYPE_UINT8, JXL_LITTLE_ENDIAN, 0};
+-        JXL_TRY(JxlDecoderImageOutBufferSize(mDecoder.get(), &format, &size));
++        JXL_TRY(JxlDecoderImageOutBufferSize(mDecoder.get(), &mFormat, &size));
+ 
+         mOutBuffer.clear();
+         JXL_TRY_BOOL(mOutBuffer.growBy(size));
+-        JXL_TRY(JxlDecoderSetImageOutBuffer(mDecoder.get(), &format,
++        JXL_TRY(JxlDecoderSetImageOutBuffer(mDecoder.get(), &mFormat,
+                                             mOutBuffer.begin(), size));
+         break;
+       }
+ 
+       case JXL_DEC_FULL_IMAGE: {
+-        OrientedIntSize size(mInfo.xsize, mInfo.ysize);
+-        Maybe<SurfacePipe> pipe = SurfacePipeFactory::CreateSurfacePipe(
+-            this, size, OutputSize(), FullFrame(), SurfaceFormat::R8G8B8A8,
+-            SurfaceFormat::OS_RGBA, Nothing(), nullptr, SurfacePipeFlags());
++        mPipe.ResetToFirstRow();
+         for (uint8_t* rowPtr = mOutBuffer.begin(); rowPtr < mOutBuffer.end();
+-             rowPtr += mInfo.xsize * 4) {
+-          pipe->WriteBuffer(reinterpret_cast<uint32_t*>(rowPtr));
++             rowPtr += mInfo.xsize * mChannels) {
++          uint8_t* rowToWrite = rowPtr;
++
++          if (!mUsePipeTransform && mTransform) {
++            qcms_transform_data(mTransform, rowToWrite, mCMSLine, mInfo.xsize);
++            rowToWrite = mCMSLine;
++          }
++
++          mPipe.WriteBuffer(reinterpret_cast<uint32_t*>(rowToWrite));
+         }
+ 
+-        if (Maybe<SurfaceInvalidRect> invalidRect = pipe->TakeInvalidRect()) {
++        if (Maybe<SurfaceInvalidRect> invalidRect = mPipe.TakeInvalidRect()) {
+           PostInvalidation(invalidRect->mInputSpaceRect,
+                            Some(invalidRect->mOutputSpaceRect));
+         }
+-        PostFrameStop();
+-        PostDecodeDone();
++
++        Opacity opacity = mSurfaceFormat == SurfaceFormat::OS_RGBA
++                              ? Opacity::SOME_TRANSPARENCY
++                              : Opacity::FULLY_OPAQUE;
++        PostFrameStop(opacity);
++
++        if (!IsFirstFrameDecode() && mInfo.have_animation &&
++            !mFrameHeader.is_last) {
++          mNumFrames++;
++          mContinue = true;
++          // Notify for a new frame but there may be data in the current buffer
++          // that can immediately be processed.
++          return Transition::ToAfterYield(State::JXL_DATA);
++        }
++        [[fallthrough]];  // We are done.
++      }
++
++      case JXL_DEC_SUCCESS: {
++        PostDecodeDone(HasAnimation() ? (int32_t)mInfo.animation.num_loops - 1
++                                      : 0);
+         return Transition::TerminateSuccess();
+       }
+     }
+diff --git a/image/decoders/nsJXLDecoder.h b/image/decoders/nsJXLDecoder.h
+index 6cde7456ca03..6dc162f9397b 100644
+--- a/image/decoders/nsJXLDecoder.h
++++ b/image/decoders/nsJXLDecoder.h
+@@ -47,7 +47,19 @@ class nsJXLDecoder final : public Decoder {
+   JxlThreadParallelRunnerPtr mParallelRunner;
+   Vector<uint8_t> mBuffer;
+   Vector<uint8_t> mOutBuffer;
+-  JxlBasicInfo mInfo{};
++  JxlBasicInfo mInfo;
++  JxlPixelFormat mFormat;
++  JxlFrameHeader mFrameHeader;
++
++  bool mUsePipeTransform;
++  uint8_t mChannels;
++  uint8_t* mCMSLine;
++
++  uint32_t mNumFrames;
++  FrameTimeout mTimeout;
++  gfx::SurfaceFormat mSurfaceFormat;
++  SurfacePipe mPipe;
++  bool mContinue;
+ };
+ 
+ }  // namespace mozilla::image
 diff --git a/js/src/octane/gbemu-part1.js b/js/src/octane/gbemu-part1.js
 index 10f19e4a195f..38d372b9ae81 100644
 --- a/js/src/octane/gbemu-part1.js
@@ -2137,6 +2535,19 @@ index a5e665e64c92..5681618450c0 100644
      subject: parseSubsidiary(x509.subject.typesAndValues),
      serialNumber: hashify(getObjPath(x509, "serialNumber.valueBlock.valueHex")),
      signature: {
+diff --git a/toolkit/components/extensions/NativeManifests.jsm b/toolkit/components/extensions/NativeManifests.jsm
+index abf53b5f3c26..01323a0bc25d 100644
+--- a/toolkit/components/extensions/NativeManifests.jsm
++++ b/toolkit/components/extensions/NativeManifests.jsm
+@@ -37,7 +37,7 @@ const TYPES = {
+ const NATIVE_MANIFEST_SCHEMA =
+   "chrome://extensions/content/schemas/native_manifest.json";
+ 
+-const REGPATH = "Software\\Mozilla";
++const REGPATH = "Software\\0h7z";
+ 
+ var NativeManifests = {
+   _initializePromise: null,
 diff --git a/toolkit/components/pdfjs/content/build/pdf.js b/toolkit/components/pdfjs/content/build/pdf.js
 index 98e069f8074a..168983961a61 100644
 --- a/toolkit/components/pdfjs/content/build/pdf.js
@@ -2153,18 +2564,37 @@ index 98e069f8074a..168983961a61 100644
        popup.append(modificationDate);
      }
 diff --git a/toolkit/components/pdfjs/content/web/viewer.js b/toolkit/components/pdfjs/content/web/viewer.js
-index 765e832718fd..6b1b46222a0f 100644
+index 765e832718fd..2bfa22eef5a2 100644
 --- a/toolkit/components/pdfjs/content/web/viewer.js
 +++ b/toolkit/components/pdfjs/content/web/viewer.js
-@@ -4737,7 +4737,7 @@ exports.PDFDocumentProperties = void 0;
+@@ -4737,10 +4737,10 @@ exports.PDFDocumentProperties = void 0;
  var _pdfjsLib = __webpack_require__(5);
  var _ui_utils = __webpack_require__(4);
  const DEFAULT_FIELD_CONTENT = "-";
 -const NON_METRIC_LOCALES = ["en-us", "en-lr", "my"];
 +const NON_METRIC_LOCALES = [];
  const US_PAGE_NAMES = {
-   "8.5x11": "Letter",
-   "8.5x14": "Legal"
+-  "8.5x11": "Letter",
+-  "8.5x14": "Legal"
++  "8.5x11": "8.5x11, Letter",
++  "8.5x14": "8.5x14, Legal"
+ };
+ const METRIC_PAGE_NAMES = {
+   "297x420": "A3",
+@@ -4772,10 +4772,10 @@ class PDFDocumentProperties {
+     eventBus._on("rotationchanging", evt => {
+       this._pagesRotation = evt.pagesRotation;
+     });
+-    this._isNonMetricLocale = true;
+-    l10n.getLanguage().then(locale => {
++    this._isNonMetricLocale = !true;
++    /* l10n.getLanguage().then(locale => {
+       this._isNonMetricLocale = NON_METRIC_LOCALES.includes(locale);
+-    });
++    }); */
+   }
+   async open() {
+     await Promise.all([this.overlayManager.open(this.dialog), this._dataAvailableCapability.promise]);
 @@ -4928,8 +4928,8 @@ class PDFDocumentProperties {
        return undefined;
      }
@@ -2176,6 +2606,104 @@ index 765e832718fd..6b1b46222a0f 100644
      });
    }
    #parseLinearization(isLinearized) {
+diff --git a/toolkit/components/remote/nsDBusRemoteClient.cpp b/toolkit/components/remote/nsDBusRemoteClient.cpp
+index 69e8d07c728f..55d7a8ae6f93 100644
+--- a/toolkit/components/remote/nsDBusRemoteClient.cpp
++++ b/toolkit/components/remote/nsDBusRemoteClient.cpp
+@@ -97,7 +97,7 @@ bool nsDBusRemoteClient::GetRemoteDestinationName(const char* aProgram,
+   mozilla::XREAppData::SanitizeNameForDBus(profileName);
+ 
+   aDestinationName =
+-      nsPrintfCString("org.mozilla.%s.%s", aProgram, profileName.get());
++      nsPrintfCString("com.0h7z.%s.%s", aProgram, profileName.get());
+   if (aDestinationName.Length() > DBUS_MAXIMUM_NAME_LENGTH)
+     aDestinationName.Truncate(DBUS_MAXIMUM_NAME_LENGTH);
+ 
+@@ -111,7 +111,7 @@ bool nsDBusRemoteClient::GetRemoteDestinationName(const char* aProgram,
+   if (!sDBusValidateBusName(aDestinationName.get(), nullptr)) {
+     // We don't have a valid busName yet - try to create a default one.
+     aDestinationName =
+-        nsPrintfCString("org.mozilla.%s.%s", aProgram, "default");
++        nsPrintfCString("com.0h7z.%s.%s", aProgram, "default");
+     if (!sDBusValidateBusName(aDestinationName.get(), nullptr)) {
+       // We failed completelly to get a valid bus name - just quit
+       // to prevent crash at dbus_bus_request_name().
+@@ -139,7 +139,7 @@ nsresult nsDBusRemoteClient::DoSendDBusCommandLine(const char* aProgram,
+   }
+ 
+   nsAutoCString pathName;
+-  pathName = nsPrintfCString("/org/mozilla/%s/Remote", appName.get());
++  pathName = nsPrintfCString("/com/0h7z/%s/Remote", appName.get());
+ 
+   static auto sDBusValidatePathName = (bool (*)(const char*, DBusError*))dlsym(
+       RTLD_DEFAULT, "dbus_validate_path");
+@@ -150,7 +150,7 @@ nsresult nsDBusRemoteClient::DoSendDBusCommandLine(const char* aProgram,
+   }
+ 
+   nsAutoCString remoteInterfaceName;
+-  remoteInterfaceName = nsPrintfCString("org.mozilla.%s", appName.get());
++  remoteInterfaceName = nsPrintfCString("com.0h7z.%s", appName.get());
+ 
+   LOG("  DBus destination: %s\n", destinationName.get());
+   LOG("  DBus path: %s\n", pathName.get());
+diff --git a/toolkit/components/remote/nsDBusRemoteServer.cpp b/toolkit/components/remote/nsDBusRemoteServer.cpp
+index 34167177d972..81575f5e546e 100644
+--- a/toolkit/components/remote/nsDBusRemoteServer.cpp
++++ b/toolkit/components/remote/nsDBusRemoteServer.cpp
+@@ -30,7 +30,7 @@ static const char* introspect_template =
+     "     <arg name=\"data\" direction=\"out\" type=\"s\"/>\n"
+     "   </method>\n"
+     " </interface>\n"
+-    " <interface name=\"org.mozilla.%s\">\n"
++    " <interface name=\"com.0h7z.%s\">\n"
+     "   <method name=\"OpenURL\">\n"
+     "     <arg name=\"url\" direction=\"in\" type=\"ay\"/>\n"
+     "   </method>\n"
+@@ -63,7 +63,7 @@ DBusHandlerResult nsDBusRemoteServer::OpenURL(DBusMessage* msg) {
+                              &commandLine, &length, DBUS_TYPE_INVALID) ||
+       length == 0) {
+     nsAutoCString errorMsg;
+-    errorMsg = nsPrintfCString("org.mozilla.%s.Error", mAppName.get());
++    errorMsg = nsPrintfCString("com.0h7z.%s.Error", mAppName.get());
+     reply = dbus_message_new_error(msg, errorMsg.get(), "Wrong argument");
+   } else {
+     guint32 timestamp = gtk_get_current_event_time();
+@@ -93,7 +93,7 @@ DBusHandlerResult nsDBusRemoteServer::HandleDBusMessage(
+   }
+ 
+   nsAutoCString ourInterfaceName;
+-  ourInterfaceName = nsPrintfCString("org.mozilla.%s", mAppName.get());
++  ourInterfaceName = nsPrintfCString("com.0h7z.%s", mAppName.get());
+ 
+   if ((strcmp("OpenURL", method) == 0) &&
+       (strcmp(ourInterfaceName.get(), iface) == 0)) {
+@@ -154,7 +154,7 @@ nsresult nsDBusRemoteServer::Startup(const char* aAppName,
+ 
+   mozilla::XREAppData::SanitizeNameForDBus(profileName);
+ 
+-  nsPrintfCString busName("org.mozilla.%s.%s", mAppName.get(),
++  nsPrintfCString busName("com.0h7z.%s.%s", mAppName.get(),
+                           profileName.get());
+   if (busName.Length() > DBUS_MAXIMUM_NAME_LENGTH)
+     busName.Truncate(DBUS_MAXIMUM_NAME_LENGTH);
+@@ -167,7 +167,7 @@ nsresult nsDBusRemoteServer::Startup(const char* aAppName,
+ 
+   // We don't have a valid busName yet - try to create a default one.
+   if (!sDBusValidateBusName(busName.get(), nullptr)) {
+-    busName = nsPrintfCString("org.mozilla.%s.%s", mAppName.get(), "default");
++    busName = nsPrintfCString("com.0h7z.%s.%s", mAppName.get(), "default");
+     if (!sDBusValidateBusName(busName.get(), nullptr)) {
+       // We failed completelly to get a valid bus name - just quit
+       // to prevent crash at dbus_bus_request_name().
+@@ -186,7 +186,7 @@ nsresult nsDBusRemoteServer::Startup(const char* aAppName,
+     return NS_ERROR_FAILURE;
+   }
+ 
+-  mPathName = nsPrintfCString("/org/mozilla/%s/Remote", mAppName.get());
++  mPathName = nsPrintfCString("/com/0h7z/%s/Remote", mAppName.get());
+   static auto sDBusValidatePathName = (bool (*)(const char*, DBusError*))dlsym(
+       RTLD_DEFAULT, "dbus_validate_path");
+   if (!sDBusValidatePathName ||
 diff --git a/toolkit/components/resistfingerprinting/nsRFPService.cpp b/toolkit/components/resistfingerprinting/nsRFPService.cpp
 index d9dafda65753..7767ce60a2ba 100644
 --- a/toolkit/components/resistfingerprinting/nsRFPService.cpp
@@ -2442,10 +2970,10 @@ index 40e7a19f48fc..daf387134403 100644
  
      let weekends = weekend.map(toDateWeekday);
 diff --git a/toolkit/moz.configure b/toolkit/moz.configure
-index ce97db43fd3d..d87051db6d95 100644
+index ce97db43fd3d..1c920d8df812 100644
 --- a/toolkit/moz.configure
 +++ b/toolkit/moz.configure
-@@ -721,9 +721,10 @@ set_define("MOZ_AV1", av1)
+@@ -721,9 +721,9 @@ set_define("MOZ_AV1", av1)
  option("--disable-jxl", help="Disable jxl image support")
  
  
@@ -2454,11 +2982,28 @@ index ce97db43fd3d..d87051db6d95 100644
 -    if is_nightly and value:
 +@depends("--disable-jxl")
 +def jxl(value):
-+    enabled = bool(value)
-+    if enabled:
++    if value:
          return True
  
  
+@@ -2788,7 +2788,7 @@ set_config("MOZ_APP_REMOTINGNAME", moz_app_remotingname)
+ option(
+     env="ANDROID_PACKAGE_NAME",
+     nargs=1,
+-    help="Name of the Android package (default org.mozilla.$MOZ_APP_NAME)",
++    help="Name of the Android package (default com.0h7z.$MOZ_APP_NAME)",
+ )
+ 
+ 
+@@ -2798,7 +2798,7 @@ def android_package_name(value, moz_app_name):
+         return value[0]
+     if moz_app_name == "fennec":
+         return "org.mozilla.fennec_aurora"
+-    return "org.mozilla.%s" % moz_app_name
++    return "com.0h7z.%s" % moz_app_name
+ 
+ 
+ set_config("ANDROID_PACKAGE_NAME", android_package_name)
 diff --git a/toolkit/mozapps/extensions/internal/AddonSettings.jsm b/toolkit/mozapps/extensions/internal/AddonSettings.jsm
 index 78b5810bec41..8c4ff1d28d64 100644
 --- a/toolkit/mozapps/extensions/internal/AddonSettings.jsm

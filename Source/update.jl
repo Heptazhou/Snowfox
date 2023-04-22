@@ -27,22 +27,38 @@ const patch_g =
 	[
 		"../" * "1826485.patch"
 		"../" * "6a2f6f119c23b1b63aa2b8a72cfc850b4fb5049a.patch"
-		"../" * "jxl.patch"
 		"patches/removed-patches/allow_dark_preference_with_rfp.patch"
 	]
 const patch_b =
 	[
+		"patches/1550_1549.diff"
 		"patches/allow-JXL-in-non-nightly-browser.patch"
+		"patches/dbus_name.patch"
 		"patches/flatpak-autoconf.patch"
 		"patches/JXL_enable_by_default.patch"
 		"patches/JXL_improved_support.patch"
 		"patches/mozilla_dirs.patch"
+		"patches/removed-patches/about-dialog.patch"
+		"patches/removed-patches/add-language-warning.patch"
+		"patches/removed-patches/megabar.patch"
+		"patches/removed-patches/mozilla-vpn-ad.patch"
+		"patches/removed-patches/mozilla-vpn-ad2.patch"
+		"patches/removed-patches/native-messaging-registry-path.patch"
+		"patches/removed-patches/sanitizing-description.patch"
+		"patches/sed-patches/allow-searchengines-non-esr.patch"
+		"patches/tumbleweed-bootstrap.patch"
 		"patches/ui-patches/hide-default-browser.patch"
 		"patches/ui-patches/pref-naming.patch"
 		"patches/ui-patches/privacy-preferences.patch"
 		"patches/ui-patches/remove-branding-urlbar.patch"
 		"patches/ui-patches/remove-cfrprefs.patch"
 		"patches/ui-patches/snowfox-logo-devtools.patch"
+		"patches/unified-extensions-dont-show-recommendations.patch"
+		"patches/unity_kde/firefox-kde.patch"
+		"patches/unity_kde/mozilla-kde.patch"
+		"patches/unity_kde/unity-menubar.patch"
+		"patches/urlbarprovider-interventions.patch"
+		"patches/windows-theming-bug.patch"
 	]
 const moz_tmk = "Firefox and the Firefox logos are trademarks of the Mozilla Foundation."
 
@@ -58,10 +74,11 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					continue
 				end
 				if (f ≠ ".git") && !endswith(".jl")(f) && !isbinary(f)
-					s = read(f, String)
+					s = readstr(f)
 					if endswith(r"\.(diff|patch)")(f)
 						s = replace(s, " [ab]/browser/components/BrowserGlue\\K\\.jsm", ".sys.mjs")
 						s = replace(s, " [ab]\\K/lw/", "/snowfox/")
+						s = replace(s, r"^\+[\t ]+$"m, "+")
 						s = replace(s, r"^diff --git .+?\K\blibrewolf\b"m, "snowfox")
 						s = replace(s, r"^rename to\ .+?\K\blibrewolf\b"m, "snowfox")
 						for p ∈ schemes
@@ -103,13 +120,13 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = expands(s)
 					end
 					p = "(?<!=['\"])http://(?!www\\.w3\\.org/)" => "https://"
+					q = "resistFingerprinting"
 					if endswith(r"\.(diff|patch)")(f)
 						s = replace(s -> startswith(s, '+') ? replace(s, p...) : s, split(s, '\n')) |> s -> join(s, '\n')
-						s = replace(s, ("does-snowfox-use-https-only-mode"), ("does-librewolf-use-https-only-mode"), "w")
 						s = replace(s, r"^\+.*ColorScheme::\KLight"m, s"Dark")
 						s = replace(s, r"^\+.*https://support.mozilla.org/\Ken-US/"im, "")
-						s = replace(s, r"privacy\_\Koverride_rfp_for_color_scheme", "resistFingerprinting_override_color_scheme")
-						s = replace(s, r"privacy\.\Koverride_rfp_for_color_scheme", "resistFingerprinting.override-color-scheme")
+						s = replace(s, r"privacy\_\Koverride_rfp_for_color_scheme", "$(q)_override_color_scheme")
+						s = replace(s, r"privacy\.\Koverride_rfp_for_color_scheme", "$(q).override-color-scheme")
 						s = replace(s, r"Snowfox will force web content to display in \Ka light (theme\.\")", s"dark \1")
 					else
 						s = replace(s, p...)
@@ -135,25 +152,12 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					end
 					if startswith(r"mozconfig\b")(f)
 						p = "ac_add_options"
+						s = replace(s, r"distribution-id=\K(com\.0h7z)\.snowfox" => s"\1")
 						s = replace(s,
 							"$p --with-app-name=\\w+\n" *
 							"$p --with-branding=browser/branding/\\w+\n",
-							"$p --with-app-name=snowfox\n" *
 							"$p --enable-update-channel=release\n" *
 							"$p --with-branding=browser/branding/snowfox\n", "e") # ~ do not sort this
-						p = "mk_add_options"
-						s = replace(s,
-							"$p MOZ_CRASHREPORTER=0\n" *
-							"$p MOZ_DATA_REPORTING=0\n" *
-							#	MOZ_NORMANDY=0
-							"$p MOZ_SERVICES_HEALTHREPORT=0\n" *
-							"$p MOZ_TELEMETRY_REPORTING=0\n", # ~ do not sort this
-							"$p MOZ_CRASHREPORTER=0\n" *
-							"$p MOZ_DATA_REPORTING=0\n" *
-							"$p MOZ_SERVICES_HEALTHREPORT=0\n" *
-							"$p MOZ_TELEMETRY_REPORTING=0\n", "p", n = 1)
-						s = replace(s, "com.0h7z.snowfox" => s"com.0h7z")
-						s = replace(s, r"^export MOZ_REQUIRE_SIGNING=\K1?$"m, '"'^2)
 					end
 					if (f ≡ "Makefile") || endswith(".mk")(f)
 						p = raw"${version}-${release}"
@@ -242,9 +246,10 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"https://www\.mozilla\.org/firefox/[^\"]*", "$url_git")
 					end
 					if (f ≡ "configure.sh")
-						s = replace(s, r"^MOZ_APP_DISPLAYNAME=\K.*$"m => "Snowfox")
+						s = replace(s, r"^MOZ_APP_DISPLAYNAME\=\K.*$"m => "Snowfox")
 						s = replace(s, r"^MOZ_APP_PROFILE=\K.*$"m => "Snowfox")
 						s = replace(s, r"^MOZ_APP_REMOTINGNAME=\K.*$"m => "snowfox")
+						s = replace(s, r"^MOZ_DEV_EDITION=\K.*$"m => "0")
 						s = replace(s,
 							"MOZ_APP_DISPLAYNAME=[^\n]*\n" *
 							"MOZ_APP_REMOTINGNAME=[^\n]*\n" *
@@ -255,6 +260,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"MOZ_APP_PROFILE=Snowfox\n" *
 							"MOZ_APP_REMOTINGNAME=snowfox\n" *
 							"MOZ_APP_VENDOR=0h7z\n" *
+							"MOZ_DISTRIBUTION_ID=com.0h7z\n" *
+							"MOZ_MACBUNDLE_ID=snowfox\n" * # MOZ_MACBUNDLE_ID=MOZ_DISTRIBUTION_ID.MOZ_MACBUNDLE_ID
 							"MOZ_MACBUNDLE_NAME=Snowfox.app\n", "e")
 					end
 					if (f ≡ "generate-locales.sh")
@@ -369,7 +376,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					end
 					if (f ≡ "search-config.json")
 						s = cd(@__DIR__) do
-							read(f, String)
+							readstr(f)
 						end
 					end
 					if (f ≡ "snowfox-patches.py")
@@ -459,10 +466,11 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"^\t*\K {2}"m, ("\t"))
 					end
 					if (f ≡ "website-appearance-ui-rfp.patch")
-						p = """+      document.getElementById("web-appearance-chooser").style"""
+						p = "privacy.resistFingerprinting"
+						q = "+      document.getElementById(\"web-appearance-chooser\").style"
 						s = replace(s, ("@@ -3771,5 +3773,33 @@") => ("@@ -3771,5 +3773,32 @@"))
-						s = replace(s, ("^\\Q$p.opacity\\E.+;\n", "m"), (""))
-						s = replace(s, ("^\\Q$p.pointerEvents\\E.+;\n", "m"), (""))
+						s = replace(s, ("^\\Q$q.opacity\\E.+;\n", "m"), (""))
+						s = replace(s, ("^\\Q$q.pointerEvents\\E.+;\n", "m"), (""))
 						s = replace(s,
 							""" feature is disabled """,
 							""" setting is not taking effect """, "p")
@@ -471,11 +479,11 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							""" will continue to force web content """, "p")
 						s = replace(s,
 							""" theme.";""",
-							""" theme, unless privacy.resistFingerprinting.override-color-scheme is set to true.";""", "p")
+							""" theme, unless $p.override-color-scheme is set to true.";""", "p")
 						s = replace(s,
-							"""+    if (Services.prefs.getBoolPref("privacy.resistFingerprinting")) {\n""",
-							"""+    if (Services.prefs.getBoolPref("privacy.resistFingerprinting") &&\n""" *
-							"""+       !Services.prefs.getBoolPref("privacy.resistFingerprinting.override-color-scheme")) {\n""" *
+							"""+    if (Services.prefs.getBoolPref("$p")) {\n""",
+							"""+    if (Services.prefs.getBoolPref("$p") &&\n""" *
+							"""+       !Services.prefs.getBoolPref("$p.override-color-scheme")) {\n""" *
 							"""+      document.getElementById("web-appearance-rfp-warning")?.remove();\n""", "p")
 						s = replace(s,
 							"""+      learnMore.innerText = "Learn more";\n""" *

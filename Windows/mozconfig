@@ -1,0 +1,43 @@
+export CBINDGEN=/bin/cbindgen
+export DUMP_SYMS=/bin/dump_syms
+export HOST_CC=/bin/clang
+export HOST_CXX=/bin/clang++
+export NASM=/bin/nasm
+export NODEJS=/bin/node
+export WINSYSROOT=/moz/vs
+
+ac_add_options --allow-addon-sideload
+ac_add_options --disable-crashreporter
+ac_add_options --disable-debug
+ac_add_options --disable-default-browser-agent
+ac_add_options --disable-maintenance-service
+ac_add_options --disable-tests
+ac_add_options --disable-updater
+ac_add_options --enable-bootstrap
+ac_add_options --enable-hardening
+ac_add_options --enable-install-strip
+ac_add_options --enable-optimize
+ac_add_options --enable-project=browser
+ac_add_options --enable-proxy-bypass-protection
+ac_add_options --enable-release
+ac_add_options --enable-rust-simd
+ac_add_options --enable-strip
+ac_add_options --enable-update-channel=release
+ac_add_options --target=x86_64-pc-mingw32
+ac_add_options --with-app-basename=Snowfox
+ac_add_options --with-app-name=snowfox
+ac_add_options --with-branding=browser/branding/snowfox
+ac_add_options --with-distribution-id=com.0h7z
+ac_add_options --with-l10n-base=/src/browser/locales/l10n
+ac_add_options --with-unsigned-addon-scopes=app,system
+
+export MOZ_REQUIRE_SIGNING=
+export MOZ_STUB_INSTALLER=
+
+mk_add_options MOZ_BITS_DOWNLOAD=0
+mk_add_options MOZ_BLOCK_PROFILE_DOWNGRADE=0
+mk_add_options MOZ_CRASHREPORTER=0
+mk_add_options MOZ_DATA_REPORTING=0
+mk_add_options MOZ_NORMANDY=0
+mk_add_options MOZ_SERVICES_HEALTHREPORT=0
+mk_add_options MOZ_TELEMETRY_REPORTING=0

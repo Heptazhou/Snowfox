@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"112.0.1-1"
+const VER = v"112.0.2-1"
 
 function build()
 	@info "Building . . ."
@@ -31,7 +31,7 @@ function build()
 			pf = s"https://archive.mozilla.org/pub/firefox"
 			sf = s"source/firefox-$(version).source.tar.xz"
 			v1, v2, v3 = VER |> v_read
-			write(f, replace(read(f, String),
+			write(f, replace(f |> readstr,
 				"$pf/releases/\$(version)/$sf",
 				"$pf/candidates/$v1-candidates/build$v3/$sf", "p"))
 		end
@@ -39,7 +39,9 @@ function build()
 		v = v_read(VER)[begin]
 		f = ["../", ""] .* "firefox-$v.source.tar.xz"
 		f .|> isfile == [1, 0] && cp(f...)
-		@run [GMK, "all"]
+		f[1] = "../$PKG" * "firefox-$v.source.tar.xz"
+		f .|> isfile == [1, 0] && cp(f...)
+		@exec [GMK, "all"]
 		dir = mkpath("../$PKG")
 		for f in filter!(isfile, readdir())
 			f |> startswith("firefox-") && cp(f, "$dir/$f", force = true)
@@ -60,7 +62,7 @@ function check()
 			check()
 		else
 			cd(SRC)
-			@run [GMK, "check"]
+			@exec [GMK, "check"]
 		end
 	end
 end
@@ -75,23 +77,20 @@ end
 function fetch()
 	@info "Fetching . . ."
 	cd((@__DIR__)) do
-		if ispath(SRC)
-			throw(SystemError(SRC, 17)) # EEXIST 17 File exists
-		else
-			@run [GIT, "clone", "--depth=1", ["--recurse" "--shallow" "--remote"] .* "-submodules"..., CLN, SRC]
-			@run [JLC..., "move.jl", SRC, "1"]
-			@run [JLC..., "remote.jl"]
-			cd(SRC)
-			v1, v2, v3 = VER |> v_read
-			open("version", "r") do io
-				readline(io) |> v0 -> v0 ≡ v1 ? @info(v0) : @warn("Version not matched.", v0, v1)
-			end
-			open("version", "w") do io
-				println(io, v1)
-			end
-			open("release", "w") do io
-				println(io, v2)
-			end
+		ispath(SRC) && throw(SystemError(SRC, 17)) # EEXIST 17 File exists
+		@exec [GIT, "clone", "--depth=1", ["--recurse" "--shallow" "--remote"] .* "-submodules"..., CLN, SRC]
+		@exec [JLC..., "move.jl", SRC, "1"]
+		@exec [JLC..., "remote.jl"]
+		cd(SRC)
+		v1, v2, v3 = VER |> v_read
+		open("version", "r") do io
+			readline(io) |> v0 -> v0 ≡ v1 ? @info(v0) : @warn("Version not matched.", v0, v1)
+		end
+		open("version", "w") do io
+			println(io, v1)
+		end
+		open("release", "w") do io
+			println(io, v2)
 		end
 	end
 end
@@ -99,12 +98,9 @@ end
 function patch()
 	@info "Patching . . ."
 	cd((@__DIR__)) do
-		if !isdir(SRC)
-			throw(SystemError(SRC, 20)) # ENOTDIR 20 Not a directory
-		else
-			@run [JLC..., "move.jl", SRC, "1"]
-			@run [JLC..., "update.jl", SRC, "1"]
-		end
+		!isdir(SRC) && throw(SystemError(SRC, 20)) # ENOTDIR 20 Not a directory
+		@exec [JLC..., "move.jl", SRC, "1"]
+		@exec [JLC..., "update.jl", SRC, "1"]
 	end
 end
 

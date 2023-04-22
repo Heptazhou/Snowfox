@@ -1,3 +1,4 @@
 {
-	"copyrightInserter.useLineComment": true
+	"copyrightInserter.useLineComment": true,
+	"files.associations": { "mozconfig": "shellscript" }
 }

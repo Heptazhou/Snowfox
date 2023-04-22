@@ -20,6 +20,8 @@ include("const.jl")
 
 import Base.replace
 
+const readstr(x)::String = read(x, String)
+
 const Curl(x::String...; v::String)::Cmd =
 	Cmd(["curl", "--http2-prior-knowledge", "--tls" * "v$v",
 		"-A\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:$UAV.0) Gecko/20100101 Firefox/$UAV.0\"", x...])
@@ -37,18 +39,18 @@ const curl(x...) =
 	end
 const zip7(x...) = Zip7(x...) |> run
 
-macro run(vec)
+macro exec(vec)
 	quote
 		local x = @eval Cmd($vec)
 		x |> println
 		x |> run
 	end
 end
-macro run(vec, ret)
+macro exec(vec, ret)
 	quote
 		local x = @eval Cmd($vec)
 		x |> println
-		x = (read)(x, String)
+		x = (readstr)(x)
 		x |> println
 		$(esc(ret)) = x
 	end
@@ -85,7 +87,7 @@ function expands(str::String)::String
 end
 
 function isbinary(f::String)::Bool
-	f == "dsstore" ||
+	f ∈ (".DS_Store", "dsstore") ||
 		# See also
 		# Firefox/browser/installer/windows/nsis/shared.nsh
 		# > ${WriteApplicationsSupportedType} ${RegKey}
@@ -102,7 +104,7 @@ function isbinary(f::String)::Bool
 		endswith(r"\.(f[4l]v|mkv|mov|mp4|mpeg|ogv|webm)")(f) ||                                      # video
 		contains(r"^.+\.(bundle|min|sig(nature)?)\.[-\w]+$")(f) ||
 		contains(r"binary_data"i)(f) ||
-		!isvalid(read(f, String))
+		!isvalid(f |> readstr)
 end
 
 function pause(Msg = missing; up::Int = 0, down::Int = 0)
@@ -120,22 +122,31 @@ function pause(In::IO, Out::IO, Msg = missing)
 end
 
 # e => regex, p => plain, w => whole
-function replace(str::R, old::T, new::S, flag::String = "e"; n::Int = -1)::String where
-R <: AbstractString where S <: AbstractString where T <: NTuple{2, AbstractString}
+function replace(
+	str::AbstractString,
+	old::NTuple{2, AbstractString},
+	new::AbstractString,
+	flag::String = "e"; n::Int = -1)::String
 	flag ≡ "e" && ((new, old) = (SubstitutionString(new), Regex(old...)))
 	flag ≡ "p" && ((new, old) = (String(new), Regex("\\Q$(old[1])\\E", old[2])))
 	flag ≡ "w" && ((new, old) = (String(new), Regex("\\b\\Q$(old[1])\\E\\b", old[2])))
 	replace(str, old, new; n)
 end
-function replace(str::R, old::T, new::S, flag::String = "e"; n::Int = -1)::String where
-R <: AbstractString where S <: AbstractString where T <: AbstractString
+function replace(
+	str::AbstractString,
+	old::AbstractString,
+	new::AbstractString,
+	flag::String = "e"; n::Int = -1)::String
 	flag ≡ "e" && ((new, old) = (SubstitutionString(new), Regex(old)))
 	flag ≡ "p" && ((new, old) = (String(new), Regex("\\Q$old\\E")))
 	flag ≡ "w" && ((new, old) = (String(new), Regex("\\b\\Q$old\\E\\b")))
 	replace(str, old, new; n)
 end
-function replace(str::R, old::T, new::S, flag::String = "e"; n::Int = -1)::String where
-R <: AbstractString where S <: AbstractString where T <: AbstractPattern
+function replace(
+	str::AbstractString,
+	old::AbstractPattern,
+	new::AbstractString,
+	flag::String = "e"; n::Int = -1)::String
 	while 0 ≠ n && occursin(old, str)
 		(str, n) = (replace(str, old => new), n - 1)
 		(-1 - n) > +100 && error(old => new)

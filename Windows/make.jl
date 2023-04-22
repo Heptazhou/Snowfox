@@ -18,74 +18,22 @@
 
 include("base_func.jl")
 
-const CLN = "https://gitlab.com/librewolf-community/browser/windows.git"
+const CLN = "https://github.com/Heptazhou/Snowfox.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"112.0.1-1"
+const VER = v"112.0.2-1"
 
-function clean()
-	@info "Cleaning . . ."
-	cd((@__DIR__)) do
-		rm(SRC, force = true, recursive = true)
-	end
+try
+	cd(@__DIR__)
+	v1, v2, v3 = VER |> v_read
+	write("version", "$v1-$v2")
+	something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "")), false) ?
+	for f in "$REL/v$VER/snowfox-v$v1-$v2.source.tar.zst" .* [".sha256", ""]
+		f |> basename |> ispath || curl("-LO", f)
+	end :
+	@warn "Not allowed."
+catch e
+	@info e
 end
-
-function fetch()
-	@info "Fetching . . ."
-	cd((@__DIR__)) do
-		if ispath(SRC)
-			throw(SystemError(SRC, 17)) # EEXIST 17 File exists
-		else
-			@run [GIT, "clone", "--depth=1", CLN, SRC, "-b", "v112.0-1"]
-			@run [JLC..., "move.jl", SRC, "1"]
-			#
-			cd(SRC * "linux/")
-			v1, v2, v3 = VER |> v_read
-			open("version", "w") do io
-				println(io, v1)
-			end
-			open("source_release", "w") do io
-				println(io, v2)
-			end
-			open("release", "w") do io
-				println(io, v3)
-			end
-			something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "")), false) || return
-			cd(@__DIR__)
-			for f in "$REL/v$VER/snowfox-v$v1-$v2.source.tar.zst" .* [".sha256", ""]
-				f |> basename |> ispath || curl("-LO", f)
-			end
-		end
-	end
-end
-
-function patch()
-	@info "Patching . . ."
-	cd((@__DIR__)) do
-		if !isdir(SRC)
-			throw(SystemError(SRC, 20)) # ENOTDIR 20 Not a directory
-		else
-			@run [JLC..., "move.jl", SRC, "1"]
-			@run [JLC..., "update.jl", SRC, "1"]
-		end
-	end
-end
-
-isempty(ARGS) && @info "Nothing to do."
-while !isempty(ARGS)
-	op = popfirst!(ARGS)
-	if false
-	elseif op ≡ "all"
-		clean()
-		fetch()
-		patch()
-	elseif op ≡ "clean"
-		clean()
-	elseif op ≡ "fetch"
-		fetch()
-	elseif op ≡ "patch"
-		patch()
-	else
-		@warn "Invalid target: " * op
-	end
-end
+isempty(ARGS) || exit()
+pause(up = 1)
 

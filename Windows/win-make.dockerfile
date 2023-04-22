@@ -23,23 +23,27 @@
 
 FROM snowfox:win-base
 
-WORKDIR /src/
+ENV CARGO_BUILD_JOBS=2 \
+	CARGO_INCREMENTAL=0
 
-ENV CARGO_BUILD_JOBS=2 CARGO_INCREMENTAL=0
+RUN cd /src/build/vs && mach python --virtualenv=build pack_vs.py \
+	-o /moz/vs.tar.zst vs2019.yaml && \
+	cd /moz && tar fx vs.tar.zst && rm vs.tar.zst
 
-RUN make fetch
+RUN cd /src && yes n | \
+	mach bootstrap --application-choice=browser && \
+	cd /Snowfox/Windows && cp -ft src mozconfig
 
-RUN make bootstrap
+RUN cd /src && mach build
 
-RUN make build
+RUN cd /src && mach buildsymbols
 
-RUN make buildsymbols
+RUN cd /src && mach package-multi-locale \
+	--locales `cat browser/locales/shipped-locales` > /dev/null
 
-RUN make package
-
-RUN make artifacts
+RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt /pkg install/sea/* snowfox-*
 
 #
-# % id=$(docker create snowfox:win-make) && docker cp -q $id:pkg . && docker rm $id
+# % id=$(docker create snowfox:win-make) && docker cp $id:pkg . -q && docker rm $id
 #
 
