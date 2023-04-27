@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2023 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2021-2023 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -18,19 +18,18 @@
 
 include("base_func.jl")
 
-const CLN = "https://github.com/Heptazhou/Snowfox.git"
-const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"112.0.2-2"
+function rename()
+	for f in readdir()
+		f |> contains(r"\.xpt_artifacts\b"i) && (rm(f); continue)
+		g = replace(f, r"\.en-US\b"i => "")
+		g = replace(g, r"\.installer\.exe\b"i => ".exe")
+		g = replace(g, r"^snowfox-\K(\d+)"i => s"v\1")
+		g ≠ f && mv(f, g, force = true)
+	end
+end
 
 try
-	cd(@__DIR__)
-	v1, v2, v3 = VER |> v_read
-	write("version", "$v1-$v2")
-	something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "")), false) ?
-	for f in "$REL/v$VER/snowfox-v$v1-$v2.source.tar.zst" .* [".sha256", ""]
-		f |> basename |> ispath || curl("-LO", f)
-	end :
-	@warn "Not allowed."
+	cd(rename, PKG)
 catch e
 	@info e
 end

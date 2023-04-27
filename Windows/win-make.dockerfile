@@ -44,6 +44,6 @@ RUN cd /src && mach package-multi-locale \
 RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt /pkg install/sea/* snowfox-*
 
 #
-# % id=$(docker create snowfox:win-make) && docker cp $id:pkg . -q && docker rm $id
+# % id=$(docker create snowfox:win-make) && docker cp $id:pkg . -q && docker rm $id && julia move.jl /
 #
 

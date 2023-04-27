@@ -2563,38 +2563,74 @@ index 98e069f8074a..168983961a61 100644
        });
        popup.append(modificationDate);
      }
+diff --git a/toolkit/components/pdfjs/content/web/viewer-geckoview.js b/toolkit/components/pdfjs/content/web/viewer-geckoview.js
+index 5558b12fcd18..d87fe543037e 100644
+--- a/toolkit/components/pdfjs/content/web/viewer-geckoview.js
++++ b/toolkit/components/pdfjs/content/web/viewer-geckoview.js
+@@ -7388,10 +7388,10 @@ const DEFAULT_L10N_STRINGS = {
+   document_properties_page_size_unit_millimeters: "mm",
+   document_properties_page_size_orientation_portrait: "portrait",
+   document_properties_page_size_orientation_landscape: "landscape",
+-  document_properties_page_size_name_a3: "A3",
+-  document_properties_page_size_name_a4: "A4",
+-  document_properties_page_size_name_letter: "Letter",
+-  document_properties_page_size_name_legal: "Legal",
++  document_properties_page_size_name_full_a3: "297×420, A3",
++  document_properties_page_size_name_full_a4: "210×297, A4",
++  document_properties_page_size_name_full_letter: "8.5×11, Letter",
++  document_properties_page_size_name_full_legal: "8.5×14, Legal",
+   document_properties_page_size_dimension_string: "{{width}} × {{height}} {{unit}} ({{orientation}})",
+   document_properties_page_size_dimension_name_string: "{{width}} × {{height}} {{unit}} ({{name}}, {{orientation}})",
+   document_properties_linearized_yes: "Yes",
 diff --git a/toolkit/components/pdfjs/content/web/viewer.js b/toolkit/components/pdfjs/content/web/viewer.js
-index 765e832718fd..2bfa22eef5a2 100644
+index 765e832718fd..a2934ea06d77 100644
 --- a/toolkit/components/pdfjs/content/web/viewer.js
 +++ b/toolkit/components/pdfjs/content/web/viewer.js
-@@ -4737,10 +4737,10 @@ exports.PDFDocumentProperties = void 0;
+@@ -4737,7 +4737,7 @@ exports.PDFDocumentProperties = void 0;
  var _pdfjsLib = __webpack_require__(5);
  var _ui_utils = __webpack_require__(4);
  const DEFAULT_FIELD_CONTENT = "-";
 -const NON_METRIC_LOCALES = ["en-us", "en-lr", "my"];
 +const NON_METRIC_LOCALES = [];
  const US_PAGE_NAMES = {
--  "8.5x11": "Letter",
--  "8.5x14": "Legal"
-+  "8.5x11": "8.5x11, Letter",
-+  "8.5x14": "8.5x14, Legal"
- };
- const METRIC_PAGE_NAMES = {
-   "297x420": "A3",
+   "8.5x11": "Letter",
+   "8.5x14": "Legal"
 @@ -4772,10 +4772,10 @@ class PDFDocumentProperties {
      eventBus._on("rotationchanging", evt => {
        this._pagesRotation = evt.pagesRotation;
      });
 -    this._isNonMetricLocale = true;
 -    l10n.getLanguage().then(locale => {
-+    this._isNonMetricLocale = !true;
-+    /* l10n.getLanguage().then(locale => {
-       this._isNonMetricLocale = NON_METRIC_LOCALES.includes(locale);
+-      this._isNonMetricLocale = NON_METRIC_LOCALES.includes(locale);
 -    });
-+    }); */
++    this._isNonMetricLocale = !true;
++    // l10n.getLanguage().then(locale => {
++    //   this._isNonMetricLocale = NON_METRIC_LOCALES.includes(locale);
++    // });
    }
    async open() {
      await Promise.all([this.overlayManager.open(this.dialog), this._dataAvailableCapability.promise]);
+@@ -4899,9 +4899,9 @@ class PDFDocumentProperties {
+         width: Math.round(sizeMillimeters.width),
+         height: Math.round(sizeMillimeters.height)
+       };
+-      if (Math.abs(exactMillimeters.width - intMillimeters.width) < 0.1 && Math.abs(exactMillimeters.height - intMillimeters.height) < 0.1) {
++      if (Math.abs(exactMillimeters.width - intMillimeters.width) < 1.0 && Math.abs(exactMillimeters.height - intMillimeters.height) < 1.0) {
+         rawName = getPageName(intMillimeters, isPortrait, METRIC_PAGE_NAMES);
+-        if (rawName) {
++        if (false) {
+           sizeInches = {
+             width: Math.round(intMillimeters.width / 25.4 * 100) / 100,
+             height: Math.round(intMillimeters.height / 25.4 * 100) / 100
+@@ -4913,7 +4913,7 @@ class PDFDocumentProperties {
+     const [{
+       width,
+       height
+-    }, unit, name, orientation] = await Promise.all([this._isNonMetricLocale ? sizeInches : sizeMillimeters, this.l10n.get(`document_properties_page_size_unit_${this._isNonMetricLocale ? "inches" : "millimeters"}`), rawName && this.l10n.get(`document_properties_page_size_name_${rawName.toLowerCase()}`), this.l10n.get(`document_properties_page_size_orientation_${isPortrait ? "portrait" : "landscape"}`)]);
++    }, unit, name, orientation] = await Promise.all([this._isNonMetricLocale ? sizeInches : sizeMillimeters, this.l10n.get(`document_properties_page_size_unit_${this._isNonMetricLocale ? "inches" : "millimeters"}`), rawName && this.l10n.get(`document_properties_page_size_name_full_${rawName.toLowerCase()}`), this.l10n.get(`document_properties_page_size_orientation_${isPortrait ? "portrait" : "landscape"}`)]);
+     return this.l10n.get(`document_properties_page_size_dimension_${name ? "name_" : ""}string`, {
+       width: width.toLocaleString(),
+       height: height.toLocaleString(),
 @@ -4928,8 +4928,8 @@ class PDFDocumentProperties {
        return undefined;
      }
@@ -2606,6 +2642,21 @@ index 765e832718fd..2bfa22eef5a2 100644
      });
    }
    #parseLinearization(isLinearized) {
+@@ -9998,10 +9998,10 @@ const DEFAULT_L10N_STRINGS = {
+   document_properties_page_size_unit_millimeters: "mm",
+   document_properties_page_size_orientation_portrait: "portrait",
+   document_properties_page_size_orientation_landscape: "landscape",
+-  document_properties_page_size_name_a3: "A3",
+-  document_properties_page_size_name_a4: "A4",
+-  document_properties_page_size_name_letter: "Letter",
+-  document_properties_page_size_name_legal: "Legal",
++  document_properties_page_size_name_full_a3: "297×420, A3",
++  document_properties_page_size_name_full_a4: "210×297, A4",
++  document_properties_page_size_name_full_letter: "8.5×11, Letter",
++  document_properties_page_size_name_full_legal: "8.5×14, Legal",
+   document_properties_page_size_dimension_string: "{{width}} × {{height}} {{unit}} ({{orientation}})",
+   document_properties_page_size_dimension_name_string: "{{width}} × {{height}} {{unit}} ({{name}}, {{orientation}})",
+   document_properties_linearized_yes: "Yes",
 diff --git a/toolkit/components/remote/nsDBusRemoteClient.cpp b/toolkit/components/remote/nsDBusRemoteClient.cpp
 index 69e8d07c728f..55d7a8ae6f93 100644
 --- a/toolkit/components/remote/nsDBusRemoteClient.cpp
