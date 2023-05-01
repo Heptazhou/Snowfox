@@ -26,7 +26,9 @@ const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
 		"../" * "1826485.patch"
+		"../" * "1830049.patch"
 		"../" * "6a2f6f119c23b1b63aa2b8a72cfc850b4fb5049a.patch"
+		"../" * "crlf.patch" * " --binary"
 		"patches/removed-patches/allow_dark_preference_with_rfp.patch"
 	]
 const patch_b =
