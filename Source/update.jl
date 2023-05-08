@@ -25,10 +25,9 @@ const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "1826485.patch"
 		"../" * "1830049.patch"
-		"../" * "6a2f6f119c23b1b63aa2b8a72cfc850b4fb5049a.patch"
 		"../" * "crlf.patch" * " --binary"
+		"../" * "d770fa0d76b322aaaead0b26e6091a8bc37e16ae.patch"
 		"patches/removed-patches/allow_dark_preference_with_rfp.patch"
 	]
 const patch_b =
@@ -40,6 +39,7 @@ const patch_b =
 		"patches/JXL_enable_by_default.patch"
 		"patches/JXL_improved_support.patch"
 		"patches/mozilla_dirs.patch"
+		"patches/msix.patch"
 		"patches/removed-patches/about-dialog.patch"
 		"patches/removed-patches/add-language-warning.patch"
 		"patches/removed-patches/megabar.patch"
@@ -221,6 +221,9 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, "return ColorScheme::Light;" => "return ColorScheme::Dark;")
 						s = replace(s, r"^ +\Kvalue: false"m => "value: true")
 					end
+					if (f ≡ "allow-ubo-private-mode.patch")
+						s = replace(s, r"\bduring\K install and\b" => "", r"// \K(upgrade)\b" => s"install and \1")
+					end
 					if (f ≡ "bootstrap-without-vcs.patch")
 						p = "third_party/python/mozilla_repo_urls/mozilla_repo_urls/parser.py"
 						s = replace(s, "--- a/$p\n+++ b/$p\n" * r"[\S\s]+?\n" * "---" => "---")
@@ -382,6 +385,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						end
 					end
 					if (f ≡ "snowfox-patches.py")
+						s = replace(s, r"\bpatch -p1 \K-i\b" => "-li")
 						s = cd(@__DIR__) do
 							!isfile("binary.patch") ? s :
 							replace(s,
