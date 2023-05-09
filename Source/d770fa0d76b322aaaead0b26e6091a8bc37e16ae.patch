@@ -2403,7 +2403,7 @@ index 22d39aa6e0bb..6d2a7a58bda0 100644
              _analysis_output_always("pcmR",seq,v->pcm[1],v->pcm_current,0,0,totalshift);
  
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index 5e7f94846df5..bd6d5fb6bfe4 100644
+index 5e7f94846df5..1120e0ae4ce9 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -1335,7 +1335,7 @@
@@ -2795,12 +2795,17 @@ index 5e7f94846df5..bd6d5fb6bfe4 100644
    mirror: always
  
  - name: security.tls.version.min
-@@ -13880,7 +13893,7 @@
- #ifdef NIGHTLY_BUILD
-   value: 100
+@@ -13877,10 +13890,10 @@
+ # 0 means never GREASE, 100 means always GREASE
+ - name: security.tls.ech.grease_probability
+   type: RelaxedAtomicUint32
+-#ifdef NIGHTLY_BUILD
+-  value: 100
++#ifndef NIGHTLY_BUILD
++  value: 50
  #else
 -  value: 0
-+  value: 50
++  value: 100
  #endif
    mirror: always
  
@@ -2856,12 +2861,15 @@ index 5e7f94846df5..bd6d5fb6bfe4 100644
  
  # Whether the thumb should be rounded for the non-native scrollbars.
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index ff3fb66b1909..45d515918637 100644
+index ff3fb66b1909..fa78b1aa3738 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
-@@ -75,7 +75,7 @@ pref("security.crash_tracking.js_load_1.maxCrashes", 0);
+@@ -73,9 +73,9 @@ pref("security.osreauthenticator.password_last_changed_hi", 0);
+ pref("security.crash_tracking.js_load_1.prevCrashes", 0);
+ pref("security.crash_tracking.js_load_1.maxCrashes", 0);
  
- pref("general.useragent.compatMode.firefox", false);
+-pref("general.useragent.compatMode.firefox", false);
++pref("general.useragent.compatMode.firefox", true);
  
 -pref("general.config.obscure_value", 13); // for MCD .cfg files
 +pref("general.config.obscure_value", 0); // for MCD .cfg files
@@ -2943,7 +2951,7 @@ index ff3fb66b1909..45d515918637 100644
  
  // DOM full-screen API.
  #ifdef XP_MACOSX
-@@ -3367,18 +3367,18 @@ pref("alerts.showFavicons", false);
+@@ -3367,22 +3367,22 @@ pref("alerts.showFavicons", false);
  #endif
  // transition duration of fade-to-black and fade-from-black, unit: ms
  #ifndef MOZ_WIDGET_GTK
@@ -2960,13 +2968,18 @@ index ff3fb66b1909..45d515918637 100644
 +pref("full-screen-api.transition.timeout", 200);
  // time for the warning box stays on the screen before sliding out, unit: ms
 -pref("full-screen-api.warning.timeout", 3000);
-+pref("full-screen-api.warning.timeout", 0);
++pref("full-screen-api.warning.timeout", -1);
  // delay for the warning box to show when pointer stays on the top, unit: ms
 -pref("full-screen-api.warning.delay", 500);
-+pref("full-screen-api.warning.delay", 0);
++pref("full-screen-api.warning.delay", -1);
  
  // DOM pointerlock API
  // time for the warning box stays on the screen before sliding out, unit: ms
+-pref("pointer-lock-api.warning.timeout", 3000);
++pref("pointer-lock-api.warning.timeout", -1);
+ 
+ // Push
+ 
 @@ -3405,7 +3405,7 @@ pref("dom.push.quotaUpdateDelay", 3000); // 3 seconds
  
  // Is the network connection allowed to be up?
@@ -2997,7 +3010,7 @@ index ff3fb66b1909..45d515918637 100644
  
  // Disable service worker debugging on all channels (see Bug 1651605).
 diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
-index 6dd6894b7285..e8d22c81967d 100644
+index 6dd6894b7285..0ae66f12dd2a 100644
 --- a/netwerk/protocol/http/nsHttpHandler.cpp
 +++ b/netwerk/protocol/http/nsHttpHandler.cpp
 @@ -209,6 +209,11 @@ already_AddRefed<nsHttpHandler> nsHttpHandler::GetInstance() {
@@ -3012,20 +3025,15 @@ index 6dd6894b7285..e8d22c81967d 100644
    if (mozilla::StaticPrefs::image_avif_enabled()) {
      mimeTypes.Append("image/avif,");
    }
-@@ -401,14 +406,9 @@ nsresult nsHttpHandler::Init() {
-       do_GetService("@mozilla.org/xre/app-info;1");
- 
-   mAppName.AssignLiteral(MOZ_APP_UA_NAME);
--  if (mAppName.Length() == 0 && appInfo) {
--    // Try to get the UA name from appInfo, falling back to the name
--    appInfo->GetUAName(mAppName);
--    if (mAppName.Length() == 0) {
--      appInfo->GetName(mAppName);
--    }
+@@ -407,8 +412,11 @@ nsresult nsHttpHandler::Init() {
+     if (mAppName.Length() == 0) {
+       appInfo->GetName(mAppName);
+     }
 -    appInfo->GetVersion(mAppVersion);
--    mAppName.StripChars(R"( ()<>@,;:\"/[]?={})");
-+  if (mAppName.Length() == 0) {
-+    mAppName.AssignLiteral("Firefox");
++    if (mAppName.EqualsLiteral("Snowfox")) {
++      mAppName.AssignLiteral("Firefox");
++    }
+     mAppName.StripChars(R"( ()<>@,;:\"/[]?={})");
 +    mAppVersion.Assign(uaVersion);
    } else {
      mAppVersion.AssignLiteral(MOZ_APP_UA_VERSION);
@@ -3119,7 +3127,7 @@ index 659de22877e5..b4f43780bedc 100644
        popup.append(modificationDate);
      }
 diff --git a/toolkit/components/pdfjs/content/web/viewer-geckoview.js b/toolkit/components/pdfjs/content/web/viewer-geckoview.js
-index 289ef2b52540..12444941b61b 100644
+index 289ef2b52540..ac48a23a146e 100644
 --- a/toolkit/components/pdfjs/content/web/viewer-geckoview.js
 +++ b/toolkit/components/pdfjs/content/web/viewer-geckoview.js
 @@ -7386,10 +7386,10 @@ const DEFAULT_L10N_STRINGS = {
@@ -3130,15 +3138,33 @@ index 289ef2b52540..12444941b61b 100644
 -  document_properties_page_size_name_a4: "A4",
 -  document_properties_page_size_name_letter: "Letter",
 -  document_properties_page_size_name_legal: "Legal",
-+  document_properties_page_size_name_full_a3: "297×420, A3",
-+  document_properties_page_size_name_full_a4: "210×297, A4",
-+  document_properties_page_size_name_full_letter: "8.5×11, Letter",
-+  document_properties_page_size_name_full_legal: "8.5×14, Legal",
++  document_properties_page_size_name_full_a3: "29.7 × 42 cm, A3",
++  document_properties_page_size_name_full_a4: "21 × 29.7 cm, A4",
++  document_properties_page_size_name_full_letter: "8.5 × 11 in, Letter",
++  document_properties_page_size_name_full_legal: "8.5 × 14 in, Legal",
    document_properties_page_size_dimension_string: "{{width}} × {{height}} {{unit}} ({{orientation}})",
    document_properties_page_size_dimension_name_string: "{{width}} × {{height}} {{unit}} ({{name}}, {{orientation}})",
    document_properties_linearized_yes: "Yes",
+diff --git a/toolkit/components/pdfjs/content/web/viewer.css b/toolkit/components/pdfjs/content/web/viewer.css
+index 8da60b1f12ca..0a8f988fde9e 100644
+--- a/toolkit/components/pdfjs/content/web/viewer.css
++++ b/toolkit/components/pdfjs/content/web/viewer.css
+@@ -2395,11 +2395,11 @@ dialog :link {
+   text-align: start;
+ }
+ #documentPropertiesDialog .row > span {
+-  width: 125px;
++  width: 130px;
+   word-wrap: break-word;
+ }
+ #documentPropertiesDialog .row > p {
+-  max-width: 225px;
++  max-width: 305px;
+   word-wrap: break-word;
+ }
+ #documentPropertiesDialog .buttonRow {
 diff --git a/toolkit/components/pdfjs/content/web/viewer.js b/toolkit/components/pdfjs/content/web/viewer.js
-index bc0605f18696..d4607efca853 100644
+index bc0605f18696..a1cb3961d821 100644
 --- a/toolkit/components/pdfjs/content/web/viewer.js
 +++ b/toolkit/components/pdfjs/content/web/viewer.js
 @@ -4715,7 +4715,7 @@ exports.PDFDocumentProperties = void 0;
@@ -3205,10 +3231,10 @@ index bc0605f18696..d4607efca853 100644
 -  document_properties_page_size_name_a4: "A4",
 -  document_properties_page_size_name_letter: "Letter",
 -  document_properties_page_size_name_legal: "Legal",
-+  document_properties_page_size_name_full_a3: "297×420, A3",
-+  document_properties_page_size_name_full_a4: "210×297, A4",
-+  document_properties_page_size_name_full_letter: "8.5×11, Letter",
-+  document_properties_page_size_name_full_legal: "8.5×14, Legal",
++  document_properties_page_size_name_full_a3: "29.7 × 42 cm, A3",
++  document_properties_page_size_name_full_a4: "21 × 29.7 cm, A4",
++  document_properties_page_size_name_full_letter: "8.5 × 11 in, Letter",
++  document_properties_page_size_name_full_legal: "8.5 × 14 in, Legal",
    document_properties_page_size_dimension_string: "{{width}} × {{height}} {{unit}} ({{orientation}})",
    document_properties_page_size_dimension_name_string: "{{width}} × {{height}} {{unit}} ({{name}}, {{orientation}})",
    document_properties_linearized_yes: "Yes",

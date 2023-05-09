@@ -47,6 +47,7 @@ const patch_b =
 		"patches/removed-patches/mozilla-vpn-ad2.patch"
 		"patches/removed-patches/native-messaging-registry-path.patch"
 		"patches/removed-patches/sanitizing-description.patch"
+		"patches/rust-unaligned-access-backport.patch"
 		"patches/sed-patches/allow-searchengines-non-esr.patch"
 		"patches/tumbleweed-bootstrap.patch"
 		"patches/ui-patches/hide-default-browser.patch"
@@ -319,8 +320,10 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						end
 					end
 					if (f ≡ "policies.json")
+						o = "https://addons.mozilla.org/firefox/downloads/latest"
 						p, q = "$url_git/issues", "q={searchTerms}"
 						p = replace(p, "0h7z" => "Heptazhou")
+						s = replace(s, "https://localhost/*" => "https://example.invalid/*")
 						s = replace(s, "https://gitlab.com/librewolf-community/settings/issues", p)
 						s = replace(s, # Cookies
 							"""		"AppUpdateURL": "https://localhost",\n""" *
@@ -340,14 +343,21 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""		},\n""" *
 							"""		"DisableAppUpdate": true,\n""", "p") # ~ do not sort this
 						s = replace(s, # Extensions
+							"""			"Install": [\n""" *
+							"""				"$o/ublock-origin/latest.xpi"\n""" *
+							"""			],\n""" *
 							"""			"Uninstall": [\n""" *
 							"""				"google@search.mozilla.org",\n""" *
 							"""				"bing@search.mozilla.org",\n""" *
 							"""				"amazondotcom@search.mozilla.org",\n""" *
 							"""				"ebay@search.mozilla.org",\n""" *
 							"""				"twitter@search.mozilla.org"\n""" *
-							"""			]\n""", # ~ do not sort this
-							"""			"Uninstall": []\n""", "p")
+							"""			]\n""",
+							"""			"Install": [\n""" *
+							"""				"$o/ublock-origin/latest.xpi",\n""" *
+							"""				"$o/qr-code-address-bar/latest.xpi"\n""" *
+							"""			],\n""" *
+							"""			"Uninstall": []\n""", "p") # ~ do not sort this
 						s = replace(s, # SearchEngines
 							"""			"Remove": [\n""" *
 							"""				"Google",\n""" *
@@ -385,7 +395,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						end
 					end
 					if (f ≡ "snowfox-patches.py")
-						s = replace(s, r"\bpatch -p1 \K-i\b" => "-li")
+						s = replace(s, (r"\bpatch -p1 -\Ki\b" => "li"))
 						s = cd(@__DIR__) do
 							!isfile("binary.patch") ? s :
 							replace(s,
