@@ -27,8 +27,7 @@ const patch_g =
 	[
 		"../" * "1830049.patch"
 		"../" * "crlf.patch" * " --binary"
-		"../" * "d770fa0d76b322aaaead0b26e6091a8bc37e16ae.patch"
-		"patches/removed-patches/allow_dark_preference_with_rfp.patch"
+		"../" * "578496c2592c40ed5fec3812cdd646bf70496e10.patch"
 	]
 const patch_b =
 	[
@@ -42,6 +41,7 @@ const patch_b =
 		"patches/msix.patch"
 		"patches/removed-patches/about-dialog.patch"
 		"patches/removed-patches/add-language-warning.patch"
+		"patches/removed-patches/allow_dark_preference_with_rfp.patch"
 		"patches/removed-patches/megabar.patch"
 		"patches/removed-patches/mozilla-vpn-ad.patch"
 		"patches/removed-patches/mozilla-vpn-ad2.patch"
@@ -217,10 +217,6 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					if (f ≡ "aboutDialog.xhtml")
 						s = replace(s, r"""href=\K"(https://librewolf.net)/?">\1/?</""", "\"$url_doc\">$url_doc</")
 						s = replace(s, r"the primary\s+goals of privacy, security\K( and user freedom\.)"s, s",\1")
-					end
-					if (f ≡ "allow_dark_preference_with_rfp.patch")
-						s = replace(s, "return ColorScheme::Light;" => "return ColorScheme::Dark;")
-						s = replace(s, r"^ +\Kvalue: false"m => "value: true")
 					end
 					if (f ≡ "allow-ubo-private-mode.patch")
 						s = replace(s, r"\bduring\K install and\b" => "", r"// \K(upgrade)\b" => s"install and \1")

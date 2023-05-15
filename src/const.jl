@@ -54,6 +54,8 @@ const icon_goog = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAAB
 # https://github.com/the1812/Bilibili-Evolved/blob/master/registry/lib/components/utils/url-params-clean/index.ts
 const strip_list_msc =
 	[
+		# "_nc_sid" #? Facebook gif
+		# "from"    #* Zoom SSO
 		"_at_"
 		"_ff"
 		"_rand"
@@ -80,6 +82,7 @@ const strip_list_msc =
 		"buvid"
 		"cid"
 		"client"
+		"curator_clanid"
 		"current_qn"
 		"current_quality"
 		"device_id"
@@ -99,7 +102,6 @@ const strip_list_msc =
 		"from_name"
 		"from_source"
 		"from_spmid"
-		"from"
 		"fromid"
 		"fromtitle"
 		"fromTitle"
@@ -108,6 +110,7 @@ const strip_list_msc =
 		"group_id"
 		"gsm"
 		"hosteuin"
+		"ig_cache_key"
 		"inputT"
 		"ipn"
 		"is_reflow"
@@ -117,6 +120,7 @@ const strip_list_msc =
 		"islist"
 		"issp"
 		"jid"
+		"keywords"
 		"lfid"
 		"live_from"
 		"live_play_network"
@@ -208,6 +212,7 @@ const strip_list_msc =
 		"ts"
 		"tt_from"
 		"uct"
+		"ufe"
 		"uk"
 		"unique_k"
 		"up_id"
@@ -254,6 +259,7 @@ const strip_list_msc =
 		"weibo_id"
 		"wfr"
 		"wid"
+		"wvr"
 		"wxa_abtest"
 		"wxfid"
 		"wxshare_count"

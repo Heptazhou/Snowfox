@@ -44,6 +44,6 @@ RUN cd /Snowfox/Windows && ln -s /Snowfox/Windows/src /src && \
 	rm -fr snowfox-*.tar.zst && git add -A && git commit -m Update && \
 	cp -ft src mozconfig && ln -s /src/mach /bin/mach
 
-RUN rustup default stable && \
+RUN rustup default 1.69 && \
 	rustup target add x86_64-pc-windows-msvc
 

@@ -26,9 +26,9 @@ FROM snowfox:win-base
 ENV CARGO_BUILD_JOBS=2 \
 	CARGO_INCREMENTAL=0
 
-RUN cd /src/build/vs && mach python --virtualenv=build pack_vs.py \
-	-o /moz/vs.tar.zst vs2019.yaml && \
-	cd /moz && tar fx vs.tar.zst && rm vs.tar.zst
+RUN cd /src && mach python --virtualenv=build \
+	taskcluster/scripts/misc/get_vs.py \
+	build/vs/vs2019.yaml /moz/vs
 
 RUN cd /src && yes n | \
 	mach bootstrap --application-choice=browser && \

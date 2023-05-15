@@ -20,7 +20,11 @@ include("base_func.jl")
 
 const CLN = "https://github.com/Heptazhou/Snowfox.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"113.0.1-1"
+const VER = v"114.0.1-1"
+
+# https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html#schedule
+# https://releases.rs
+const VRS = "1.69"
 
 try
 	cd(@__DIR__)
