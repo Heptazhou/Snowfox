@@ -25,14 +25,14 @@ const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "1830049.patch"
+		"../" * "41f2d4d66fba1a373e46841e28a5e54e603d0c6a.patch"
 		"../" * "crlf.patch" * " --binary"
-		"../" * "578496c2592c40ed5fec3812cdd646bf70496e10.patch"
 	]
 const patch_b =
 	[
 		"patches/1550_1549.diff"
 		"patches/allow-JXL-in-non-nightly-browser.patch"
+		"patches/bootstrap-without-vcs.patch"
 		"patches/dbus_name.patch"
 		"patches/flatpak-autoconf.patch"
 		"patches/JXL_enable_by_default.patch"

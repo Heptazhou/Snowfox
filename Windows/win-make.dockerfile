@@ -26,22 +26,22 @@ FROM snowfox:win-base
 ENV CARGO_BUILD_JOBS=2 \
 	CARGO_INCREMENTAL=0
 
-RUN cd /src && mach python --virtualenv=build \
-	taskcluster/scripts/misc/get_vs.py \
-	build/vs/vs2019.yaml /moz/vs
+RUN rustup default 1.70 && \
+	rustup target add x86_64-pc-windows-msvc
 
-RUN cd /src && yes n | \
-	mach bootstrap --application-choice=browser && \
-	cd /Snowfox/Windows && cp -ft src mozconfig
+RUN cd /src && mach configure
 
 RUN cd /src && mach build
 
 RUN cd /src && mach buildsymbols
 
-RUN cd /src && mach package-multi-locale \
-	--locales `cat browser/locales/shipped-locales` > /dev/null
+RUN cd /src && mach package-multi-locale --locales \
+	`cat browser/locales/shipped-locales` > /dev/null
 
-RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt /pkg install/sea/* snowfox-*
+RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt \
+	/pkg install/sea/* snowfox-* && rm /pkg/*_artifacts.*
+
+RUN cd /pkg && jl 7z.jl / && rm 7z.jl
 
 #
 # % id=$(docker create snowfox:win-make) && docker cp $id:pkg . -q && docker rm $id && julia move.jl /

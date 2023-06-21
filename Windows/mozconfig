@@ -1,11 +1,3 @@
-export CBINDGEN=/bin/cbindgen
-export DUMP_SYMS=/bin/dump_syms
-export HOST_CC=/bin/clang
-export HOST_CXX=/bin/clang++
-export NASM=/bin/nasm
-export NODEJS=/bin/node
-export WINSYSROOT=/moz/vs
-
 ac_add_options --allow-addon-sideload
 ac_add_options --disable-crashreporter
 ac_add_options --disable-debug
@@ -13,7 +5,7 @@ ac_add_options --disable-default-browser-agent
 ac_add_options --disable-maintenance-service
 ac_add_options --disable-tests
 ac_add_options --disable-updater
-ac_add_options --enable-bootstrap
+ac_add_options --enable-bootstrap=sysroot-wasm32-wasi,wine,nsis,clang
 ac_add_options --enable-hardening
 ac_add_options --enable-install-strip
 ac_add_options --enable-optimize

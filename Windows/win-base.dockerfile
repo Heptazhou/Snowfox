@@ -28,22 +28,22 @@ ENV JULIA_NUM_THREADS=auto \
 
 RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
 	git clone https://github.com/Heptazhou/Snowfox.git && cd /Snowfox/Windows && \
-	julia --compile=min --color=yes make.jl / && \
-	sha256sum -c *.sha256
+	jl make.jl / && sha256sum -c *.sha256
 
 ADD https://api.github.com/repos/Heptazhou/Snowfox/git/refs/heads/master version.json
 
 RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
 	cd /Snowfox/Windows && git pull -ftp && \
-	julia --compile=min --color=yes make.jl / && \
-	sha256sum -c *.sha256
+	jl make.jl / && sha256sum -c *.sha256
 
-RUN cd /Snowfox/Windows && ln -s /Snowfox/Windows/src /src && \
+RUN cd /Snowfox/Windows && \
+	mkdir /pkg $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
+	ln -s /src/mach /bin/mach && \
 	tar fx snowfox-v`cat version`.source.tar.zst && \
 	mv -fv snowfox-v`cat version` src && \
-	rm -fr snowfox-*.tar.zst && git add -A && git commit -m Update && \
-	cp -ft src mozconfig && ln -s /src/mach /bin/mach
+	rm -fr snowfox-*.tar.zst && mv src / && \
+	cp -t /src mozconfig && cp -t /pkg 7z.jl
 
-RUN rustup default 1.69 && \
-	rustup target add x86_64-pc-windows-msvc
+RUN cd /Snowfox/Windows && \
+	jl init.jl / && jl vs.jl /
 

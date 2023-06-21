@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2023 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2023 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -18,26 +18,13 @@
 
 include("base_func.jl")
 
-const CLN = "https://github.com/Heptazhou/Snowfox.git"
-const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"115.0.1-1"
+const py = "taskcluster/scripts/misc/get_vs.py"
 
-# https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html#schedule
-# https://releases.rs
-const VRS, _ = "1.70", "win-base.dockerfile"
+const vs = "build/vs/vs2019.yaml"
 
-try
-	cd(@__DIR__)
-	v1, v2, v3 = VER |> v_read
-	write("version", "$v1-$v2")
-	something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "")), false) ?
-	for f in "$REL/v$VER/snowfox-v$v1-$v2.source.tar.zst" .* [".sha256", ""]
-		f |> basename |> ispath || curl("-LO", f)
-	end :
-	@warn "Not allowed."
-catch e
-	@info e
+isempty(ARGS) || cd("/src") do
+	dd = get(ENV, "MOZBUILD_STATE_PATH", "/moz") * "/vs"
+	sh("mach python --virtualenv=build $py $vs $dd")
+	sh("mach clobber")
 end
-isempty(ARGS) || exit()
-pause(up = 1)
 

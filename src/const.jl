@@ -82,6 +82,8 @@ const strip_list_msc =
 		"buvid"
 		"cid"
 		"client"
+		"comment_on"
+		"comment_root_id"
 		"curator_clanid"
 		"current_qn"
 		"current_quality"

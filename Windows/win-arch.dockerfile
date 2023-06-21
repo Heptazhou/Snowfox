@@ -23,27 +23,27 @@
 
 FROM archlinux:base-devel
 
-ENV MOZBUILD_STATE_PATH=/moz \
-	RUSTUP_HOME=/rust
+ENV MOZBUILD_STATE_PATH=/moz RUSTUP_HOME=/rust \
+	PATH=/bin:$PATH
 
 RUN sed -ri 's/(EUID) == 0/\1 <= -1/g'            /bin/makepkg     && \
 	sed -ri 's/^.*Color/DisableDownloadTimeout/g' /etc/pacman.conf && \
 	sed -ri 's/^(ParallelDownloads) = 5/\1 = 8/g' /etc/pacman.conf && \
 	sed -ri 's/^NoProgressBar/Color/g'            /etc/pacman.conf && \
+	echo -e '''#!/bin/env sh\njulia --compile=min --color=yes $@\nexit $?' >> /bin/jl && \
 	echo -e '\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$arch' >> /etc/pacman.conf && \
 	echo -e 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
 
 RUN yes | pacman -Syu && pacman-key --init && yes | pacman -S archlinuxcn-keyring && \
-	yes | pacman -S --needed \
-	git grml-zsh-config julia mc nano-syntax-highlighting zsh-completions \
-	7-zip-full mercurial msitools python-pip unzip wget \
-	cbindgen clang cross dump_syms nasm nodejs-lts-hydrogen rustup upx && \
-	yes | pacman -Scc && chsh -s /bin/zsh
+	yes | pacman -S --needed 7-zip-full grml-zsh-config julia zsh-completions \
+	git mc nano-syntax-highlighting nodejs-lts-hydrogen python-pip rustup wget \
+	cbindgen cross dump_syms mercurial msitools nasm unzip upx wasi-compiler-rt && \
+	yes | pacman -Scc && chsh -s /bin/zsh && chmod +x /bin/jl
 
 RUN cd /bin && ln -s clear cls && ln -s nano nn && ln -s nano vi && \
 	git config --global init.defaultbranch master && \
 	git config --global pull.rebase true && \
 	git config --global user.email root@localhost && \
 	git config --global user.name root && \
-	mkdir -p /moz /pkg /rust
+	git config --global safe.directory "*"
 

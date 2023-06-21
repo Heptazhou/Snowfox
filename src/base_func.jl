@@ -21,6 +21,7 @@ include("const.jl")
 import Base.replace
 
 const readstr(x)::String = read(x, String)
+const sh(c::String)      = run(`sh -c $c`)
 
 const Curl(x::String...; v::String)::Cmd =
 	Cmd(["curl", "--http2-prior-knowledge", "--tls" * "v$v",
@@ -152,6 +153,25 @@ function replace(
 		(-1 - n) > +100 && error(old => new)
 	end
 	str
+end
+
+function replace(
+	str::AbstractString,
+	old::AbstractVector{<:AbstractString},
+	new::AbstractVector{<:AbstractString},
+	delim::String = ","; n::Int = 1)::String
+	old = join("\"" .* old .* "\"", delim * " "^n)
+	new = join("\"" .* new .* "\"", delim * " "^n)
+	str = replace(str, old => new)
+end
+function replace(
+	str::AbstractString,
+	old::Any,
+	new::Any,
+	qtn::String = "\""; n::Int = -1)::String
+	old = old isa AbstractString ? qtn * old * qtn : string(old)
+	new = new isa AbstractString ? qtn * new * qtn : string(new)
+	str = replace(str, old => new)
 end
 
 function v_read(ver::VersionNumber)::NTuple{3, String}
