@@ -35,11 +35,11 @@ RUN cd /src && mach build
 
 RUN cd /src && mach buildsymbols
 
-RUN cd /src && mach package-multi-locale --locales \
-	`cat browser/locales/shipped-locales` > /dev/null
+RUN cd /src && mach package-multi-locale \
+	--locales `cat browser/locales/shipped-locales` > /dev/null
 
-RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt \
-	/pkg install/sea/* snowfox-* && rm /pkg/*_artifacts.*
+RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt /pkg \
+	install/sea/* snowfox-* && rm /pkg/*.xpt_artifacts.* || true
 
 RUN cd /pkg && jl 7z.jl / && rm 7z.jl
 

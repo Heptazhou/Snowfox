@@ -36,8 +36,8 @@ RUN sed -ri 's/(EUID) == 0/\1 <= -1/g'            /bin/makepkg     && \
 
 RUN yes | pacman -Syu && pacman-key --init && yes | pacman -S archlinuxcn-keyring && \
 	yes | pacman -S --needed 7-zip-full grml-zsh-config julia zsh-completions \
-	git mc nano-syntax-highlighting nodejs-lts-hydrogen python-pip rustup wget \
-	cbindgen cross dump_syms mercurial msitools nasm unzip upx wasi-compiler-rt && \
+	git mc nano-syntax-highlighting nodejs-lts-hydrogen python-pip rustup tree \
+	cbindgen cross dump_syms mercurial msitools nasm unzip upx wasi-compiler-rt wget && \
 	yes | pacman -Scc && chsh -s /bin/zsh && chmod +x /bin/jl
 
 RUN cd /bin && ln -s clear cls && ln -s nano nn && ln -s nano vi && \

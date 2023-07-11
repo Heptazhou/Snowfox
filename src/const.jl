@@ -54,7 +54,8 @@ const icon_goog = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAAB
 # https://github.com/the1812/Bilibili-Evolved/blob/master/registry/lib/components/utils/url-params-clean/index.ts
 const strip_list_msc =
 	[
-		# "_nc_sid" #? Facebook gif
+		# "_nc_sid" #? Facebook GIF
+		# "cid"     #* Azure DevOps Services
 		# "from"    #* Zoom SSO
 		"_at_"
 		"_ff"
@@ -80,7 +81,6 @@ const strip_list_msc =
 		"bsft_uid"
 		"bsource"
 		"buvid"
-		"cid"
 		"client"
 		"comment_on"
 		"comment_root_id"
