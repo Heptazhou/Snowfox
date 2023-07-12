@@ -21,6 +21,7 @@ const PKG = ("pkg/")
 const SRC = ("src/")
 const UAV = (UInt16)(108) # https://oeis.org/A001694
 #&  64, 72, 81, 100, 108, 121, 125, 128, 144, 169, 196, 200
+raw"../../Firefox/modules/libpref/init/StaticPrefList.yaml" # network.http.useragent.forceVersion
 
 const schemes =
 	[
@@ -54,11 +55,11 @@ const icon_goog = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAAB
 # https://github.com/the1812/Bilibili-Evolved/blob/master/registry/lib/components/utils/url-params-clean/index.ts
 const strip_list_msc =
 	[
-		# "_nc_sid" #? Facebook GIF
-		# "cid"     #* Azure DevOps Services
-		# "from"    #* Zoom SSO
+		"__cft__[0]"
+		"__tn__"
 		"_at_"
 		"_ff"
+		"_nc_sid"
 		"_rand"
 		"_ts"
 		"_wv"
@@ -76,12 +77,15 @@ const strip_list_msc =
 		"bbid"
 		"bddid"
 		"bdtype"
+		"brand_redir"
 		"broadcast_type"
 		"bsft_clkid"
 		"bsft_uid"
 		"bsource"
 		"buvid"
+		"ckanonid"
 		"client"
+		"comefrom"
 		"comment_on"
 		"comment_root_id"
 		"curator_clanid"
@@ -128,6 +132,7 @@ const strip_list_msc =
 		"live_play_network"
 		"luicode"
 		"media_mid"
+		"mktgSourceCode"
 		"mpshare"
 		"msource"
 		"network_id"
@@ -138,6 +143,8 @@ const strip_list_msc =
 		"orgRef"
 		"oriquery"
 		"p2p_type"
+		"paipv"
+		"pic_share_from"
 		"pid"
 		"plat_id"
 		"platform_network_status"
@@ -192,6 +199,7 @@ const strip_list_msc =
 		"simid"
 		"sme"
 		"source"
+		"sourcecode"
 		"sourceFrom"
 		"sourceType"
 		"spm_id_from"
@@ -211,6 +219,7 @@ const strip_list_msc =
 		"suguuid"
 		"tdsourcetag"
 		"timestamp"
+		"treatmentID"
 		"ts"
 		"tt_from"
 		"uct"
@@ -255,6 +264,7 @@ const strip_list_msc =
 		"utm_user"
 		"utm_userid"
 		"utm_viz_id"
+		"utrc"
 		"vd_source"
 		"ved"
 		"visit_id"
@@ -318,6 +328,13 @@ const strip_list_ubo =
 		"wbraid"
 		"wickedid"
 		"yclid"
+	]
+
+# Exemption
+const strip_list_xpt =
+	[
+		"cid"     #* Azure DevOps Services
+		"from"    #* Zoom SSO
 	]
 
 const strip_list = String[strip_list_msc; strip_list_ubo]

@@ -25,7 +25,7 @@ const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "41f2d4d66fba1a373e46841e28a5e54e603d0c6a.patch"
+		"../" * "6f0ec8fdfbf8467d99a0663ebdf9b02b326b79ea.patch"
 		"../" * "crlf.patch" * " --binary"
 	]
 const patch_b =
@@ -33,6 +33,7 @@ const patch_b =
 		"patches/1550_1549.diff"
 		"patches/allow-JXL-in-non-nightly-browser.patch"
 		"patches/bootstrap-without-vcs.patch"
+		"patches/bootstrap.patch"
 		"patches/dbus_name.patch"
 		"patches/flatpak-autoconf.patch"
 		"patches/JXL_enable_by_default.patch"
@@ -460,15 +461,19 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("intl.date_time.pattern_override.time_medium", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_short", "HH:mm:ss");\n""" *
 							"""defaultPref("media.eme.showBrowserMessage", false);\n""" *
-							"""defaultPref("network.http.useragent.forceVersion", $UAV);\n""" *
 							"""defaultPref("snowfox.app.checkVersion.enabled", true);\n""" *
 							"""defaultPref("snowfox.app.checkVersion.url", "$url_api/releases");\n""" *
 							"""lockPref("browser.dataFeatureRecommendations.enabled", false);\n""" *
 							"""lockPref("browser.firefox-view.view-count", 0);\n""" *
 							"""lockPref("browser.privacySegmentation.preferences.show", false);\n""" *
-							"""pref("network.http.useragent.forceRVOnly", 0);\n""" *
+							"""pref("browser.safebrowsing.blockedURIs.enabled", false);\n""" *
+							"""pref("browser.safebrowsing.downloads.enabled", false);\n""" *
+							"""pref("browser.safebrowsing.malware.enabled", false);\n""" *
+							"""pref("browser.safebrowsing.phishing.enabled", false);\n""" *
 							"""pref("network.http.useragent.forceVersion", $UAV);\n""" *
+							"""pref("network.http.windows-sso.enabled", false);\n""" *
 							"""pref("privacy.donottrackheader.enabled", true);\n""" *
+							"""pref("security.OCSP.enabled", 0);\n""" *
 							"""pref("security.OCSP.require", true);\n""" *
 							"""pref("security.pki.crlite_mode", 2);\n""" *
 							"""\n"""^2, "p", n = 1)

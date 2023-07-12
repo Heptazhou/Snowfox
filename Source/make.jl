@@ -20,26 +20,32 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"115.0.2-1"
+const VER = v"116.0.0-1"
 
 function build()
 	@info "Building . . ."
 	cd((@__DIR__)) do
 		cd(SRC)
-		("$VER" |> contains(r"rc\d")) && let f = "Makefile"
-			@warn "The build target is a RC version." (VER)
-			pf = s"https://archive.mozilla.org/pub/firefox"
-			sf = s"source/firefox-$(version).source.tar.xz"
-			v1, v2, v3 = VER |> v_read
-			write(f, replace(f |> readstr,
+		mf = s"Makefile"
+		pf = s"https://archive.mozilla.org/pub/firefox"
+		sf = s"source/firefox-$(version).source.tar.xz"
+		v1, v2, v3 = VER |> v_read
+		if VER |> string |> contains(r"\+b\d+")
+			@warn "The build target is beta version." VER
+			write(mf, replace(mf |> readstr,
+				"$pf/releases/\$(version)/$sf",
+				"$pf/releases/$v1" * "b$v3/$sf", "p"))
+		end
+		if VER |> string |> contains(r"\+rc\d")
+			@warn "The build target is a RC version." VER
+			write(mf, replace(mf |> readstr,
 				"$pf/releases/\$(version)/$sf",
 				"$pf/candidates/$v1-candidates/build$v3/$sf", "p"))
 		end
 		Sys.iswindows() && (@warn "Not allowed."; return)
-		v = v_read(VER)[begin]
-		f = ["../", ""] .* "firefox-$v.source.tar.xz"
+		f = ["../", ""] .* "firefox-$v1.source.tar.xz"
 		f .|> isfile == [1, 0] && cp(f...)
-		f[1] = "../$PKG" * "firefox-$v.source.tar.xz"
+		f[1] = "../$PKG" * "firefox-$v1.source.tar.xz"
 		f .|> isfile == [1, 0] && cp(f...)
 		@exec [GMK, "all"]
 		dir = mkpath("../$PKG")

@@ -17,6 +17,7 @@ include("base_func.jl")
 
 for i in strip_list_msc
 	i in strip_list_ubo && @warn i
+	i in strip_list_xpt && @warn i
 end
 @info "Done."
 

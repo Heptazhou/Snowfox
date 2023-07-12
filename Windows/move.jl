@@ -23,7 +23,7 @@ function rename()
 		f |> contains(r"\.xpt_artifacts\b"i) && (rm(f); continue)
 		g = replace(f, r"\.en-US\b"i => "")
 		g = replace(g, r"\.installer\.exe\b"i => ".exe")
-		g = replace(g, r"^snowfox-\K(\d+)"i => s"v\1")
+		g = replace(g, r"^snowfox-\K(\d+\.)"i => s"v\1")
 		g ≠ f && mv(f, g, force = true)
 	end
 end
