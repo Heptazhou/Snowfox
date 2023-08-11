@@ -177,6 +177,7 @@ const strip_list_msc =
 		"rsv_pq"
 		"rsv_spt"
 		"rsv_t"
+		"sca_esv"
 		"scene"
 		"sclient"
 		"sei"
