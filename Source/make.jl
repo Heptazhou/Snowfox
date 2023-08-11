@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"116.0.2-1"
+const VER = v"116.0.3-1"
 
 function build()
 	@info "Building . . ."
@@ -84,7 +84,8 @@ function fetch()
 	@info "Fetching . . ."
 	cd((@__DIR__)) do
 		ispath(SRC) && throw(SystemError(SRC, 17)) # EEXIST 17 File exists
-		@exec [GIT, "clone", "--depth=1", ["--recurse" "--shallow" "--remote"] .* "-submodules"..., CLN, SRC]
+		@exec [GIT, "clone", "--depth=5", "--branch=116.0.3-1", ["--recurse" "--shallow" "--remote"] .* "-submodules"..., CLN, SRC]
+		@exec [GIT, "-C", SRC, "checkout", "d859ec92932b5241d105bdc0d88ce3c7b7cb4c8a"]
 		@exec [JLC..., "move.jl", SRC, "1"]
 		@exec [JLC..., "remote.jl"]
 		cd(SRC)

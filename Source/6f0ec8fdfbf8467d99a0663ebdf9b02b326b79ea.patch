@@ -1570,6 +1570,19 @@ index 3ca297b40ed9..f1c221bdaf2b 100644
    background-position: left 32px top 20px;
    background-repeat: no-repeat;
    background-size: 32px;
+diff --git a/build/variables.py b/build/variables.py
+index 357e05c37bf5..933d63048569 100644
+--- a/build/variables.py
++++ b/build/variables.py
+@@ -16,7 +16,7 @@ def buildid_header(output):
+         print("Ignoring invalid MOZ_BUILD_DATE: %s" % buildid, file=sys.stderr)
+         buildid = None
+     if not buildid:
+-        buildid = datetime.now().strftime("%Y%m%d%H%M%S")
++        buildid = datetime.now().strftime("%Y%m%d%H%M%S")[:-3] + "000"
+     output.write("#define MOZ_BUILDID %s\n" % buildid)
+ 
+ 
 diff --git a/devtools/client/aboutdebugging/src/actions/runtimes.js b/devtools/client/aboutdebugging/src/actions/runtimes.js
 index fba620951ecb..f54c50df8210 100644
 --- a/devtools/client/aboutdebugging/src/actions/runtimes.js

@@ -1,0 +1,537 @@
+diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
+index 4d70ede2f3dd..4d3f6e2904c6 100644
+--- a/browser/app/profile/firefox.js
++++ b/browser/app/profile/firefox.js
+@@ -324,7 +324,7 @@ pref("browser.warnOnQuit", true);
+   pref("browser.warnOnQuitShortcut", true);
+ #endif
+ 
+-// TODO bug 1702563: Renable fullscreen autohide by default on macOS.
++// TODO bug 1702563: Reenable fullscreen autohide by default on macOS.
+ #ifdef XP_MACOSX
+   pref("browser.fullscreen.autohide", false);
+ #else
+@@ -811,7 +811,7 @@ pref("browser.tabs.delayHidingAudioPlayingIconMS", 3000);
+ // Pref to control whether we use a separate privileged content process
+ // for about: pages. This pref name did not age well: we will have multiple
+ // types of privileged content processes, each with different privileges.
+-// types of privleged content processes, each with different privleges.
++//
+ pref("browser.tabs.remote.separatePrivilegedContentProcess", true);
+ 
+ #if defined(NIGHTLY_BUILD) && !defined(MOZ_ASAN)
+@@ -868,7 +868,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
+   // implementation, but otherwise the 10s value is arbitrary.
+   pref("browser.lowMemoryPollingIntervalMS", 10000);
+ 
+-  // Pref to control the reponse taken on macOS when the OS is under memory
++  // Pref to control the response taken on macOS when the OS is under memory
+   // pressure. Changes to the pref take effect immediately. Browser restart not
+   // required. The pref value is a bitmask:
+   // 0x0: No response (other than recording for telemetry, crash reporting)
+@@ -886,7 +886,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
+   // Controls which macOS memory-pressure level triggers the browser low memory
+   // response. Changes to the pref take effect immediately. Browser restart not
+   // required. By default, use the "critical" level as that occurs after "warn"
+-  // and we only want to trigger the low memory reponse when necessary.
++  // and we only want to trigger the low memory response when necessary.
+   // The macOS system memory-pressure level is either none, "warn", or
+   // "critical". The OS notifies the browser when the level changes. A false
+   // value for the pref indicates the low memory response should occur when
+@@ -1768,7 +1768,7 @@ pref("identity.sync.tokenserver.uri", "https://token.services.mozilla.com/1.0/sy
+ 
+ // Auto-config URL for FxA self-hosters, makes an HTTP request to
+ // [identity.fxaccounts.autoconfig.uri]/.well-known/fxa-client-configuration
+-// This is now the prefered way of pointing to a custom FxA server, instead
++// This is now the preferred way of pointing to a custom FxA server, instead
+ // of making changes to "identity.fxaccounts.*.uri".
+ pref("identity.fxaccounts.autoconfig.uri", "");
+ 
+@@ -1920,19 +1920,19 @@ pref("browser.contentblocking.reject-and-isolate-cookies.preferences.ui.enabled"
+ //     "qpsPBM": Query parameter stripping enabled in private windows
+ //     "-qpsPBM": Query parameter stripping disabled in private windows
+ //   Cookie behavior:
+-//     "cookieBehavior0": cookie behaviour BEHAVIOR_ACCEPT
+-//     "cookieBehavior1": cookie behaviour BEHAVIOR_REJECT_FOREIGN
+-//     "cookieBehavior2": cookie behaviour BEHAVIOR_REJECT
+-//     "cookieBehavior3": cookie behaviour BEHAVIOR_LIMIT_FOREIGN
+-//     "cookieBehavior4": cookie behaviour BEHAVIOR_REJECT_TRACKER
+-//     "cookieBehavior5": cookie behaviour BEHAVIOR_REJECT_TRACKER_AND_PARTITION_FOREIGN
++//     "cookieBehavior0": cookie behavior BEHAVIOR_ACCEPT
++//     "cookieBehavior1": cookie behavior BEHAVIOR_REJECT_FOREIGN
++//     "cookieBehavior2": cookie behavior BEHAVIOR_REJECT
++//     "cookieBehavior3": cookie behavior BEHAVIOR_LIMIT_FOREIGN
++//     "cookieBehavior4": cookie behavior BEHAVIOR_REJECT_TRACKER
++//     "cookieBehavior5": cookie behavior BEHAVIOR_REJECT_TRACKER_AND_PARTITION_FOREIGN
+ //   Cookie behavior for private windows:
+-//     "cookieBehaviorPBM0": cookie behaviour BEHAVIOR_ACCEPT
+-//     "cookieBehaviorPBM1": cookie behaviour BEHAVIOR_REJECT_FOREIGN
+-//     "cookieBehaviorPBM2": cookie behaviour BEHAVIOR_REJECT
+-//     "cookieBehaviorPBM3": cookie behaviour BEHAVIOR_LIMIT_FOREIGN
+-//     "cookieBehaviorPBM4": cookie behaviour BEHAVIOR_REJECT_TRACKER
+-//     "cookieBehaviorPBM5": cookie behaviour BEHAVIOR_REJECT_TRACKER_AND_PARTITION_FOREIGN
++//     "cookieBehaviorPBM0": cookie behavior BEHAVIOR_ACCEPT
++//     "cookieBehaviorPBM1": cookie behavior BEHAVIOR_REJECT_FOREIGN
++//     "cookieBehaviorPBM2": cookie behavior BEHAVIOR_REJECT
++//     "cookieBehaviorPBM3": cookie behavior BEHAVIOR_LIMIT_FOREIGN
++//     "cookieBehaviorPBM4": cookie behavior BEHAVIOR_REJECT_TRACKER
++//     "cookieBehaviorPBM5": cookie behavior BEHAVIOR_REJECT_TRACKER_AND_PARTITION_FOREIGN
+ // One value from each section must be included in the browser.contentblocking.features.strict pref.
+ pref("browser.contentblocking.features.strict", "tp,tpPrivate,cookieBehavior5,cookieBehaviorPBM5,cm,fp,stp,emailTP,emailTPPrivate,lvl2,rp,rpTop,ocsp,qps,qpsPBM");
+ 
+@@ -2386,7 +2386,7 @@ pref("devtools.target-switching.server.enabled", true);
+ // remote frames).
+ pref("devtools.every-frame-target.enabled", true);
+ 
+-// Controls the hability to debug popups from the same DevTools
++// Controls the ability to debug popups from the same DevTools
+ // of the original tab the popups are coming from
+ pref("devtools.popups.debug", true);
+ 
+@@ -2424,7 +2424,7 @@ pref("devtools.inspector.imagePreviewTooltipSize", 300);
+ pref("devtools.inspector.showUserAgentStyles", false);
+ // Show native anonymous content and user agent shadow roots
+ pref("devtools.inspector.showAllAnonymousContent", false);
+-// Enable the inline CSS compatiblity warning in inspector rule view
++// Enable the inline CSS compatibility warning in inspector rule view
+ #ifdef NIGHTLY_BUILD
+   pref("devtools.inspector.ruleview.inline-compatibility-warning.enabled", true);
+ #else
+@@ -2556,9 +2556,9 @@ pref("devtools.netmonitor.har.multiple-pages", false);
+ pref("devtools.netmonitor.audits.slow", 500);
+ 
+ // Enable the new Edit and Resend panel
+-  pref("devtools.netmonitor.features.newEditAndResend", true);
++pref("devtools.netmonitor.features.newEditAndResend", true);
+ 
+-pref("devtools.netmonitor.customRequest", '{}');
++pref("devtools.netmonitor.customRequest", "{}");
+ 
+ // Enable the Storage Inspector
+ pref("devtools.storage.enabled", true);
+diff --git a/browser/components/search/content/searchbar.js b/browser/components/search/content/searchbar.js
+index b18497cc5e0e..67ba64d2a488 100644
+--- a/browser/components/search/content/searchbar.js
++++ b/browser/components/search/content/searchbar.js
+@@ -731,7 +731,7 @@
+           // Initially the panel used for the searchbar (PopupSearchAutoComplete
+           // in browser.xhtml) is hidden to avoid impacting startup / new
+           // window performance. The base binding's openPopup would normally
+-          // call the overriden openAutocompletePopup in
++          // call the overridden openAutocompletePopup in
+           // browser-search-autocomplete-result-popup binding to unhide the popup,
+           // but since we're overriding openPopup we need to unhide the panel
+           // ourselves.
+diff --git a/devtools/client/framework/browser-toolbox/window.js b/devtools/client/framework/browser-toolbox/window.js
+index e84ef02829ed..eae22c41766a 100644
+--- a/devtools/client/framework/browser-toolbox/window.js
++++ b/devtools/client/framework/browser-toolbox/window.js
+@@ -144,7 +144,7 @@ function setPrefDefaults() {
+   // if we ever opened a URL from the browser toolbox. (but it doesn't seem to be enough)
+   Services.prefs.setBoolPref("browser.sessionstore.resume_from_crash", false);
+ 
+-  // Disable Safe mode as the browser toolbox is often closed brutaly by subprocess
++  // Disable Safe mode as the browser toolbox is often closed brutally by subprocess
+   // and the safe mode kicks in when reopening it
+   Services.prefs.setIntPref("toolkit.startup.max_resumed_crashes", -1);
+ }
+diff --git a/devtools/client/fronts/inspector.js b/devtools/client/fronts/inspector.js
+index 116993078b5c..f9bbf93e7847 100644
+--- a/devtools/client/fronts/inspector.js
++++ b/devtools/client/fronts/inspector.js
+@@ -214,7 +214,7 @@ class InspectorFront extends FrontClassWithSpec(inspectorSpec) {
+         // use drawWindow in order to get the screenshot of the page (that's a decent
+         // fallback, even if it doesn't handle remote frames).
+         console.error(
+-          "Error occured when taking a screenshot for the eyedropper",
++          "Error occurred when taking a screenshot for the eyedropper",
+           e
+         );
+       }
+diff --git a/devtools/server/actors/watcher/session-context.js b/devtools/server/actors/watcher/session-context.js
+index 35183e6ed8ed..5822bbca010b 100644
+--- a/devtools/server/actors/watcher/session-context.js
++++ b/devtools/server/actors/watcher/session-context.js
+@@ -75,7 +75,7 @@ function createBrowserElementSessionContext(browserElement, config) {
+   return {
+     type,
+     browserId: browserElement.browserId,
+-    // Nowaday, it should always be enabled except for WebExtension special
++    // Nowadays, it should always be enabled except for WebExtension special
+     // codepath and some tests.
+     isServerTargetSwitchingEnabled: config.isServerTargetSwitchingEnabled,
+     // Should we instantiate targets for popups opened in distinct tabs/windows?
+diff --git a/devtools/shared/storage/vendor/stringvalidator/validator.js b/devtools/shared/storage/vendor/stringvalidator/validator.js
+index e11886599b8f..40eca29f138d 100644
+--- a/devtools/shared/storage/vendor/stringvalidator/validator.js
++++ b/devtools/shared/storage/vendor/stringvalidator/validator.js
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2016 Chris O"Hara <cohara87@gmail.com>
++ * Copyright (c) 2016 Chris O'Hara <cohara87@gmail.com>
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining
+  * a copy of this software and associated documentation files (the
+diff --git a/dom/media/CubebUtils.cpp b/dom/media/CubebUtils.cpp
+index 5be637dd7b0f..4430ec333c89 100644
+--- a/dom/media/CubebUtils.cpp
++++ b/dom/media/CubebUtils.cpp
+@@ -137,7 +137,7 @@ std::unordered_map<std::string, LABELS_MEDIA_AUDIO_BACKEND>
+         {"sun", LABELS_MEDIA_AUDIO_BACKEND::sunaudio},
+ };
+ 
+-// Prefered samplerate, in Hz (characteristic of the hardware, mixer, platform,
++// Preferred samplerate, in Hz (characteristic of the hardware, mixer, platform,
+ // and API used).
+ //
+ // sMutex protects *initialization* of this, which must be performed from each
+@@ -182,7 +182,7 @@ static void ShutdownAudioIPCServer() {
+ }  // namespace
+ 
+ static const uint32_t CUBEB_NORMAL_LATENCY_MS = 100;
+-// Consevative default that can work on all platforms.
++// Conservative default that can work on all platforms.
+ static const uint32_t CUBEB_NORMAL_LATENCY_FRAMES = 1024;
+ 
+ namespace CubebUtils {
+diff --git a/dom/media/MediaDevices.cpp b/dom/media/MediaDevices.cpp
+index befd27c6289c..f4801129a7e5 100644
+--- a/dom/media/MediaDevices.cpp
++++ b/dom/media/MediaDevices.cpp
+@@ -546,7 +546,7 @@ already_AddRefed<Promise> MediaDevices::GetDisplayMedia(
+   // If this is a privileged call or permission is disabled, this gives us full
+   // screen sharing by default, which is useful for internal testing.
+   //
+-  // If this is a non-priviliged call, GetUserMedia() will change it to "window"
++  // If this is a non-privileged call, GetUserMedia() will change it to "window"
+   // for us.
+   vc.mMediaSource.Reset();
+   vc.mMediaSource.Construct().AssignASCII(
+diff --git a/dom/media/MediaInfo.h b/dom/media/MediaInfo.h
+index 6680ed3049f3..a78c2101d92c 100644
+--- a/dom/media/MediaInfo.h
++++ b/dom/media/MediaInfo.h
+@@ -602,7 +602,7 @@ class MediaInfo {
+ 
+   bool HasValidMedia() const { return HasVideo() || HasAudio(); }
+ 
+-  // TODO: Store VideoInfo and AudioIndo in arrays to support multi-tracks.
++  // TODO: Store VideoInfo and AudioInfo in arrays to support multi-tracks.
+   VideoInfo mVideo;
+   AudioInfo mAudio;
+ 
+diff --git a/gfx/webrender_bindings/DCLayerTree.cpp b/gfx/webrender_bindings/DCLayerTree.cpp
+index ddaae042916e..54c31ba3af34 100644
+--- a/gfx/webrender_bindings/DCLayerTree.cpp
++++ b/gfx/webrender_bindings/DCLayerTree.cpp
+@@ -163,7 +163,7 @@ bool DCLayerTree::Initialize(HWND aHwnd, nsACString& aError) {
+   SupportsSwapChainTearing();
+ 
+   mCompositionTarget->SetRoot(mRootVisual);
+-  // Set interporation mode to nearest, to ensure 1:1 sampling.
++  // Set interpolation mode to nearest, to ensure 1:1 sampling.
+   // By default, a visual inherits the interpolation mode of the parent visual.
+   // If no visuals set the interpolation mode, the default for the entire visual
+   // tree is nearest neighbor interpolation.
+diff --git a/media/libsoundtouch/src/TDStretch.cpp b/media/libsoundtouch/src/TDStretch.cpp
+index b0bd1d343e2d..b695c1fcbc5a 100644
+--- a/media/libsoundtouch/src/TDStretch.cpp
++++ b/media/libsoundtouch/src/TDStretch.cpp
+@@ -865,7 +865,7 @@ void TDStretch::calculateOverlapLength(int aoverlapMs)
+ 
+     // calculate overlap length so that it's power of 2 - thus it's easy to do
+     // integer division by right-shifting. Term "-1" at end is to account for 
+-    // the extra most significatnt bit left unused in result by signed multiplication 
++    // the extra most significant bit left unused in result by signed multiplication 
+     overlapDividerBitsPure = _getClosest2Power((sampleRate * aoverlapMs) / 1000.0) - 1;
+     if (overlapDividerBitsPure > 9) overlapDividerBitsPure = 9;
+     if (overlapDividerBitsPure < 3) overlapDividerBitsPure = 3;
+diff --git a/media/libvorbis/lib/vorbis_envelope.c b/media/libvorbis/lib/vorbis_envelope.c
+index 6d2a7a58bda0..bb7a492c3a7c 100644
+--- a/media/libvorbis/lib/vorbis_envelope.c
++++ b/media/libvorbis/lib/vorbis_envelope.c
+@@ -104,7 +104,7 @@ static int _ve_amp(envelope_lookup *ve,
+   float *vec=alloca(n*sizeof(*vec));
+ 
+   /* stretch is used to gradually lengthen the number of windows
+-     considered prevoius-to-potential-trigger */
++     considered previous-to-potential-trigger */
+   int stretch=max(VE_MINSTRETCH,ve->stretch/2);
+   float penalty=gi->stretch_penalty-(ve->stretch/2-VE_MINSTRETCH);
+   if(penalty<0.f)penalty=0.f;
+diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
+index 82689dcbaef9..5972351083d3 100644
+--- a/modules/libpref/init/StaticPrefList.yaml
++++ b/modules/libpref/init/StaticPrefList.yaml
+@@ -65,7 +65,7 @@
+ #     variable is accessed, via its getter function.) This is mostly useful for
+ #     graphics prefs where we often don't want a new pref value to apply until
+ #     restart. Otherwise, this update policy is best avoided because its
+-#     behaviour can cause confusion and bugs.
++#     behavior can cause confusion and bugs.
+ #
+ #   * `always`: The mirror variable is always kept in sync with the pref value.
+ #     This is the most common choice.
+@@ -403,7 +403,7 @@
+   include: <cmath>
+ 
+ # Whether to lock touch scrolling to one axis at a time. When a new
+-# axis lock mode is added, the APZCAxisLockCompatTester GTest shoud
++# axis lock mode is added, the APZCAxisLockCompatTester GTest should
+ # be updated to include the lock mode value.
+ # 0 = FREE (No locking at all)
+ # 1 = STANDARD (Once locked, remain locked until scrolling ends)
+@@ -1466,7 +1466,7 @@
+   value: true
+   mirror: always
+ 
+-# Maximium delay between keystrokes that will be considered typing (milliseconds).
++# Maximum delay between keystrokes that will be considered typing (milliseconds).
+ - name: browser.places.interactions.typing_timeout_ms
+   type: RelaxedAtomicUint32
+   value: 3000
+@@ -2649,7 +2649,7 @@
+   value: true
+   mirror: always
+ 
+-# In addition to the above IPC layer compresison, allow touchmove
++# In addition to the above IPC layer compression, allow touchmove
+ # events to be further coalesced in the child side after they
+ # are sent.
+ - name: dom.events.coalesce.touchmove
+@@ -3398,7 +3398,7 @@
+ 
+ # An upper limit for the "age" of an origin. Any origin which is older than the
+ # threshold is considered as unaccessed. That doesn't necessarily mean that
+-# such origins will be immediatelly archived. They will be archived only when
++# such origins will be immediately archived. They will be archived only when
+ # dom.quotaManager.checkQuotaInfoLoadTime is true and loading of quota info
+ # takes a long time (dom.quotaManager.longQuotaInfoLoadTimeThresholdMs is used
+ # to decide what is a long quota info load time).
+@@ -3466,7 +3466,7 @@
+     mirror: always
+     do_not_use_directly: true
+ 
+-  # Preference that is used to enable the hack for overrriding xFullPathname in
++  # Preference that is used to enable the hack for overriding xFullPathname in
+   # QuotaVFS.
+ -   name: dom.quotaManager.overrideXFullPathname
+     type: RelaxedAtomicBool
+@@ -3783,7 +3783,7 @@
+   mirror: always
+ 
+ # If true, tries to break upgrade downgrade cycles where https-only tries
+-# to upgrad ethe connection, but the website tries to downgrade again.
++# to upgrade the connection, but the website tries to downgrade again.
+ - name: dom.security.https_only_mode_break_upgrade_downgrade_endless_loop
+   type: RelaxedAtomicBool
+   value: true
+@@ -5042,7 +5042,7 @@
+   mirror: always
+ 
+ # Controls if a double click word selection also deletes one adjacent whitespace
+-# (if feasible). This mimics native behaviour on MacOS.
++# (if feasible). This mimics native behavior on MacOS.
+ - name: editor.word_select.delete_space_after_doubleclick_selection
+   type: bool
+   value: true
+@@ -5152,7 +5152,7 @@
+   mirror: never
+ 
+ # This pref has no effect within fission windows, it only controls the
+-# behaviour within non-fission windows. If true, preserve browsing contexts
++# behavior within non-fission windows. If true, preserve browsing contexts
+ # between process swaps.
+ - name: fission.preserve_browsing_contexts
+   type: bool
+@@ -9148,7 +9148,7 @@
+   mirror: always
+ 
+ # On Android, don't synth mouse move events after scrolling, as they cause
+-# unexpected user-visible behaviour. Can remove this after bug 1633450 is
++# unexpected user-visible behavior. Can remove this after bug 1633450 is
+ # satisfactorily resolved.
+ - name: layout.reflow.synthMouseMove
+   type: bool
+diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
+index 590469c9048f..19440bd4609d 100644
+--- a/modules/libpref/init/all.js
++++ b/modules/libpref/init/all.js
+@@ -658,7 +658,7 @@ pref("devtools.performance.recording.ui-base-url", "https://profiler.firefox.com
+ // When gathering profiles from child processes, this is the longest time (in
+ // seconds) allowed between two responses. 0 = Use internal default.
+ pref("devtools.performance.recording.child.timeout_s", 0);
+-// The popup is only enabled by default on Nightly, Dev Edition, and debug buildsd since
++// The popup is only enabled by default on Nightly, Dev Edition, and debug builds since
+ // it's a developer focused item. It can still be enabled by going to profiler.firefox.com,
+ // but by default it is off on Release and Beta. Note that this only adds it to the
+ // the customization palette, not to the navbar.
+diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
+index 0054492f044c..686906ec9a08 100644
+--- a/netwerk/protocol/http/nsHttpHandler.cpp
++++ b/netwerk/protocol/http/nsHttpHandler.cpp
+@@ -337,7 +337,7 @@ nsresult nsHttpHandler::Init() {
+ 
+   InitUserAgentComponents();
+ 
+-  // This perference is only used in parent process.
++  // This preference is only used in parent process.
+   if (!IsNeckoChild()) {
+     mActiveTabPriority =
+         Preferences::GetBool(HTTP_PREF("active_tab_priority"), true);
+diff --git a/netwerk/protocol/http/nsHttpHandler.h b/netwerk/protocol/http/nsHttpHandler.h
+index cdbf879bdc6c..9bf27ddf2731 100644
+--- a/netwerk/protocol/http/nsHttpHandler.h
++++ b/netwerk/protocol/http/nsHttpHandler.h
+@@ -486,7 +486,7 @@ class nsHttpHandler final : public nsIHttpProtocolHandler,
+ 
+   bool EchConfigEnabled(bool aIsHttp3 = false) const;
+   // When EchConfig is enabled and all records with echConfig are failed, this
+-  // functon indicate whether we can fallback to the origin server.
++  // function indicate whether we can fallback to the origin server.
+   // In the case an HTTPS RRSet contains some RRs with echConfig and some
+   // without, we always fallback to the origin one.
+   bool FallbackToOriginIfConfigsAreECHAndAllFailed() const;
+@@ -793,7 +793,7 @@ class nsHttpHandler final : public nsIHttpProtocolHandler,
+   // or rate optimization related to the active/background tab is hit.
+   // We carry this value through each http channel's onstoprequest notification
+   // to the parent process.  On the content process then we just update this
+-  // value from ipc onstoprequest arguments.  This is a sufficent way of passing
++  // value from ipc onstoprequest arguments.  This is a sufficient way of passing
+   // it down to the content process, since the value will be used only after
+   // onstoprequest notification coming from an http channel.
+   Mutex mLastActiveTabLoadOptimizationLock{
+diff --git a/nsprpub/pr/src/misc/prtime.c b/nsprpub/pr/src/misc/prtime.c
+index 6d711a6b8d1a..4728fcf090b4 100644
+--- a/nsprpub/pr/src/misc/prtime.c
++++ b/nsprpub/pr/src/misc/prtime.c
+@@ -2083,7 +2083,7 @@ PR_FormatTimeUSEnglish( char* buf, PRUint32 bufSize,
+ 
+                 case 'Z':
+                     /* Time zone name or no characters if  no  time  zone exists.
+-                     * Since time zone name is supposed to be independant of locale, we
++                     * Since time zone name is supposed to be independent of locale, we
+                      * defer to PR_FormatTime() for this option.
+                      */
+                     PR_FormatTime( tmpBuf, tmpBufSize, "%Z", time );
+diff --git a/toolkit/components/glean/docs/user/migration.md b/toolkit/components/glean/docs/user/migration.md
+index f3c86a182bf8..32998a1f24ba 100644
+--- a/toolkit/components/glean/docs/user/migration.md
++++ b/toolkit/components/glean/docs/user/migration.md
+@@ -150,7 +150,7 @@ So for a Histogram that records timing samples like this:
+   },
+ ```
+ 
+-You will migrate to a `timing_distibution` metric type like this:
++You will migrate to a `timing_distribution` metric type like this:
+ 
+ ```yaml
+ js:
+diff --git a/toolkit/components/resistfingerprinting/nsRFPService.cpp b/toolkit/components/resistfingerprinting/nsRFPService.cpp
+index 38a42ee5acbf..429004e3fa79 100644
+--- a/toolkit/components/resistfingerprinting/nsRFPService.cpp
++++ b/toolkit/components/resistfingerprinting/nsRFPService.cpp
+@@ -322,7 +322,7 @@ sec_per_extra_frame = 1 / (extra_frames_per_frame * 60) // 833.33
+ min_per_extra_frame = sec_per_extra_frame / 60 // 13.89
+ ```
+ We expect an extra frame every ~14 minutes, which is enough to be smooth.
+-16.67 would be ~1.4 minutes, which is OK, but is more noticable.
++16.67 would be ~1.4 minutes, which is OK, but is more noticeable.
+ Put another way, if this is the only unacceptable hitch you have across 14
+ minutes, I'm impressed, and we might revisit this.
+ */
+@@ -338,7 +338,7 @@ double nsRFPService::TimerResolution(RTPCallerType aRTPCallerType) {
+ }
+ 
+ /**
+- * The purpose of this function is to deterministicly generate a random midpoint
++ * The purpose of this function is to deterministically generate a random midpoint
+  * between a lower clamped value and an upper clamped value. Assuming a clamping
+  * resolution of 100, here is an example:
+  *
+@@ -352,7 +352,7 @@ double nsRFPService::TimerResolution(RTPCallerType aRTPCallerType) {
+  *
+  * The question is: does time go backwards?
+  *
+- * The midpoint is deterministicly random and generated from three components:
++ * The midpoint is deterministically random and generated from three components:
+  * a secret seed, a per-timeline (context) 'mix-in', and a clamped time.
+  *
+  * When comparing times across different seed values: time may go backwards.
+diff --git a/toolkit/content/license.html b/toolkit/content/license.html
+index 1d2c93c152cc..add12a6d40e8 100644
+--- a/toolkit/content/license.html
++++ b/toolkit/content/license.html
+@@ -5494,7 +5494,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ </p>
+ <pre>
+ 
+-Copyright (c) 2016 Chris O"Hara <cohara87@gmail.com>
++Copyright (c) 2016 Chris O'Hara <cohara87@gmail.com>
+ 
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+diff --git a/toolkit/content/widgets/datepicker.js b/toolkit/content/widgets/datepicker.js
+index f771add298ee..ca6ed2b9ae73 100644
+--- a/toolkit/content/widgets/datepicker.js
++++ b/toolkit/content/widgets/datepicker.js
+@@ -133,7 +133,7 @@ function DatePicker(context) {
+     },
+ 
+     /**
+-     * Initalize the date picker components.
++     * Initialize the date picker components.
+      */
+     _createComponents() {
+       this.components = {
+diff --git a/toolkit/content/widgets/datetimebox.js b/toolkit/content/widgets/datetimebox.js
+index daa3f89246c0..0ea72096f3f7 100644
+--- a/toolkit/content/widgets/datetimebox.js
++++ b/toolkit/content/widgets/datetimebox.js
+@@ -345,9 +345,9 @@ this.DateTimeBoxWidget = class {
+ 
+     if (aIsNumeric) {
+       field.classList.add("numeric");
+-      // Maximum value allowed.
++      // Minimum value allowed.
+       field.setAttribute("min", aMinValue);
+-      // Minumim value allowed.
++      // Maximum value allowed.
+       field.setAttribute("max", aMaxValue);
+       // Interval when pressing pageUp/pageDown key.
+       field.setAttribute("pginterval", aPageUpDownInterval);
+diff --git a/toolkit/modules/AppConstants.sys.mjs b/toolkit/modules/AppConstants.sys.mjs
+index b430666f6891..c6b3ac5fb618 100644
+--- a/toolkit/modules/AppConstants.sys.mjs
++++ b/toolkit/modules/AppConstants.sys.mjs
+@@ -464,7 +464,7 @@ export var AppConstants = Object.freeze({
+     false,
+ #endif
+ 
+-  // Returns true for CN region build when distibution id set as 'MozillaOnline'
++  // Returns true for CN region build when distribution id set as "MozillaOnline"
+   isChinaRepack() {
+     return (
+       Services.prefs
+diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
+index 95088d9a64e8..f36b9f8bde5a 100644
+--- a/toolkit/xre/nsAppRunner.cpp
++++ b/toolkit/xre/nsAppRunner.cpp
+@@ -409,7 +409,7 @@ void MozExpectedExit() { gIsExpectedExit = true; }
+  */
+ static void UnexpectedExit() {
+   if (!gIsExpectedExit) {
+-    gIsExpectedExit = true;  // Don't risk re-entrency issues when crashing.
++    gIsExpectedExit = true;  // Don't risk re-entrancy issues when crashing.
+     MOZ_CRASH("Exit called by third party code.");
+   }
+ }
+@@ -632,7 +632,7 @@ static nsIXULRuntime::ExperimentStatus gWin32kExperimentStatus =
+ //  Enrolled
+ //  - User does the default aka Default
+ //
+-// We expect the below behvaior.  In the code, there may be references to these
++// We expect the below behavior.  In the code, there may be references to these
+ //     behaviors (e.g. [A]) but not always.
+ //
+ // [A] Becoming enrolled in the experiment while NonDefaultPref disqualifies

@@ -27,6 +27,8 @@ const patch_g =
 	[
 		"../" * "6f0ec8fdfbf8467d99a0663ebdf9b02b326b79ea.patch"
 		"../" * "crlf.patch" * " --binary"
+		"../" * "font.patch"
+		"../" * "typo.patch"
 	]
 const patch_b =
 	[
