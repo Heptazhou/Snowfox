@@ -337,8 +337,8 @@ const strip_list_ubo =
 # Exemption
 const strip_list_xpt =
 	[
-		"cid"     #* Azure DevOps Services
-		"from"    #* Zoom SSO
+		"cid"  #* Azure DevOps Services
+		"from" #* Zoom SSO
 	]
 
 const strip_list = String[strip_list_msc; strip_list_ubo]

@@ -5,7 +5,7 @@ ac_add_options --disable-default-browser-agent
 ac_add_options --disable-maintenance-service
 ac_add_options --disable-tests
 ac_add_options --disable-updater
-ac_add_options --enable-bootstrap=sysroot-wasm32-wasi,wine,nsis,clang
+ac_add_options --enable-bootstrap=sysroot-wasm32-wasi,wine,nsis
 ac_add_options --enable-hardening
 ac_add_options --enable-install-strip
 ac_add_options --enable-optimize
@@ -20,7 +20,6 @@ ac_add_options --with-app-basename=Snowfox
 ac_add_options --with-app-name=snowfox
 ac_add_options --with-branding=browser/branding/snowfox
 ac_add_options --with-distribution-id=com.0h7z
-ac_add_options --with-l10n-base=/src/browser/locales/l10n
 ac_add_options --with-unsigned-addon-scopes=app,system
 
 export MOZ_REQUIRE_SIGNING=

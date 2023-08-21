@@ -36,9 +36,9 @@ RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
 	cd /Snowfox/Windows && git pull -ftp && \
 	jl make.jl / && sha256sum -c *.sha256
 
-RUN cd /Snowfox/Windows && \
-	mkdir /pkg $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
-	ln -s /src/mach /bin/mach && \
+RUN cd /Snowfox/Windows && mkdir -p $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
+	ln -s /src/browser/locales/l10n $MOZBUILD_STATE_PATH/l10n-central && \
+	ln -s /src/mach /bin/mach && mkdir /pkg && \
 	tar fx snowfox-v`cat version`.source.tar.zst && \
 	mv -fv snowfox-v`cat version` src && \
 	rm -fr snowfox-*.tar.zst && mv src / && \

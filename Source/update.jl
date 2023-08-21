@@ -25,10 +25,12 @@ const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "6f0ec8fdfbf8467d99a0663ebdf9b02b326b79ea.patch"
+		"../" * "a5bf9b4cc83206fb345f803e1565637407c57cb9.patch"
 		"../" * "crlf.patch" * " --binary"
 		"../" * "font.patch"
 		"../" * "typo.patch"
+		#
+		"../" * "libjxl.patch"
 	]
 const patch_b =
 	[
@@ -172,6 +174,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"@echo \"Firefox version\K  ( : \")", s"\1")
 						s = replace(s, r"^.*\btouch\b.*\n"m => (("")))
 						s = replace(s, r"^ext:=\.tar\K\.gz$"m, ".zst")
+						s = replace(s, r"\btar cf .+\n\s*gzip .+$"m =>
+							raw"$(archive_create) $(sf_source_tarball) $(sf_source_dir)")
 						s = replace(s,
 							"""	mv \$(ff_source_dir) \$(sf_source_dir)\n""" *
 							"""	python3 scripts/snowfox-patches.py \$(version) \$(release)\n""",
@@ -394,7 +398,10 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						end
 					end
 					if (f ≡ "snowfox-patches.py")
-						s = replace(s, (r"\bpatch -p1 -\Ki\b" => "li"))
+						s = replace(s, r"\bpatch -p1 \K-i\b" => "-li")
+						s = replace(s,
+							r"'wget -q https://[^/]+/[^/]+/settings/raw/branch/[^/]+/(.+?)'",
+							s"'cp -v ../../submodules/settings/\1 .'")
 						s = cd(@__DIR__) do
 							!isfile("binary.patch") ? s :
 							replace(s,
@@ -424,21 +431,24 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""("privacy.userContext.enabled", true)"""       => """("privacy.userContext.enabled", false)""",
 							"""("webgl.disabled", true)"""                    => """("webgl.disabled", false)""",
 							#
-							r"""\(("privacy\.query_stripping\.strip_list"), "[^"]+"\)""" => s"""(\1, "@@STRIP_LIST@@")""", # ""
-							r"""\(("security\.ssl\.require_safe_negotiation"), true\)""" => s"""(\1, false)""",
+							r"""\(("privacy\.query_stripping\.strip_list"), *"[^"]*"\)""" => s"""(\1, "@@STRIP_LIST@@")""", # ""
+							r"""\(("privacy\.resistFingerprinting\.letterboxing"), *true\)""" => s"""(\1, false)""",
+							r"""\(("security\.ssl\.require_safe_negotiation"), *true\)""" => s"""(\1, false)""",
 							r"@@STRIP_LIST@@" => join(strip_list, " "),
+							r"^.*\bsee #1569\b.*\n"m => "",
 						]
 							s = replace(s, p)
 						end
 						for p ∈ [
-							"app.releaseNotesURL.aboutDialog" => "$url_doc#v%VERSION%",
-							"app.releaseNotesURL"             => "$url_doc#v%VERSION%",
-							"app.support.baseURL"             => "$url_spt",
-							"app.update.url.details"          => "$url_git/releases",
-							"app.update.url.manual"           => "$url_git/releases",
+							"app.releaseNotesURL.aboutDialog"       => "$url_doc#v%VERSION%",
+							"app.releaseNotesURL"                   => "$url_doc#v%VERSION%",
+							"app.support.baseURL"                   => "$url_spt",
+							"app.update.url.details"                => "$url_git/releases",
+							"app.update.url.manual"                 => "$url_git/releases",
+							"browser.toolbars.bookmarks.visibility" => "newtab",
 						]
 							s = replace(s,
-								"""("$(p[1])", "[^\"]*?")""" |> s -> escape_string(s, "(.)"),
+								"""("$(p[1])", *"[^\"]*")""" |> s -> escape_string(s, "(.)"),
 								"""("$(p[1])", "$(p[2])")""", n = 1)
 						end
 						for p ∈ [
