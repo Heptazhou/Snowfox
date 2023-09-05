@@ -29,8 +29,6 @@ const patch_g =
 		"../" * "crlf.patch" * " --binary"
 		"../" * "font.patch"
 		"../" * "typo.patch"
-		#
-		"../" * "libjxl.patch"
 	]
 const patch_b =
 	[
@@ -340,6 +338,12 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""			"Behavior": "reject-tracker-and-partition-foreign",\n""" *
 							"""			"Locked": false\n""" *
 							"""		},\n""" *
+							"""		"SanitizeOnShutdown": {\n""" *
+							"""			"Cookies": false,\n""" *
+							"""			"Downloads": false,\n""" *
+							"""			"History": false,\n""" *
+							"""			"Locked": false\n""" *
+							"""		},\n""" *
 							"""		"EncryptedMediaExtensions": {\n""" *
 							"""			"Enabled": false,\n""" *
 							"""			"Locked": false\n""" *
@@ -473,6 +477,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("intl.date_time.pattern_override.time_medium", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_short", "HH:mm:ss");\n""" *
 							"""defaultPref("media.eme.showBrowserMessage", false);\n""" *
+							"""defaultPref("media.videocontrols.picture-in-picture.video-toggle.min-video-secs", 10);\n""" *
 							"""defaultPref("snowfox.app.checkVersion.enabled", true);\n""" *
 							"""defaultPref("snowfox.app.checkVersion.url", "$url_api/releases");\n""" *
 							"""lockPref("browser.dataFeatureRecommendations.enabled", false);\n""" *

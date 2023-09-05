@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://github.com/Heptazhou/Snowfox.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"117.0.0-1"
+const VER = v"117.0.1-1"
 
 # https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html#schedule
 # https://releases.rs
