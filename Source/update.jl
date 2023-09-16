@@ -21,11 +21,12 @@ include("base_func.jl")
 const zst_cmd = "zstd -17 -M1024M -T$(Sys.CPU_THREADS) --long"
 const url_spt = "https://support.mozilla.org/1/firefox/$UAV.0/%OS%/%LOCALE%/" # %VERSION% -> $UAV.0
 const url_git = "https://github.com/0h7z/Snowfox"
+const url_doh = "https://cloudflare-dns.com/dns-query" # https://mozilla.cloudflare-dns.com/dns-query
 const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "a5bf9b4cc83206fb345f803e1565637407c57cb9.patch"
+		"../" * "68e1f3b61d0867b94702fe5efd07aa284752705b.patch"
 		"../" * "crlf.patch" * " --binary"
 		"../" * "font.patch"
 		"../" * "typo.patch"
@@ -339,9 +340,14 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""			"Locked": false\n""" *
 							"""		},\n""" *
 							"""		"SanitizeOnShutdown": {\n""" *
+							"""			"Cache": true,\n""" *
 							"""			"Cookies": false,\n""" *
 							"""			"Downloads": false,\n""" *
+							"""			"FormData": true,\n""" *
 							"""			"History": false,\n""" *
+							"""			"OfflineApps": true,\n""" *
+							"""			"Sessions": true,\n""" *
+							"""			"SiteSettings": false,\n""" *
 							"""			"Locked": false\n""" *
 							"""		},\n""" *
 							"""		"EncryptedMediaExtensions": {\n""" *
@@ -478,6 +484,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("intl.date_time.pattern_override.time_short", "HH:mm:ss");\n""" *
 							"""defaultPref("media.eme.showBrowserMessage", false);\n""" *
 							"""defaultPref("media.videocontrols.picture-in-picture.video-toggle.min-video-secs", 10);\n""" *
+							"""defaultPref("network.trr.custom_uri", "$url_doh");\n""" *
+							"""defaultPref("network.trr.default_provider_uri", "$url_doh");\n""" *
 							"""defaultPref("snowfox.app.checkVersion.enabled", true);\n""" *
 							"""defaultPref("snowfox.app.checkVersion.url", "$url_api/releases");\n""" *
 							"""lockPref("browser.dataFeatureRecommendations.enabled", false);\n""" *
