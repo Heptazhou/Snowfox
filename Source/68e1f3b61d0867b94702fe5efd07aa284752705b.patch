@@ -1711,6 +1711,19 @@ index beefd9f86694..6cabfe3fd2bb 100644
    }
  
    // Here we manipulate the value of aRect to represent the screen size,
+diff --git a/dom/html/MediaError.cpp b/dom/html/MediaError.cpp
+index 819e1745c6aa..4d224222917e 100644
+--- a/dom/html/MediaError.cpp
++++ b/dom/html/MediaError.cpp
+@@ -40,7 +40,7 @@ void MediaError::GetMessage(nsAString& aResult) const {
+       // TODO
+   };
+ 
+-  const bool shouldBlank = whitelist.find(mMessage.get()) == whitelist.end();
++  const bool shouldBlank = false;
+ 
+   if (shouldBlank) {
+     // Print a warning message to JavaScript console to alert developers of
 diff --git a/dom/media/CubebUtils.cpp b/dom/media/CubebUtils.cpp
 index d65a99e53830..2bc072ebbaa3 100644
 --- a/dom/media/CubebUtils.cpp
@@ -2859,7 +2872,7 @@ index e3d9000893ff..e38dc45b9365 100644
  
  # Whether the thumb should be rounded for the non-native scrollbars.
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index a190b6caff8c..2718d06a98db 100644
+index a190b6caff8c..0fcf38ed5b3d 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -73,9 +73,9 @@ pref("security.osreauthenticator.password_last_changed_hi", 0);
@@ -2913,6 +2926,15 @@ index a190b6caff8c..2718d06a98db 100644
  #endif
  
    // These values (aec, agc, and noise) are from:
+@@ -373,7 +373,7 @@ pref("media.webvtt.pseudo.enabled", true);
+ pref("media.webvtt.debug.logging", false);
+ 
+ // Whether to allow recording of AudioNodes with MediaRecorder
+-pref("media.recorder.audio_node.enabled", false);
++pref("media.recorder.audio_node.enabled", true);
+ 
+ // Whether MediaRecorder's video encoder should allow dropping frames in order
+ // to keep up under load. Useful for tests but beware of memory consumption!
 @@ -1593,7 +1593,7 @@ pref("intl.ellipsis",                       "chrome://global-platform/locale/int
  // OS locale set instead of the app locale set.
  pref("intl.regional_prefs.use_os_locales",  false);
@@ -2981,6 +3003,15 @@ index a190b6caff8c..2718d06a98db 100644
  
  // Exponential back-off start is 5 seconds like in HTTP/1.1.
  // Maximum back-off is pingInterval.
+@@ -3628,7 +3628,7 @@ pref("browser.translations.useHTML", false);
+ // required.
+ pref("browser.translations.autoTranslate", false);
+ // Automatically popup an offer to translate on sites.
+-pref("browser.translations.automaticallyPopup", true);
++pref("browser.translations.automaticallyPopup", false);
+ // Simulate the behavior of using a device that does not support the translations engine.
+ // Requires restart.
+ pref("browser.translations.simulateUnsupportedEngine", false);
 @@ -3779,8 +3779,8 @@ pref("services.common.log.logger.tokenserverclient", "Debug");
    pref("services.sync.log.logger.engine", "Debug");
    pref("services.sync.log.cryptoDebug", false);

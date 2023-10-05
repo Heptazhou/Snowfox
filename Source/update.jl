@@ -314,6 +314,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"^N=\K\d+$"m => max(Sys.CPU_THREADS, 8))
 					end
 					if (f ≡ "patches.txt")
+						s = endswith(s, "\n") ? s : s * "\n"
 						for p ∈ patch_g
 							s = occursin(p, s) ? s : s * p * "\n"
 						end
@@ -483,6 +484,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("intl.date_time.pattern_override.time_medium", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_short", "HH:mm:ss");\n""" *
 							"""defaultPref("media.eme.showBrowserMessage", false);\n""" *
+							"""defaultPref("media.recorder.max_memory", 8388608);\n""" *
 							"""defaultPref("media.videocontrols.picture-in-picture.video-toggle.min-video-secs", 10);\n""" *
 							"""defaultPref("network.trr.custom_uri", "$url_doh");\n""" *
 							"""defaultPref("network.trr.default_provider_uri", "$url_doh");\n""" *
