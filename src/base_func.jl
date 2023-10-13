@@ -205,7 +205,8 @@ function move(dir::String, recursive::Bool = SUBMODULES)
 			end
 			for f ∈ fs
 				if (f) ∈ (".gitignore", ".gitlab-ci.yml") || endswith(r"\.(aps|md)")(f) ||
-				   contains(r"^file(_\w+)?\.svg$")(f) || startswith(r"\.(forgejo|woodpecker)")(f)
+				   startswith(r"\.(forgejo|woodpecker)")(f) ||
+				   contains(r"^fetch(-\w+)+\.sh$|^file(_\w+)?\.svg$")(f)
 					rm(f)
 					continue
 				end

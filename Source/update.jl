@@ -429,6 +429,9 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"$p\n[^+-]+\n" * "--- [^\n]+\n" * "\\+\\+\\+ [^\n]+\n" *
 							"@@[^\n]+@@\n" * "(\\+[^\n]*\n)+", "", "e")
 					end
+					if (f ≡ "snowfox-prefs.patch")
+						s = replace(s, ("@@ -21,0 +21,5 @@") => ("@@ -21,0 +21,9 @@"))
+					end
 					if (f ≡ "snowfox.cfg")
 						s = replace(s, "(?<!\b)'|'(?!\b)", "\"")
 						s = replace(s, "\n //", "\n//") * ("\n")
@@ -485,7 +488,6 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("intl.date_time.pattern_override.time_short", "HH:mm:ss");\n""" *
 							"""defaultPref("media.eme.showBrowserMessage", false);\n""" *
 							"""defaultPref("media.recorder.max_memory", 8388608);\n""" *
-							"""defaultPref("media.videocontrols.picture-in-picture.video-toggle.min-video-secs", 10);\n""" *
 							"""defaultPref("network.trr.custom_uri", "$url_doh");\n""" *
 							"""defaultPref("network.trr.default_provider_uri", "$url_doh");\n""" *
 							"""defaultPref("snowfox.app.checkVersion.enabled", true);\n""" *

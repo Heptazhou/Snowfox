@@ -476,10 +476,18 @@ index 4e737310b37b..ff9d6f363804 100644
          FINAL_TARGET_FILES.VisualElements += [
              'PrivateBrowsing_150.png',
 diff --git a/browser/components/enterprisepolicies/content/aboutPolicies.css b/browser/components/enterprisepolicies/content/aboutPolicies.css
-index e84ae785ee6d..1ed8535f4460 100644
+index e84ae785ee6d..baa62a8786f2 100644
 --- a/browser/components/enterprisepolicies/content/aboutPolicies.css
 +++ b/browser/components/enterprisepolicies/content/aboutPolicies.css
-@@ -97,6 +97,10 @@ tbody:nth-child(4n + 1) {
+@@ -58,6 +58,7 @@ body {
+ 
+ .tab table {
+   width: 100%;
++  table-layout: fixed;
+ }
+ 
+ tbody tr {
+@@ -97,6 +98,10 @@ tbody:nth-child(4n + 1) {
    background-color: var(--in-content-box-background-odd);
  }
  
@@ -2872,7 +2880,7 @@ index e3d9000893ff..e38dc45b9365 100644
  
  # Whether the thumb should be rounded for the non-native scrollbars.
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index a190b6caff8c..0fcf38ed5b3d 100644
+index a190b6caff8c..18bab6712f43 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -73,9 +73,9 @@ pref("security.osreauthenticator.password_last_changed_hi", 0);
@@ -2901,7 +2909,7 @@ index a190b6caff8c..0fcf38ed5b3d 100644
  pref("media.videocontrols.picture-in-picture.video-toggle.enabled", false);
  pref("media.videocontrols.picture-in-picture.video-toggle.always-show", false);
 -pref("media.videocontrols.picture-in-picture.video-toggle.min-video-secs", 45);
-+pref("media.videocontrols.picture-in-picture.video-toggle.min-video-secs", 60);
++pref("media.videocontrols.picture-in-picture.video-toggle.min-video-secs", 10);
  pref("media.videocontrols.picture-in-picture.video-toggle.position", "right");
 -pref("media.videocontrols.picture-in-picture.video-toggle.has-used", false);
 +pref("media.videocontrols.picture-in-picture.video-toggle.has-used", true);
@@ -3346,6 +3354,19 @@ index e934ef010196..5ad4c3df6004 100644
    document_properties_page_size_dimension_string: "{{width}} × {{height}} {{unit}} ({{orientation}})",
    document_properties_page_size_dimension_name_string: "{{width}} × {{height}} {{unit}} ({{name}}, {{orientation}})",
    document_properties_linearized_yes: "Yes",
+diff --git a/toolkit/components/printing/content/print.js b/toolkit/components/printing/content/print.js
+index d08d790522a3..8d37ad8a3494 100644
+--- a/toolkit/components/printing/content/print.js
++++ b/toolkit/components/printing/content/print.js
+@@ -970,7 +970,7 @@ var PrintEventHandler = {
+     };
+     printersByName[PrintUtils.SAVE_TO_PDF_PRINTER] = {
+       supportsColor: true,
+-      supportsMonochrome: false,
++      supportsMonochrome: true,
+       name: PrintUtils.SAVE_TO_PDF_PRINTER,
+     };
+ 
 diff --git a/toolkit/components/remote/nsDBusRemoteClient.cpp b/toolkit/components/remote/nsDBusRemoteClient.cpp
 index 69e8d07c728f..55d7a8ae6f93 100644
 --- a/toolkit/components/remote/nsDBusRemoteClient.cpp

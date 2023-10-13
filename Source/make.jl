@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CFG = "https://codeberg.org/librewolf/settings.git"
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
-const VER = v"118.0.2-1"
+const VER = v"118.0.2-2"
 
 function build()
 	@info "Building . . ."
