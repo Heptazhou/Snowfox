@@ -42,7 +42,9 @@ const schemes =
 		"snowfox\\.overrides\\.cfg"        => "snowfox.config.js",
 		r"\.en-US\.win64-portable\.zip\b"  => ".win64.zip",
 		r"\.en-US\.win64-setup\.exe\b"     => ".win64.exe",
-		r"\.sha256\Ksum(?!\?)"             => "",
+		r"\.sha\K256sum\b"                 => "256",
+		r"\.sha\K512sum\b"                 => "3-512",
+		r"\bsha\K512sum\b"                 => "3-512sum",
 	]
 
 # https://www.google.com/favicon.ico

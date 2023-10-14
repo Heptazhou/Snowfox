@@ -24,7 +24,7 @@ const readstr(x)::String = read(x, String)
 const sh(c::String)      = run(`sh -c $c`)
 
 const Curl(x::String...; v::String)::Cmd =
-	Cmd(["curl", "--http2-prior-knowledge", "--tls" * "v$v",
+	Cmd(["curl", "--fail-with-body", "--http2-prior-knowledge", "--tls" * "v$v",
 		"-A\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:$UAV.0) Gecko/20100101 Firefox/$UAV.0\"", x...])
 const Zip7(x::String...)::Cmd =
 	Cmd(["7z", x...])
@@ -201,12 +201,13 @@ function move(dir::String, recursive::Bool = SUBMODULES)
 				for p ∈ schemes
 					d = replace(d, p...)
 				end
-				s ≠ d && (@info "$prefix: $(s => d)"; mv(s, d, force = true))
+				s ≠ d && (@info "$prefix: $(s => d)";
+				(mkpath(d); foreach(p -> mv(s * p, d * p, force = true), readdir(s)); rm(s)))
 			end
 			for f ∈ fs
-				if (f) ∈ (".gitignore", ".gitlab-ci.yml") || endswith(r"\.(aps|md)")(f) ||
-				   startswith(r"\.(forgejo|woodpecker)")(f) ||
-				   contains(r"^fetch(-\w+)+\.sh$|^file(_\w+)?\.svg$")(f)
+				if (f) ∈ (".gitignore", ".gitlab-ci.yml", "pack_vs.py") ||
+				   endswith(r"\.(aps|md|mk)")(f) || startswith(r"\.(forgejo|woodpecker)")(f) ||
+				   contains(r"(build|fail|fetch|patch|tree)\.sh$|^(category|file).*\.svg$")(f)
 					rm(f)
 					continue
 				end

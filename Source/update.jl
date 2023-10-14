@@ -26,7 +26,7 @@ const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "68e1f3b61d0867b94702fe5efd07aa284752705b.patch"
+		"../" * "9564687816de6f00934c65e91115abbb36525591.patch"
 		"../" * "crlf.patch" * " --binary"
 		"../" * "font.patch"
 		"../" * "typo.patch"
@@ -102,6 +102,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					s = replace(s, r"^.*liblowercase.*\n"m => "")
 					s = replace(s, r"https://\Kraw\.(github)usercontent(\.com/[^/]+/[^/]+)/", s"\1\2/raw/")
 					s = replace(s, r"https://\Ksnowfox(\.net)", s"librewolf\1")
+					s = replace(s, r"https://codeberg\.org/\Ksnowfox", s"librewolf")
 					s = replace(s, r"https://gitlab\.com/\Ksnowfox(-community)", s"librewolf\1")
 					s = replace(s, r"https://gitlab\.com/librewolf-community/\S*?\Ksnowfox"i, s"librewolf")
 					s = replace(s, r"https://librewolf\.net/\S*?\Ksnowfox"i, s"librewolf")
@@ -326,8 +327,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						o = "https://addons.mozilla.org/firefox/downloads/latest"
 						p, q = "$url_git/issues", "q={searchTerms}"
 						p = replace(p, "0h7z" => "Heptazhou")
+						s = replace(s, "https://.+/librewolf.*/issues", p)
 						s = replace(s, "https://localhost/*" => "https://example.invalid/*")
-						s = replace(s, "https://gitlab.com/librewolf-community/settings/issues", p)
 						s = replace(s, # Cookies
 							"""		"AppUpdateURL": "https://localhost",\n""" *
 							"""		"DisableAppUpdate": true,\n""",
@@ -410,6 +411,9 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					end
 					if (f ≡ "snowfox-patches.py")
 						s = replace(s, r"\bpatch -p1 \K-i\b" => "-li")
+						s = replace(s, r"^.*/category-snowfox\.svg\b.*\n"m => "")
+						s = replace(s, r"^.*/mozfetch\.sh\b.*\n"m => "")
+						s = replace(s, r"^.*/pack_vs\.py\b.*\n"m => "")
 						s = replace(s,
 							r"'wget -q https://[^/]+/[^/]+/settings/raw/branch/[^/]+/(.+?)'",
 							s"'cp -v ../../submodules/settings/\1 .'")
@@ -430,7 +434,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"@@[^\n]+@@\n" * "(\\+[^\n]*\n)+", "", "e")
 					end
 					if (f ≡ "snowfox-prefs.patch")
-						s = replace(s, ("@@ -21,0 +21,5 @@") => ("@@ -21,0 +21,9 @@"))
+						n = count(startswith(r"\+(?!\+\+ )"), eachsplit(s, "\n"))
+						s = replace(s, r"@@ -(\d+),0 \+\1,\K\d+ @@" => ("$n @@"))
 					end
 					if (f ≡ "snowfox.cfg")
 						s = replace(s, "(?<!\b)'|'(?!\b)", "\"")
@@ -487,7 +492,6 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("intl.date_time.pattern_override.time_medium", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_short", "HH:mm:ss");\n""" *
 							"""defaultPref("media.eme.showBrowserMessage", false);\n""" *
-							"""defaultPref("media.recorder.max_memory", 8388608);\n""" *
 							"""defaultPref("network.trr.custom_uri", "$url_doh");\n""" *
 							"""defaultPref("network.trr.default_provider_uri", "$url_doh");\n""" *
 							"""defaultPref("snowfox.app.checkVersion.enabled", true);\n""" *

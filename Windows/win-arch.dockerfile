@@ -35,7 +35,7 @@ RUN sed -ri 's/(EUID) == 0/\1 <= -1/g'            /bin/makepkg     && \
 	echo -e 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
 
 RUN yes | pacman -Syu && pacman-key --init && yes | pacman -S archlinuxcn-keyring && \
-	yes | pacman -S --needed 7-zip-full grml-zsh-config julia zsh-completions \
+	yes | pacman -S --needed 7-zip-full grml-zsh-config julia sha3sum zsh-completions \
 	git mc nano-syntax-highlighting nodejs-lts-hydrogen python-pip rustup tree \
 	cbindgen clang cross dump_syms llvm mercurial msitools nasm unzip upx wasi-compiler-rt wget && \
 	yes | pacman -Scc && chsh -s /bin/zsh && chmod +x /bin/jl
