@@ -20,7 +20,7 @@ include("base_func.jl")
 
 const CLN = "https://github.com/Heptazhou/Snowfox.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"119.0.0-1"
+const VER = v"119.0.1-1"
 
 # https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html#schedule
 # https://releases.rs
@@ -32,7 +32,7 @@ try
 	v_rel = split("v$VER", "+")[1]
 	write("version", "$v1-$v2")
 	something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "")), false) ?
-	for f in "$REL/$v_rel/snowfox-v$v1-$v2.source.tar.zst" .* [".sha3-512", ""]
+	for f in "$REL/$v_rel/snowfox-v$v1-$v2.source.tar.zst" .* [".sha256", ".sha3-512", ""]
 		f |> basename |> ispath || curl("-LO", f)
 	end :
 	@warn "Not allowed."
