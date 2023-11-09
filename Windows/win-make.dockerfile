@@ -26,7 +26,7 @@ FROM snowfox:win-base
 ENV CARGO_BUILD_JOBS=2 \
 	CARGO_INCREMENTAL=0
 
-RUN rustup default 1.73 && \
+RUN rustup default 1.74 && \
 	rustup target add x86_64-pc-windows-msvc
 
 RUN cd /src && mach configure

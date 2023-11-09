@@ -25,7 +25,7 @@ const sh(c::String)      = run(`sh -c $c`)
 
 const Curl(x::String...; v::String)::Cmd =
 	Cmd(["curl", "--fail-with-body", "--http2-prior-knowledge", "--tls" * "v$v",
-		"-A\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:$UAV.0) Gecko/20100101 Firefox/$UAV.0\"", x...])
+		"-A\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:$ESR.0) Gecko/20100101 Firefox/$ESR.0\"", x...])
 const Zip7(x::String...)::Cmd =
 	Cmd(["7z", x...])
 
@@ -175,7 +175,7 @@ function replace(
 end
 
 function v_read(ver::VersionNumber)::NTuple{3, String}
-	vx = string(VersionNumber(ver.major, ver.minor, ver.patch)) |> s -> replace(s, r"\.0$" => "")
+	vx = string(VersionNumber(ver.major, ver.minor, ver.patch))
 	vy = filter(!isempty, filter.(isdigit, string.([ver.prerelease..., 0])))[1]
 	vz = filter(!isempty, filter.(isdigit, string.([ver.build..., 0])))[1]
 	vx, vy, vz

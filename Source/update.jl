@@ -19,14 +19,13 @@
 include("base_func.jl")
 
 const zst_cmd = "zstd -17 -M1024M -T$(Sys.CPU_THREADS) --long"
-const url_spt = "https://support.mozilla.org/1/firefox/$UAV.0/%OS%/%LOCALE%/" # %VERSION% -> $UAV.0
 const url_git = "https://github.com/0h7z/Snowfox"
 const url_doh = "https://cloudflare-dns.com/dns-query" # https://mozilla.cloudflare-dns.com/dns-query
 const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "9564687816de6f00934c65e91115abbb36525591.patch"
+		"../" * "8704a0407498b54201dba3c7e689a64fb43f2de3.patch"
 		"../" * "crlf.patch" * " --binary"
 		"../" * "font.patch"
 		"../" * "typo.patch"
@@ -60,6 +59,7 @@ const patch_b =
 		"patches/ui-patches/remove-branding-urlbar.patch"
 		"patches/ui-patches/remove-cfrprefs.patch"
 		"patches/ui-patches/snowfox-logo-devtools.patch"
+		"patches/ui-patches/website-appearance-ui-rfp.patch"
 		"patches/unified-extensions-dont-show-recommendations.patch"
 		"patches/unity_kde/firefox-kde.patch"
 		"patches/unity_kde/mozilla-kde.patch"
@@ -96,6 +96,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							s = replace(s, p...)
 						end
 					end
+					p, q = "privacy." .* ["resistFingerprinting", "fingerprintingProtection"]
+					s = replace(s, "\"$p\"" => "\"$q\"")
 					s = replace(s, "\r\n" => "\n")
 					s = replace(s, r"^.*\bEXTRA_PATH.*\n"m => "")
 					s = replace(s, r"^.*\bLOWERCASE_.*\n"m => "")
@@ -128,14 +130,10 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = expands(s)
 					end
 					p = "(?<!=['\"])http://(?!www\\.w3\\.org/)" => "https://"
-					q = "resistFingerprinting"
 					if endswith(r"\.(diff|patch)")(f)
 						s = replace(s -> startswith(s, '+') ? replace(s, p...) : s, split(s, '\n')) |> s -> join(s, '\n')
 						s = replace(s, r"^\+.*ColorScheme::\KLight"m, s"Dark")
 						s = replace(s, r"^\+.*https://support.mozilla.org/\Ken-US/"im, "")
-						s = replace(s, r"privacy\_\Koverride_rfp_for_color_scheme", "$(q)_override_color_scheme")
-						s = replace(s, r"privacy\.\Koverride_rfp_for_color_scheme", "$(q).override-color-scheme")
-						s = replace(s, r"Snowfox will force web content to display in \Ka light (theme\.\")", s"dark \1")
 					else
 						s = replace(s, p...)
 					end
@@ -197,7 +195,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""#grid {\n""" *
 							"""	background-color: #20123a;\n""" *
 							"""	color: #ffffff;\n""" *
-							"""	color-scheme: dark;\n""" *
+							"""	color-scheme: only dark;\n""" *
 							"""}\n""" * """\n""" *
 							""".text-link {\n""" *
 							"""	color: #00ddff !important;\n""" *
@@ -312,6 +310,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"$p -z -r 's/(import-from-firefox\\s*=\\s*\\.label\\s*=\\s*)Snowfox/\\1Firefox/g' $q" *
 							#
 							"$p -e 's/Mozilla Snowfox/Snowfox/g' $q", "p")
+						s = replace(s, r"\bwget \K-q" => "-T20 -t0 --retry-connrefused -q")
 						s = replace(s, r"^N=\K\d+$"m => max(Sys.CPU_THREADS, 8))
 					end
 					if (f ≡ "patches.txt")
@@ -415,8 +414,14 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"^.*/mozfetch\.sh\b.*\n"m => "")
 						s = replace(s, r"^.*/pack_vs\.py\b.*\n"m => "")
 						s = replace(s,
+							r"^(\t+)\K# override the firefox version\n(\1.+\n)+"m,
+							"exec('echo $VER > browser/config/version_display.txt')" * "\n")
+						s = replace(s,
 							r"'wget -q https://[^/]+/[^/]+/settings/raw/branch/[^/]+/(.+?)'",
 							s"'cp -v ../../submodules/settings/\1 .'")
+						s = replace(s,
+							s"'cp -v ../../settings/",
+							s"'cp -v ../../submodules/settings/", "p")
 						s = cd(@__DIR__) do
 							!isfile("binary.patch") ? s :
 							replace(s,
@@ -461,7 +466,6 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						for p ∈ [
 							"app.releaseNotesURL.aboutDialog"       => "$url_doc#v%VERSION%",
 							"app.releaseNotesURL"                   => "$url_doc#v%VERSION%",
-							"app.support.baseURL"                   => "$url_spt",
 							"app.update.url.details"                => "$url_git/releases",
 							"app.update.url.manual"                 => "$url_git/releases",
 							"browser.toolbars.bookmarks.visibility" => "newtab",
@@ -472,6 +476,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						end
 						for p ∈ [
 							"app.feedback.baseURL"                # https://ideas.mozilla.org/
+							"app.support.baseURL"                 # https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/
 							"browser.geolocation.warning.infoURL" # https://www.mozilla.org/%LOCALE%/firefox/geolocation/
 							"browser.search.searchEnginesURL"     # https://addons.mozilla.org/%LOCALE%/firefox/search-engines/
 						]
@@ -480,6 +485,24 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"^\n*"s => "\n"^2)
 						s = replace(s, r"let profile_directory;.+;\n\}\K.*$"s,
 							"""\n"""^2 *
+							"""clearPref("browser.safebrowsing.blockedURIs.enabled");\n""" *
+							"""clearPref("browser.safebrowsing.downloads.enabled");\n""" *
+							"""clearPref("browser.safebrowsing.malware.enabled");\n""" *
+							"""clearPref("browser.safebrowsing.phishing.enabled");\n""" *
+							"""clearPref("general.useragent.compatMode.firefox");\n""" *
+							"""clearPref("image.avif.force-loop");\n""" *
+							"""clearPref("image.http.accept");\n""" *
+							"""clearPref("layout.css.prefers-color-scheme.content-override");\n""" *
+							"""clearPref("network.http.referer.XOriginPolicy");\n""" *
+							"""clearPref("network.http.windows-sso.enabled");\n""" *
+							"""clearPref("privacy.donottrackheader.enabled");\n""" *
+							"""clearPref("privacy.fingerprintingProtection.overrides");\n""" *
+							"""clearPref("privacy.fingerprintingProtection.pbmode");\n""" *
+							"""clearPref("privacy.fingerprintingProtection");\n""" *
+							"""clearPref("privacy.spoof_english");\n""" *
+							"""clearPref("security.OCSP.enabled");\n""" *
+							"""clearPref("security.OCSP.require");\n""" *
+							"""clearPref("security.pki.crlite_mode");\n""" *
 							"""defaultPref("devtools.performance.new-panel-onboarding", false);\n""" *
 							"""defaultPref("extensions.activeThemeID", "firefox-compact-dark@mozilla.org");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.connector_short", "{1} {0}");\n""" *
@@ -491,6 +514,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("intl.date_time.pattern_override.time_long", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_medium", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_short", "HH:mm:ss");\n""" *
+							"""defaultPref("media.cubeb.force_sample_rate", 192_000);\n""" *
 							"""defaultPref("media.eme.showBrowserMessage", false);\n""" *
 							"""defaultPref("network.trr.custom_uri", "$url_doh");\n""" *
 							"""defaultPref("network.trr.default_provider_uri", "$url_doh");\n""" *
@@ -499,48 +523,20 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""lockPref("browser.dataFeatureRecommendations.enabled", false);\n""" *
 							"""lockPref("browser.firefox-view.view-count", 0);\n""" *
 							"""lockPref("browser.privacySegmentation.preferences.show", false);\n""" *
-							"""pref("browser.safebrowsing.blockedURIs.enabled", false);\n""" *
-							"""pref("browser.safebrowsing.downloads.enabled", false);\n""" *
-							"""pref("browser.safebrowsing.malware.enabled", false);\n""" *
-							"""pref("browser.safebrowsing.phishing.enabled", false);\n""" *
-							"""pref("network.http.useragent.forceVersion", $UAV);\n""" *
-							"""pref("network.http.windows-sso.enabled", false);\n""" *
-							"""pref("privacy.donottrackheader.enabled", true);\n""" *
-							"""pref("security.OCSP.enabled", 0);\n""" *
-							"""pref("security.OCSP.require", true);\n""" *
-							"""pref("security.pki.crlite_mode", 2);\n""" *
 							"""\n"""^2, "p", n = 1)
+					end
+					if (f ≡ "snowfox.inc.xhtml")
+						o = "snowfox-privacy-heading"
+						p = "network.http.referer.XOriginPolicy"
+						q = "<groupbox\\b[^>]*>" * "[^>]+" *
+							"\"$o\"" * ".+?" *
+							"\"$p\"" * ".+?" *
+							"</groupbox>" * "\\n*"
+						s = replace(s, (q, "s"), "")
 					end
 					if (f ≡ "uBOAssets.json")
 						s = replace(s, "\t", " "^2)
 						s = replace(s, r"^\t*\K {2}"m, ("\t"))
-					end
-					if (f ≡ "website-appearance-ui-rfp.patch")
-						p = "privacy.resistFingerprinting"
-						q = "+      document.getElementById(\"web-appearance-chooser\").style"
-						s = replace(s, ("@@ -3771,5 +3773,33 @@") => ("@@ -3771,5 +3773,32 @@"))
-						s = replace(s, ("^\\Q$q.opacity\\E.+;\n", "m"), (""))
-						s = replace(s, ("^\\Q$q.pointerEvents\\E.+;\n", "m"), (""))
-						s = replace(s,
-							""" feature is disabled """,
-							""" setting is not taking effect """, "p")
-						s = replace(s,
-							""" will force web content """,
-							""" will continue to force web content """, "p")
-						s = replace(s,
-							""" theme.";""",
-							""" theme, unless $p.override-color-scheme is set to true.";""", "p")
-						s = replace(s,
-							"""+    if (Services.prefs.getBoolPref("$p")) {\n""",
-							"""+    if (Services.prefs.getBoolPref("$p") &&\n""" *
-							"""+       !Services.prefs.getBoolPref("$p.override-color-scheme")) {\n""" *
-							"""+      document.getElementById("web-appearance-rfp-warning")?.remove();\n""", "p")
-						s = replace(s,
-							"""+      learnMore.innerText = "Learn more";\n""" *
-							"""+      infoBox.appendChild(learnMore);\n""",
-							"""+      learnMore.innerText = "Learn more";\n""" *
-							"""+      learnMore.target = "_blank";\n""" *
-							"""+      infoBox.appendChild(learnMore);\n""", "p")
 					end
 					write(f, s)
 				end

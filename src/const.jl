@@ -19,9 +19,9 @@ const GMK = ("make") * (Sys.iswindows() ? ".exe" : "")
 const JLC = ["julia" * (Sys.iswindows() ? ".exe" : ""), "--startup-file=no", "--compile=min", "--color=yes"]
 const PKG = ("pkg/")
 const SRC = ("src/")
-const UAV = (UInt16)(108) # https://oeis.org/A001694
-#&  64, 72, 81, 100, 108, 121, 125, 128, 144, 169, 196, 200
-raw"../../Firefox/modules/libpref/init/StaticPrefList.yaml" # network.http.useragent.forceVersion
+
+const ESR = v"115".major
+const VER = v"120.0.0-1"
 
 const schemes =
 	[

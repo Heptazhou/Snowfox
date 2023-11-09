@@ -20,19 +20,18 @@ include("base_func.jl")
 
 const CLN = "https://github.com/Heptazhou/Snowfox.git"
 const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-const VER = v"119.0.1-1"
 
 # https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html#schedule
 # https://releases.rs
-const VRS, _ = "1.73", "win-make.dockerfile"
+const VRS, _ = "1.74", "win-make.dockerfile"
 
 try
 	cd(@__DIR__)
 	v1, v2, v3 = VER |> v_read
-	v_rel = split("v$VER", "+")[1]
-	write("version", "$v1-$v2")
+	v = "$v1-$v2"
+	write("version", v)
 	something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "")), false) ?
-	for f in "$REL/$v_rel/snowfox-v$v1-$v2.source.tar.zst" .* [".sha256", ".sha3-512", ""]
+	for f in "$REL/v$v/snowfox-v$v.source.tar.zst" .* [".sha256", ".sha3-512", ""]
 		f |> basename |> ispath || curl("-LO", f)
 	end :
 	@warn "Not allowed."

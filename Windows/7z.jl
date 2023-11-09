@@ -20,7 +20,7 @@ const sh(c::String) = run(`sh -c $c`) # include not allowed here
 
 const fs = filter!(isfile, filter!(endswith(".zip"), readdir()))
 
-const as = "-m0=lzma -md3840m -mfb273 -mmt2 -ms -mx9 -stl"
+const as = "-m0=lzma -md3840m -mfb273 -mmt2 -mqs -ms -mtm- -mx9 -stl"
 
 isempty(ARGS) || for fn in map(f -> splitext(f)[1], fs)
 	sh.(["7z x     $fn.zip snowfox"])

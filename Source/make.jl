@@ -20,7 +20,6 @@ include("base_func.jl")
 
 const CFG = "https://codeberg.org/librewolf/settings.git"
 const CLN = "https://gitlab.com/librewolf-community/browser/source.git"
-const VER = v"119.0.1-1"
 
 function build()
 	@info "Building . . ."
@@ -30,6 +29,7 @@ function build()
 		pf = s"https://archive.mozilla.org/pub/firefox"
 		sf = s"source/firefox-$(version).source.tar.xz"
 		v1, v2, v3 = VER |> v_read
+		v1 = replace(v1, r"\.0$" => "") # Firefox version
 		if VER |> string |> contains(r"\+b\d+")
 			@warn "The build target is beta version." VER
 			write(mf, replace(mf |> readstr,
@@ -41,6 +41,12 @@ function build()
 			write(mf, replace(mf |> readstr,
 				"$pf/releases/\$(version)/$sf",
 				"$pf/candidates/$v1-candidates/build$v3/$sf", "p"))
+		end
+		if VER |> string |> contains(r"\d+\.0")
+			local v0 = ("\$(version)")
+			write(mf, replace(mf |> readstr,
+				"$v0/source/" => "$v1/source/",
+				"firefox-$v0" => "firefox-$v1"))
 		end
 		Sys.iswindows() && (@warn "Not allowed."; return)
 		f = ["../", ""] .* "firefox-$v1.source.tar.xz"
@@ -91,7 +97,8 @@ function fetch()
 		cd(SRC)
 		v1, v2, v3 = VER |> v_read
 		open("version", "r") do io
-			readline(io) |> v0 -> v0 ≡ v1 ? @info(v0) : @warn("Version not matched.", v0, v1)
+			v0 = readline(io) |> VersionNumber |> string
+			v0 ≡ v1 ? @info(v1) : @warn("Version not matched.", v0, v1)
 		end
 		open("version", "w") do io
 			println(io, v1)
