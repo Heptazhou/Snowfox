@@ -38,6 +38,7 @@ const patch_b =
 		"patches/bootstrap.patch"
 		"patches/dbus_name.patch"
 		"patches/flatpak-autoconf.patch"
+		"patches/fullpage-translations-customization.patch"
 		"patches/JXL_enable_by_default.patch"
 		"patches/JXL_improved_support.patch"
 		"patches/mozilla_dirs.patch"
@@ -50,9 +51,11 @@ const patch_b =
 		"patches/removed-patches/mozilla-vpn-ad2.patch"
 		"patches/removed-patches/native-messaging-registry-path.patch"
 		"patches/removed-patches/sanitizing-description.patch"
+		"patches/rust-gentoo-musl.patch"
 		"patches/rust-unaligned-access-backport.patch"
 		"patches/sed-patches/allow-searchengines-non-esr.patch"
 		"patches/tumbleweed-bootstrap.patch"
+		"patches/ui-patches/allow_cookies_for_site.patch"
 		"patches/ui-patches/hide-default-browser.patch"
 		"patches/ui-patches/pref-naming.patch"
 		"patches/ui-patches/privacy-preferences.patch"
@@ -525,14 +528,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""lockPref("browser.privacySegmentation.preferences.show", false);\n""" *
 							"""\n"""^2, "p", n = 1)
 					end
-					if (f ≡ "snowfox.inc.xhtml")
-						o = "snowfox-privacy-heading"
-						p = "network.http.referer.XOriginPolicy"
-						q = "<groupbox\\b[^>]*>" * "[^>]+" *
-							"\"$o\"" * ".+?" *
-							"\"$p\"" * ".+?" *
-							"</groupbox>" * "\\n*"
-						s = replace(s, (q, "s"), "")
+					if (f ≡ "snowfox.js")
+						s = replace(s, "[2], [0]" => "[1], [0]")
 					end
 					if (f ≡ "uBOAssets.json")
 						s = replace(s, "\t", " "^2)

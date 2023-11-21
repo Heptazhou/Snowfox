@@ -80,7 +80,7 @@ index 314534215586..ddd30660c2fa 100644
      }
      FreeLibrary(user32);
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 2376f0e788fd..728623f46dcd 100644
+index 2376f0e788fd..94794bd7a398 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -45,7 +45,7 @@ pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/pri
@@ -291,6 +291,15 @@ index 2376f0e788fd..728623f46dcd 100644
  pref("browser.newtabpage.activity-stream.discoverystream.hardcoded-basic-layout", false);
  pref("browser.newtabpage.activity-stream.discoverystream.hybridLayout.enabled", false);
  pref("browser.newtabpage.activity-stream.discoverystream.hideCardBackground.enabled", false);
+@@ -1866,7 +1866,7 @@ pref("browser.translation.neverForLanguages", "");
+ 
+ // Enable Firefox translations powered by the Bergamot translations
+ // engine https://browser.mt/.
+-pref("browser.translations.enable", true);
++pref("browser.translations.enable", false);
+ 
+ // Telemetry settings.
+ // Determines if Telemetry pings can be archived locally.
 @@ -2028,7 +2028,7 @@ pref("browser.promo.focus.disallowed_regions", "cn");
  pref("browser.promo.focus.enabled", true);
  
@@ -662,6 +671,19 @@ index 8485423b384a..45e7c274d19c 100644
      <checkbox id="cfrRecommendations-features"
              class="tail-with-learn-more"
              data-l10n-id="browsing-cfr-features"
+diff --git a/browser/components/preferences/main.js b/browser/components/preferences/main.js
+index ac661e93cab3..efc2ece59312 100644
+--- a/browser/components/preferences/main.js
++++ b/browser/components/preferences/main.js
+@@ -1726,7 +1726,7 @@ var gMainPane = {
+       let alwaysCheckPref = Preferences.get(
+         "browser.shell.checkDefaultBrowser"
+       );
+-      alwaysCheck.disabled = alwaysCheckPref.locked || isDefault;
++      alwaysCheck.disabled = alwaysCheckPref.locked;
+     }
+   },
+ 
 diff --git a/browser/components/preferences/privacy.inc.xhtml b/browser/components/preferences/privacy.inc.xhtml
 index ee9b1f9e5a0b..7cc5b1b919f5 100644
 --- a/browser/components/preferences/privacy.inc.xhtml
@@ -2419,7 +2441,7 @@ index 22d39aa6e0bb..6d2a7a58bda0 100644
              _analysis_output_always("pcmR",seq,v->pcm[1],v->pcm_current,0,0,totalshift);
  
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index 0d4491bed675..5d301b15b0b2 100644
+index 0d4491bed675..f6c9a2f51fe0 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -1303,7 +1303,7 @@
@@ -2683,15 +2705,6 @@ index 0d4491bed675..5d301b15b0b2 100644
    mirror: always
  
  # Include an origin header on non-GET and non-HEAD requests regardless of CORS.
-@@ -11335,7 +11337,7 @@
- #  0=always send, 1=send iff base domains match, 2=send iff hosts match.
- - name: network.http.referer.XOriginPolicy
-   type: uint32_t
--  value: 0
-+  value: 1
-   mirror: always
-   do_not_use_directly: true
- 
 @@ -12955,13 +12957,13 @@
  # 2 - spoof
  - name: privacy.spoof_english
@@ -3007,10 +3020,23 @@ index 86bfe71247a6..8a406ebc4d09 100644
  
  // Disable service worker debugging on all channels (see Bug 1651605).
 diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
-index 7ed7d3c31b58..244a3cd191ae 100644
+index 7ed7d3c31b58..693a499426d6 100644
 --- a/netwerk/protocol/http/nsHttpHandler.cpp
 +++ b/netwerk/protocol/http/nsHttpHandler.cpp
-@@ -1686,7 +1686,7 @@ void nsHttpHandler::PrefsChanged(const char* pref) {
+@@ -382,11 +382,9 @@ nsresult nsHttpHandler::Init() {
+     if (mAppName.Length() == 0) {
+       appInfo->GetName(mAppName);
+     }
+-    appInfo->GetVersion(mAppVersion);
+     mAppName.StripChars(R"( ()<>@,;:\"/[]?={})");
+-  } else {
+-    mAppVersion.AssignLiteral(MOZ_APP_UA_VERSION);
+   }
++  mAppVersion.AssignLiteral(MOZILLA_UAVERSION);
+ 
+   mMisc.AssignLiteral("rv:" MOZILLA_UAVERSION);
+ 
+@@ -1686,7 +1684,7 @@ void nsHttpHandler::PrefsChanged(const char* pref) {
    if (imageAcceptPrefChanged) {
      nsAutoCString userSetImageAcceptHeader;
  
@@ -3019,7 +3045,7 @@ index 7ed7d3c31b58..244a3cd191ae 100644
        rv = Preferences::GetCString("image.http.accept",
                                     userSetImageAcceptHeader);
        if (NS_FAILED(rv)) {
-@@ -1704,7 +1704,7 @@ void nsHttpHandler::PrefsChanged(const char* pref) {
+@@ -1704,7 +1702,7 @@ void nsHttpHandler::PrefsChanged(const char* pref) {
    if (PREF_CHANGED("network.http.accept") || imageAcceptPrefChanged) {
      nsAutoCString userSetDocumentAcceptHeader;
  
@@ -3028,6 +3054,18 @@ index 7ed7d3c31b58..244a3cd191ae 100644
        rv = Preferences::GetCString("network.http.accept",
                                     userSetDocumentAcceptHeader);
        if (NS_FAILED(rv)) {
+diff --git a/python/mozbuild/mozbuild/action/exe_7z_archive.py b/python/mozbuild/mozbuild/action/exe_7z_archive.py
+index b0d35be2bf88..a0ae0aa84c12 100644
+--- a/python/mozbuild/mozbuild/action/exe_7z_archive.py
++++ b/python/mozbuild/mozbuild/action/exe_7z_archive.py
+@@ -60,6 +60,7 @@ def archive_exe(pkg_dir, tagfile, sfx_package, package, use_upx):
+                 "-mb0:1",
+                 "-mb0s1:2",
+                 "-mb0s2:3",
++                "-mtm-",
+             ]
+         )
+ 
 diff --git a/python/mozbuild/mozbuild/resources/html-build-viewer/build_resources.html b/python/mozbuild/mozbuild/resources/html-build-viewer/build_resources.html
 index 9daf30178bb0..7bd0a08e2f7a 100644
 --- a/python/mozbuild/mozbuild/resources/html-build-viewer/build_resources.html
@@ -3072,10 +3110,10 @@ index c08f405b0ed6..e7dc406a540c 100644
      this.maxPayloadCount = lazy.Svc.PrefBranch.getIntPref(
        "telemetry.maxPayloadCount"
 diff --git a/taskcluster/gecko_taskgraph/util/hash.py b/taskcluster/gecko_taskgraph/util/hash.py
-index 485c9a7c480e..19fb2d5baa65 100644
+index 485c9a7c480e..bf1039e1eac2 100644
 --- a/taskcluster/gecko_taskgraph/util/hash.py
 +++ b/taskcluster/gecko_taskgraph/util/hash.py
-@@ -23,17 +23,17 @@ def hash_path(path):
+@@ -23,17 +23,11 @@ def hash_path(path):
  def get_file_finder(base_path):
      from pathlib import Path
  
@@ -3091,16 +3129,10 @@ index 485c9a7c480e..19fb2d5baa65 100644
 -        return get_repository_object(Path(base_path)).get_tracked_files_finder(
 -            base_path
 -        )
-+    #     else:
-+    #         return None
-+    # else:
-+    #     return get_repository_object(Path(base_path)).get_tracked_files_finder(
-+    #         base_path
-+    #     )
  
  
  def hash_paths(base_path, patterns):
-@@ -54,7 +54,7 @@ def hash_paths(base_path, patterns):
+@@ -54,7 +48,7 @@ def hash_paths(base_path, patterns):
              if found:
                  files.update(found)
              else:
@@ -3382,7 +3414,7 @@ index 030d00dc2539..64f27dc375ae 100644
        // We failed completelly to get a valid bus name - just quit
        // to prevent crash at dbus_bus_request_name().
 diff --git a/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs b/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs
-index d75c48109066..62250418fb83 100644
+index d75c48109066..c370f99713f1 100644
 --- a/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs
 +++ b/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs
 @@ -5,6 +5,7 @@
@@ -3401,7 +3433,7 @@ index d75c48109066..62250418fb83 100644
      this._handleResistFingerprintingChanged();
      this._handleLetterboxingPrefChanged();
    }
-@@ -286,14 +288,31 @@ class _RFPHelper {
+@@ -286,14 +288,29 @@ class _RFPHelper {
      this._addOrClearContentMargin(aBrowser);
    }
  
@@ -3410,12 +3442,10 @@ index d75c48109066..62250418fb83 100644
 +    if (FppOverrides.match(/^[+-]AllTargets\b/) == null) {
 +      FppOverrides = "+AllTargets";
 +    }
++    const pm = LetterboxingEnabled ? "+" : "-";
 +    for (const s of ["ScreenRect", "CSSDeviceSize"]) {
-+      FppOverrides = FppOverrides.replace(
-+        RegExp(`,?\\${LetterboxingEnabled ? "-" : "+"}${s}(?=,|$)`, "g"),
-+        ""
-+      );
-+      FppOverrides += `,${LetterboxingEnabled ? "+" : "-"}${s}`;
++      const r = RegExp(`,?[+-]${s}(?=,|$)`, "g");
++      FppOverrides = FppOverrides.replace(r, "") + `,${pm}${s}`;
 +    }
 +    Services.prefs.setStringPref(kPrefFppOverrides, FppOverrides);
 +  }
