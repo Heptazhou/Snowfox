@@ -1,8 +1,8 @@
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index df1305c9220d..63d6a759ad38 100644
+index 4057c95af5b9..5f6bc40c3489 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
-@@ -2185,13 +2185,13 @@ pref("font.size.monospace.x-math", 13);
+@@ -2195,13 +2195,13 @@ pref("font.size.monospace.x-math", 13);
    pref("font.name-list.monospace.he", "Fixed Miriam Transparent, Miriam Fixed, Rod, Consolas, Courier New");
    pref("font.name-list.cursive.he", "Guttman Yad, Ktav, Arial");
  
@@ -22,7 +22,7 @@ index df1305c9220d..63d6a759ad38 100644
    pref("font.name-list.cursive.ko", "Gungsuh");
  
    pref("font.name-list.serif.th", "Tahoma");
-@@ -2214,27 +2214,27 @@ pref("font.size.monospace.x-math", 13);
+@@ -2224,27 +2224,27 @@ pref("font.size.monospace.x-math", 13);
    pref("font.name-list.monospace.x-western", "Consolas");
    pref("font.name-list.cursive.x-western", "Comic Sans MS");
  

@@ -1,8 +1,8 @@
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 728623f46dcd..afdf4cbe8f4c 100644
+index 8b7cf5176945..51b0ca0f4829 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
-@@ -343,7 +343,7 @@ pref("browser.warnOnQuit", true);
+@@ -351,7 +351,7 @@ pref("browser.warnOnQuit", true);
    pref("browser.warnOnQuitShortcut", true);
  #endif
  
@@ -11,7 +11,7 @@ index 728623f46dcd..afdf4cbe8f4c 100644
  #ifdef XP_MACOSX
    pref("browser.fullscreen.autohide", false);
  #else
-@@ -854,7 +854,7 @@ pref("browser.tabs.delayHidingAudioPlayingIconMS", 3000);
+@@ -885,7 +885,7 @@ pref("browser.tabs.delayHidingAudioPlayingIconMS", 3000);
  // Pref to control whether we use a separate privileged content process
  // for about: pages. This pref name did not age well: we will have multiple
  // types of privileged content processes, each with different privileges.
@@ -20,7 +20,7 @@ index 728623f46dcd..afdf4cbe8f4c 100644
  pref("browser.tabs.remote.separatePrivilegedContentProcess", true);
  
  #if defined(NIGHTLY_BUILD) && !defined(MOZ_ASAN)
-@@ -912,7 +912,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
+@@ -943,7 +943,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
    // implementation, but otherwise the 10s value is arbitrary.
    pref("browser.lowMemoryPollingIntervalMS", 10000);
  
@@ -29,7 +29,7 @@ index 728623f46dcd..afdf4cbe8f4c 100644
    // pressure. Changes to the pref take effect immediately. Browser restart not
    // required. The pref value is a bitmask:
    // 0x0: No response (other than recording for telemetry, crash reporting)
-@@ -930,7 +930,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
+@@ -961,7 +961,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
    // Controls which macOS memory-pressure level triggers the browser low memory
    // response. Changes to the pref take effect immediately. Browser restart not
    // required. By default, use the "critical" level as that occurs after "warn"
@@ -38,7 +38,7 @@ index 728623f46dcd..afdf4cbe8f4c 100644
    // The macOS system memory-pressure level is either none, "warn", or
    // "critical". The OS notifies the browser when the level changes. A false
    // value for the pref indicates the low memory response should occur when
-@@ -1812,7 +1812,7 @@ pref("identity.sync.tokenserver.uri", "https://token.services.mozilla.com/1.0/sy
+@@ -1844,7 +1844,7 @@ pref("identity.sync.tokenserver.uri", "https://token.services.mozilla.com/1.0/sy
  
  // Auto-config URL for FxA self-hosters, makes an HTTP request to
  // [identity.fxaccounts.autoconfig.uri]/.well-known/fxa-client-configuration
@@ -47,7 +47,7 @@ index 728623f46dcd..afdf4cbe8f4c 100644
  // of making changes to "identity.fxaccounts.*.uri".
  pref("identity.fxaccounts.autoconfig.uri", "");
  
-@@ -1967,19 +1967,19 @@ pref("browser.contentblocking.reject-and-isolate-cookies.preferences.ui.enabled"
+@@ -2004,19 +2004,19 @@ pref("browser.contentblocking.reject-and-isolate-cookies.preferences.ui.enabled"
  //     "fppPrivate": Fingerprinting Protection enabled in private windows
  //     "-fppPrivate": Fingerprinting Protection disabled in private windows
  //   Cookie behavior:
@@ -79,7 +79,7 @@ index 728623f46dcd..afdf4cbe8f4c 100644
  // One value from each section must be included in the browser.contentblocking.features.strict pref.
  pref("browser.contentblocking.features.strict", "tp,tpPrivate,cookieBehavior5,cookieBehaviorPBM5,cm,fp,stp,emailTP,emailTPPrivate,lvl2,rp,rpTop,ocsp,qps,qpsPBM,fpp,fppPrivate");
  
-@@ -2414,7 +2414,7 @@ pref("devtools.target-switching.server.enabled", true);
+@@ -2456,7 +2456,7 @@ pref("devtools.target-switching.server.enabled", true);
  // remote frames).
  pref("devtools.every-frame-target.enabled", true);
  
@@ -88,7 +88,7 @@ index 728623f46dcd..afdf4cbe8f4c 100644
  // of the original tab the popups are coming from
  pref("devtools.popups.debug", true);
  
-@@ -2575,9 +2575,9 @@ pref("devtools.netmonitor.har.multiple-pages", false);
+@@ -2617,9 +2617,9 @@ pref("devtools.netmonitor.har.multiple-pages", false);
  pref("devtools.netmonitor.audits.slow", 500);
  
  // Enable the new Edit and Resend panel
@@ -199,10 +199,10 @@ index e11886599b8f..40eca29f138d 100644
   * Permission is hereby granted, free of charge, to any person obtaining
   * a copy of this software and associated documentation files (the
 diff --git a/dom/media/CubebUtils.cpp b/dom/media/CubebUtils.cpp
-index 2bc072ebbaa3..538ce0f21e98 100644
+index fb94d1c1f28c..331c97017a25 100644
 --- a/dom/media/CubebUtils.cpp
 +++ b/dom/media/CubebUtils.cpp
-@@ -137,7 +137,7 @@ std::unordered_map<std::string, LABELS_MEDIA_AUDIO_BACKEND>
+@@ -136,7 +136,7 @@ std::unordered_map<std::string, LABELS_MEDIA_AUDIO_BACKEND>
          {"sun", LABELS_MEDIA_AUDIO_BACKEND::sunaudio},
  };
  
@@ -211,7 +211,7 @@ index 2bc072ebbaa3..538ce0f21e98 100644
  // and API used).
  //
  // sMutex protects *initialization* of this, which must be performed from each
-@@ -182,7 +182,7 @@ static void ShutdownAudioIPCServer() {
+@@ -181,7 +181,7 @@ static void ShutdownAudioIPCServer() {
  }  // namespace
  
  static const uint32_t CUBEB_NORMAL_LATENCY_MS = 100;
@@ -234,10 +234,10 @@ index 73423a0cad7c..7011c439b37b 100644
    vc.mMediaSource.Reset();
    vc.mMediaSource.Construct().AssignASCII(
 diff --git a/dom/media/MediaInfo.h b/dom/media/MediaInfo.h
-index 3f092e6cb3b0..b02fdcd0991e 100644
+index 3484ecf9d6e4..1a873d0d8ae0 100644
 --- a/dom/media/MediaInfo.h
 +++ b/dom/media/MediaInfo.h
-@@ -601,7 +601,7 @@ class MediaInfo {
+@@ -605,7 +605,7 @@ class MediaInfo {
  
    bool HasValidMedia() const { return HasVideo() || HasAudio(); }
  
@@ -286,7 +286,7 @@ index 6d2a7a58bda0..bb7a492c3a7c 100644
    float penalty=gi->stretch_penalty-(ve->stretch/2-VE_MINSTRETCH);
    if(penalty<0.f)penalty=0.f;
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index 9d0a7d64e2d8..2c391f55ba51 100644
+index adb898ad7c1b..5d1b104e3cb2 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -65,7 +65,7 @@
@@ -307,7 +307,7 @@ index 9d0a7d64e2d8..2c391f55ba51 100644
  # be updated to include the lock mode value.
  # 0 = FREE (No locking at all)
  # 1 = STANDARD (Once locked, remain locked until scrolling ends)
-@@ -1446,7 +1446,7 @@
+@@ -1471,7 +1471,7 @@
    value: true
    mirror: always
  
@@ -316,7 +316,7 @@ index 9d0a7d64e2d8..2c391f55ba51 100644
  - name: browser.places.interactions.typing_timeout_ms
    type: RelaxedAtomicUint32
    value: 3000
-@@ -2547,7 +2547,7 @@
+@@ -2588,7 +2588,7 @@
    value: true
    mirror: always
  
@@ -325,7 +325,7 @@ index 9d0a7d64e2d8..2c391f55ba51 100644
  # events to be further coalesced in the child side after they
  # are sent.
  - name: dom.events.coalesce.touchmove
-@@ -3243,7 +3243,7 @@
+@@ -3284,7 +3284,7 @@
  
  # An upper limit for the "age" of an origin. Any origin which is older than the
  # threshold is considered as unaccessed. That doesn't necessarily mean that
@@ -334,7 +334,7 @@ index 9d0a7d64e2d8..2c391f55ba51 100644
  # dom.quotaManager.checkQuotaInfoLoadTime is true and loading of quota info
  # takes a long time (dom.quotaManager.longQuotaInfoLoadTimeThresholdMs is used
  # to decide what is a long quota info load time).
-@@ -3311,7 +3311,7 @@
+@@ -3352,7 +3352,7 @@
      mirror: always
      do_not_use_directly: true
  
@@ -343,7 +343,7 @@ index 9d0a7d64e2d8..2c391f55ba51 100644
    # QuotaVFS.
  -   name: dom.quotaManager.overrideXFullPathname
      type: RelaxedAtomicBool
-@@ -3614,7 +3614,7 @@
+@@ -3655,7 +3655,7 @@
    mirror: always
  
  # If true, tries to break upgrade downgrade cycles where https-only tries
@@ -352,7 +352,7 @@ index 9d0a7d64e2d8..2c391f55ba51 100644
  - name: dom.security.https_only_mode_break_upgrade_downgrade_endless_loop
    type: RelaxedAtomicBool
    value: true
-@@ -4856,7 +4856,7 @@
+@@ -4896,7 +4896,7 @@
    mirror: always
  
  # Controls if a double click word selection also deletes one adjacent whitespace
@@ -361,7 +361,7 @@ index 9d0a7d64e2d8..2c391f55ba51 100644
  - name: editor.word_select.delete_space_after_doubleclick_selection
    type: bool
    value: true
-@@ -4981,7 +4981,7 @@
+@@ -5021,7 +5021,7 @@
    mirror: never
  
  # This pref has no effect within fission windows, it only controls the
@@ -370,7 +370,7 @@ index 9d0a7d64e2d8..2c391f55ba51 100644
  # between process swaps.
  - name: fission.preserve_browsing_contexts
    type: bool
-@@ -8954,7 +8954,7 @@
+@@ -9010,7 +9010,7 @@
    mirror: always
  
  # On Android, don't synth mouse move events after scrolling, as they cause
@@ -379,7 +379,7 @@ index 9d0a7d64e2d8..2c391f55ba51 100644
  # satisfactorily resolved.
  - name: layout.reflow.synthMouseMove
    type: bool
-@@ -13105,13 +13105,13 @@
+@@ -13207,13 +13207,13 @@
    value: 1080
    mirror: always
  
@@ -396,10 +396,10 @@ index 9d0a7d64e2d8..2c391f55ba51 100644
    type: RelaxedAtomicBool
    value: false
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index 187c177b9ff7..714714441353 100644
+index 5f6bc40c3489..39baf8495daf 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
-@@ -655,7 +655,7 @@ pref("devtools.performance.recording.ui-base-url", "https://profiler.firefox.com
+@@ -661,7 +661,7 @@ pref("devtools.performance.recording.ui-base-url", "https://profiler.firefox.com
  // When gathering profiles from child processes, this is the longest time (in
  // seconds) allowed between two responses. 0 = Use internal default.
  pref("devtools.performance.recording.child.timeout_s", 0);
@@ -408,7 +408,7 @@ index 187c177b9ff7..714714441353 100644
  // it's a developer focused item. It can still be enabled by going to profiler.firefox.com,
  // but by default it is off on Release and Beta. Note that this only adds it to the
  // the customization palette, not to the navbar.
-@@ -851,7 +851,7 @@ pref("privacy.fingerprintingProtection.overrides", "");
+@@ -858,7 +858,7 @@ pref("privacy.fingerprintingProtection.overrides", "+AllTargets,-CSSPrefersColor
  // or remove features on a domain granular level.
  pref("privacy.fingerprintingProtection.granularOverrides", "");
  
@@ -418,7 +418,7 @@ index 187c177b9ff7..714714441353 100644
  // (See nsICookieService::BEHAVIOR_REJECT_TRACKER cookie behavior)
  // See: Bug 1505212, Bug 1659394, Bug 1631811, Bug 1665035.
 diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
-index 01da5cd19216..2a0d099bc963 100644
+index 4b486f6e0139..5ae8614756e6 100644
 --- a/netwerk/protocol/http/nsHttpHandler.cpp
 +++ b/netwerk/protocol/http/nsHttpHandler.cpp
 @@ -326,7 +326,7 @@ nsresult nsHttpHandler::Init() {
@@ -479,10 +479,10 @@ index f3c86a182bf8..32998a1f24ba 100644
  ```yaml
  js:
 diff --git a/toolkit/components/resistfingerprinting/nsRFPService.cpp b/toolkit/components/resistfingerprinting/nsRFPService.cpp
-index 1c90850318a1..31ec12b200df 100644
+index bd5a109fcdc3..2040871c6d51 100644
 --- a/toolkit/components/resistfingerprinting/nsRFPService.cpp
 +++ b/toolkit/components/resistfingerprinting/nsRFPService.cpp
-@@ -336,7 +336,7 @@ sec_per_extra_frame = 1 / (extra_frames_per_frame * 60) // 833.33
+@@ -341,7 +341,7 @@ sec_per_extra_frame = 1 / (extra_frames_per_frame * 60) // 833.33
  min_per_extra_frame = sec_per_extra_frame / 60 // 13.89
  ```
  We expect an extra frame every ~14 minutes, which is enough to be smooth.
@@ -491,7 +491,7 @@ index 1c90850318a1..31ec12b200df 100644
  Put another way, if this is the only unacceptable hitch you have across 14
  minutes, I'm impressed, and we might revisit this.
  */
-@@ -352,7 +352,7 @@ double nsRFPService::TimerResolution(RTPCallerType aRTPCallerType) {
+@@ -357,7 +357,7 @@ double nsRFPService::TimerResolution(RTPCallerType aRTPCallerType) {
  }
  
  /**
@@ -500,7 +500,7 @@ index 1c90850318a1..31ec12b200df 100644
   * between a lower clamped value and an upper clamped value. Assuming a clamping
   * resolution of 100, here is an example:
   *
-@@ -366,7 +366,7 @@ double nsRFPService::TimerResolution(RTPCallerType aRTPCallerType) {
+@@ -371,7 +371,7 @@ double nsRFPService::TimerResolution(RTPCallerType aRTPCallerType) {
   *
   * The question is: does time go backwards?
   *
@@ -510,10 +510,10 @@ index 1c90850318a1..31ec12b200df 100644
   *
   * When comparing times across different seed values: time may go backwards.
 diff --git a/toolkit/content/license.html b/toolkit/content/license.html
-index 043d20d7870b..55a24e81eb21 100644
+index a6dc1069f420..a39e60227b45 100644
 --- a/toolkit/content/license.html
 +++ b/toolkit/content/license.html
-@@ -5353,7 +5353,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+@@ -5351,7 +5351,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  </p>
  <pre>
  
@@ -552,10 +552,10 @@ index daa3f89246c0..0ea72096f3f7 100644
        // Interval when pressing pageUp/pageDown key.
        field.setAttribute("pginterval", aPageUpDownInterval);
 diff --git a/toolkit/modules/AppConstants.sys.mjs b/toolkit/modules/AppConstants.sys.mjs
-index b430666f6891..c6b3ac5fb618 100644
+index 36b26056ecb9..4c2771a06fb9 100644
 --- a/toolkit/modules/AppConstants.sys.mjs
 +++ b/toolkit/modules/AppConstants.sys.mjs
-@@ -464,7 +464,7 @@ export var AppConstants = Object.freeze({
+@@ -471,7 +471,7 @@ export var AppConstants = Object.freeze({
      false,
  #endif
  
@@ -565,10 +565,10 @@ index b430666f6891..c6b3ac5fb618 100644
      return (
        Services.prefs
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
-index 74a5b1cbb337..4d54dd41e90e 100644
+index bad532800249..a347167ade5a 100644
 --- a/toolkit/xre/nsAppRunner.cpp
 +++ b/toolkit/xre/nsAppRunner.cpp
-@@ -411,7 +411,7 @@ void MozExpectedExit() { gIsExpectedExit = true; }
+@@ -414,7 +414,7 @@ void MozExpectedExit() { gIsExpectedExit = true; }
   */
  static void UnexpectedExit() {
    if (!gIsExpectedExit) {
@@ -577,7 +577,7 @@ index 74a5b1cbb337..4d54dd41e90e 100644
      MOZ_CRASH("Exit called by third party code.");
    }
  }
-@@ -634,7 +634,7 @@ static nsIXULRuntime::ExperimentStatus gWin32kExperimentStatus =
+@@ -629,7 +629,7 @@ static nsIXULRuntime::ExperimentStatus gWin32kExperimentStatus =
  //  Enrolled
  //  - User does the default aka Default
  //

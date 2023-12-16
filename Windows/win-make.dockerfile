@@ -44,6 +44,6 @@ RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt /pkg \
 RUN cd /pkg && jl 7z.jl / && rm 7z.jl
 
 #
-# % id=$(docker create snowfox:win-make) && docker cp $id:pkg . -q && docker rm $id && julia move.jl /
+# % id=`docker create snowfox:win-make` && docker cp $id:pkg . -q && docker rm $id && julia move.jl /
 #
 

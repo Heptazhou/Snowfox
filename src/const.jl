@@ -21,7 +21,7 @@ const PKG = ("pkg/")
 const SRC = ("src/")
 
 const ESR = v"115".major
-const VER = v"120.0.1-1"
+const VER = v"121.0.0-1"
 
 const schemes =
 	[
