@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2023 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -464,7 +464,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							r"""\(("privacy\.resistFingerprinting\.letterboxing"), *true\)""" => s"""(\1, false)""",
 							r"""\(("security\.ssl\.require_safe_negotiation"), *true\)""" => s"""(\1, false)""",
 							r"@@STRIP_LIST@@" => join(strip_list, " "),
-							r"^.*\bsee #1569\b.*\n"m => "",
+							r"^.*( brave |/brave/|#1569\b).*\n"m => "",
 						]
 							s = replace(s, p)
 						end
@@ -484,6 +484,10 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"app.support.baseURL"                 # https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/
 							"browser.geolocation.warning.infoURL" # https://www.mozilla.org/%LOCALE%/firefox/geolocation/
 							"browser.search.searchEnginesURL"     # https://addons.mozilla.org/%LOCALE%/firefox/search-engines/
+							"doh-rollout.provider-list"
+							"intl.accept_languages"
+							"javascript.use_us_english_locale"
+							"security.family_safety.mode"
 						]
 							s = replace(s, (r"^.*\b"m * p * r"\b.*\n"m) => "")
 						end

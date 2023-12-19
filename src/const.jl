@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2023 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -21,7 +21,7 @@ const PKG = ("pkg/")
 const SRC = ("src/")
 
 const ESR = v"115".major
-const VER = v"121.0.0-1"
+const VER = v"121.0.1-1"
 
 const schemes =
 	[
@@ -97,6 +97,7 @@ const strip_list_msc =
 		"dm_progress"
 		"dmid"
 		"embeds_origin"
+		"embeds_referring_origin"
 		"embeds_widget_referrer"
 		"eqid"
 		"euid"

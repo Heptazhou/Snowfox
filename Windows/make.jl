@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2023 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -23,7 +23,7 @@ const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
 
 # https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html#schedule
 # https://releases.rs
-const VRS, _ = "1.74", "win-make.dockerfile"
+const VRS, _ = "1.75", "win-make.dockerfile"
 
 try
 	cd(@__DIR__)

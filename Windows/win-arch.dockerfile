@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2023 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -28,15 +28,15 @@ ENV MOZBUILD_STATE_PATH=/moz RUSTUP_HOME=/rust \
 
 RUN sed -ri 's/(EUID) == 0/\1 <= -1/g'            /bin/makepkg     && \
 	sed -ri 's/^.*Color/DisableDownloadTimeout/g' /etc/pacman.conf && \
-	sed -ri 's/^(ParallelDownloads) = 5/\1 = 8/g' /etc/pacman.conf && \
 	sed -ri 's/^NoProgressBar/Color/g'            /etc/pacman.conf && \
 	echo -e '''#!/bin/env sh\njulia --compile=min --color=yes $@\nexit $?' >> /bin/jl && \
 	echo -e '\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$arch' >> /etc/pacman.conf && \
 	echo -e 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
 
-RUN yes | pacman -Syu && pacman-key --init && yes | pacman -S archlinuxcn-keyring && \
+RUN pacman-key --init && pacman-key --lsign-key farseerfc@archlinux.org && \
+	yes | pacman -Syu dbus-daemon-units && yes | pacman -S archlinuxcn-keyring && \
 	yes | pacman -S --needed 7-zip-full grml-zsh-config julia sha3sum zsh-completions \
-	git mc nano-syntax-highlighting nodejs-lts-hydrogen python-pip rustup tree \
+	git mc nano-syntax-highlighting nodejs-lts-iron python-pip rustup tree \
 	cbindgen clang cross dump_syms llvm mercurial msitools nasm unzip upx wasi-compiler-rt wget && \
 	yes | pacman -Scc && chsh -s /bin/zsh && chmod +x /bin/jl
 

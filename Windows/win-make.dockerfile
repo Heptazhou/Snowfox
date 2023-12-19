@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2023 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -26,7 +26,7 @@ FROM snowfox:win-base
 ENV CARGO_BUILD_JOBS=2 \
 	CARGO_INCREMENTAL=0
 
-RUN rustup default 1.74 && \
+RUN rustup default 1.75 && \
 	rustup target add x86_64-pc-windows-msvc
 
 RUN cd /src && mach configure

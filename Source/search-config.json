@@ -1,6 +1,7 @@
 {
 	"data": [
 		{
+			"schema": 1619432100208,
 			"params": {
 				"searchUrlGetParams": [
 					{ "name": "k1", "value": "-1" },
@@ -14,12 +15,11 @@
 					{ "name": "q", "value": "{searchTerms}" }
 				]
 			},
-			"schema": 1619432100208,
 			"appliesTo": [{ "included": { "everywhere": true }, "default": "yes" }],
 			"webExtension": { "id": "ddg@search.mozilla.org" },
 			"id": "c0b26c0e-63e6-4235-b2ce-5f16b6a8bf87",
-			"last_modified": 1619450717295
+			"last_modified": 1654094046000
 		}
 	],
-	"timestamp": 1675353179510
+	"timestamp": 1654094046000
 }

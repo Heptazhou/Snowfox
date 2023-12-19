@@ -1,3 +1,113 @@
+ browser/actors/EncryptedMediaParent.sys.mjs        |   3 +
+ browser/app/Makefile.in                            |   8 +-
+ browser/app/macbuild/Contents/Info.plist.in        |   2 +-
+ browser/app/moz.build                              |   2 +-
+ browser/app/nsBrowserApp.cpp                       |   2 +-
+ browser/app/profile/firefox.js                     | 100 ++++-----
+ .../{firefox.exe.manifest => snowfox.exe.manifest} |   4 +-
+ browser/app/splash.rc                              |   4 +-
+ browser/base/content/overrides/app-license.html    |   5 +-
+ browser/branding/branding-common.mozbuild          |   2 +-
+ .../enterprisepolicies/content/aboutPolicies.css   |   6 +
+ .../enterprisepolicies/content/aboutPolicies.js    |   5 +-
+ .../schemas/policies-schema.json                   |   2 +-
+ .../components/firefoxview/firefoxview-next.mjs    |  12 +
+ .../installerprefs/InstallerPrefs.sys.mjs          |   2 +-
+ .../content-src/components/Search/Search.jsx       |   2 +-
+ .../newtab/data/content/activity-stream.bundle.js  |   1 +
+ .../newtab/lib/FeatureCalloutMessages.sys.mjs      |   1 +
+ browser/components/newtab/lib/cache.worker.js      |   2 +-
+ browser/components/preferences/main.inc.xhtml      |   8 +-
+ browser/components/preferences/main.js             |   2 +-
+ browser/components/preferences/privacy.inc.xhtml   |  12 +-
+ browser/components/preferences/privacy.js          |   4 +-
+ browser/components/screenshots/fileHelpers.mjs     |   6 +-
+ .../components/search/extensions/ddg/manifest.json |  10 +-
+ browser/components/search/jar.mn                   |   2 +-
+ browser/components/shell/ShellService.sys.mjs      |  10 +-
+ browser/components/shell/nsWindowsShellService.cpp |   6 +-
+ .../urlbar/QuickActionsLoaderDefault.sys.mjs       |   2 +-
+ .../urlbar/UrlbarProviderInterventions.sys.mjs     |   2 +
+ .../unitconverters/UnitConverterTimezone.sys.mjs   |   8 +-
+ browser/extensions/screenshots/build/shot.js       |   6 +-
+ browser/installer/package-manifest.in              |   4 +-
+ browser/installer/windows/Makefile.in              |   2 +-
+ browser/installer/windows/app.tag                  |   2 +-
+ browser/installer/windows/nsis/defines.nsi.in      |  10 +-
+ browser/installer/windows/nsis/installer.nsi       |  20 +-
+ browser/installer/windows/nsis/shared.nsh          | 149 +++++++------
+ browser/installer/windows/nsis/uninstaller.nsi     |  57 ++---
+ .../browser/policies/policies-descriptions.ftl     |   2 +-
+ browser/locales/shipped-locales                    |  23 --
+ .../privatebrowsing/aboutPrivateBrowsing.css       |   3 +-
+ build/variables.py                                 |   2 +-
+ .../client/aboutdebugging/src/actions/runtimes.js  |   1 +
+ devtools/client/memory/utils.js                    |   4 +-
+ .../src/components/request-details/CachePanel.js   |   2 +-
+ devtools/client/storage/ui.js                      |   6 +-
+ devtools/server/actors/utils/capture-screenshot.js |  10 +-
+ devtools/shared/loader/Loader.sys.mjs              |   2 +-
+ dom/base/Document.cpp                              |   2 +-
+ dom/base/nsScreen.cpp                              |   4 +-
+ dom/media/CubebUtils.cpp                           |   4 +-
+ dom/media/MediaDevices.cpp                         |   2 +-
+ dom/media/MediaInfo.h                              |   2 +-
+ dom/media/MediaRecorder.h                          |   2 +-
+ dom/media/webaudio/blink/Reverb.cpp                |   2 +-
+ dom/media/webrtc/CubebDeviceEnumerator.cpp         |   2 +-
+ dom/workers/RuntimeService.cpp                     |  11 +-
+ gfx/thebes/PrintTargetPDF.cpp                      |   2 +-
+ gfx/thebes/PrintTargetSkPDF.cpp                    |   2 +-
+ image/DecoderFactory.cpp                           |   6 +
+ image/decoders/nsAVIFDecoder.cpp                   |   6 +
+ image/decoders/nsJXLDecoder.cpp                    | 242 +++++++++++++++++++--
+ image/decoders/nsJXLDecoder.h                      |  14 +-
+ js/src/octane/gbemu-part1.js                       |   8 +-
+ js/src/octane/mandreel.js                          |   2 +-
+ layout/style/TopLevelImageDocument.css             |   9 +-
+ media/libcubeb/src/cubeb_alsa.c                    |   4 +-
+ media/libcubeb/src/cubeb_winmm.c                   |  14 +-
+ media/libsoundtouch/src/TDStretch.cpp              |   2 +-
+ media/libvorbis/lib/vorbis_envelope.c              |   4 +-
+ modules/libpref/init/StaticPrefList.yaml           | 106 ++++-----
+ modules/libpref/init/all.js                        |  50 ++---
+ netwerk/protocol/http/nsHttpHandler.cpp            |   8 +-
+ python/mozbuild/mozbuild/action/exe_7z_archive.py  |   1 +
+ .../html-build-viewer/build_resources.html         |   4 +-
+ .../manager/pki/resources/content/clientauthask.js |   4 +-
+ services/sync/modules/telemetry.sys.mjs            |   2 +-
+ taskcluster/gecko_taskgraph/util/hash.py           |  10 +-
+ .../taskcluster_taskgraph/taskgraph/util/hash.py   |   2 +-
+ .../components/certviewer/content/certDecoder.mjs  |  12 +-
+ toolkit/components/pdfjs/content/build/pdf.mjs     |   4 +-
+ toolkit/components/pdfjs/content/web/viewer.css    |   4 +-
+ toolkit/components/pdfjs/content/web/viewer.mjs    |  12 +-
+ toolkit/components/printing/content/print.js       |   2 +-
+ toolkit/components/remote/nsDBusRemoteClient.cpp   |   8 +-
+ toolkit/components/remote/nsDBusRemoteServer.cpp   |  10 +-
+ .../resistfingerprinting/RFPHelper.sys.mjs         |  17 ++
+ .../components/resistfingerprinting/nsRFPService.h |   8 +-
+ toolkit/components/search/OpenSearchEngine.sys.mjs |   2 +-
+ .../components/url-classifier/SafeBrowsing.sys.mjs |   4 +-
+ .../UrlClassifierHashCompleter.sys.mjs             |   4 +-
+ .../UrlClassifierListManager.sys.mjs               |   4 +-
+ toolkit/components/utils/ClientEnvironment.sys.mjs |   2 +-
+ toolkit/content/aboutNetError.mjs                  |   2 +-
+ toolkit/content/aboutRights-unbranded.xhtml        |   6 +-
+ toolkit/content/aboutRights.xhtml                  |   4 +-
+ toolkit/content/aboutUrlClassifier.js              |  16 +-
+ toolkit/content/aboutwebrtc/aboutWebrtc.mjs        |   2 +-
+ toolkit/content/widgets/datekeeper.js              |   2 +-
+ toolkit/content/widgets/datetimebox.js             |   4 +-
+ .../locales/en-US/toolkit/branding/accounts.ftl    |   4 +-
+ .../locales/en-US/toolkit/branding/brandings.ftl   |   8 +-
+ toolkit/modules/DateTimePickerPanel.sys.mjs        |   2 +-
+ toolkit/moz.configure                              |  10 +-
+ toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp |   6 +-
+ .../extensions/internal/AddonSettings.sys.mjs      |   2 +-
+ toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
+ 108 files changed, 757 insertions(+), 503 deletions(-)
+
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index ad8f90640745..ac0e68e59599 100644
 --- a/browser/actors/EncryptedMediaParent.sys.mjs
@@ -862,22 +972,22 @@ index 461613ad8763..06e72a6b5228 100644
        } catch (err) {
          telemetryResult = "ErrOther";
 diff --git a/browser/components/shell/nsWindowsShellService.cpp b/browser/components/shell/nsWindowsShellService.cpp
-index 71ba1c9a93c8..624c123a281f 100644
+index ec082c637621..3f9c59cdf9f9 100644
 --- a/browser/components/shell/nsWindowsShellService.cpp
 +++ b/browser/components/shell/nsWindowsShellService.cpp
-@@ -330,9 +330,9 @@ nsWindowsShellService::CheckAllProgIDsExist(bool* aResult) {
-     *aResult = result;
-   } else {
-     *aResult =
--        CheckProgIDExists(FormatProgID(L"FirefoxURL", aumid.get()).get()) &&
--        CheckProgIDExists(FormatProgID(L"FirefoxHTML", aumid.get()).get()) &&
--        CheckProgIDExists(FormatProgID(L"FirefoxPDF", aumid.get()).get());
-+        CheckProgIDExists(FormatProgID(L"SnowfoxURL", aumid.get()).get()) &&
-+        CheckProgIDExists(FormatProgID(L"SnowfoxHTML", aumid.get()).get()) &&
-+        CheckProgIDExists(FormatProgID(L"SnowfoxPDF", aumid.get()).get());
+@@ -301,9 +301,9 @@ nsWindowsShellService::CheckAllProgIDsExist(bool* aResult) {
+     return NS_OK;
    }
- 
+   *aResult =
+-      CheckProgIDExists(FormatProgID(L"FirefoxURL", aumid.get()).get()) &&
+-      CheckProgIDExists(FormatProgID(L"FirefoxHTML", aumid.get()).get()) &&
+-      CheckProgIDExists(FormatProgID(L"FirefoxPDF", aumid.get()).get());
++      CheckProgIDExists(FormatProgID(L"SnowfoxURL", aumid.get()).get()) &&
++      CheckProgIDExists(FormatProgID(L"SnowfoxHTML", aumid.get()).get()) &&
++      CheckProgIDExists(FormatProgID(L"SnowfoxPDF", aumid.get()).get());
    return NS_OK;
+ }
+ 
 diff --git a/browser/components/urlbar/QuickActionsLoaderDefault.sys.mjs b/browser/components/urlbar/QuickActionsLoaderDefault.sys.mjs
 index 576a7d9e6a70..1d29388de7dd 100644
 --- a/browser/components/urlbar/QuickActionsLoaderDefault.sys.mjs
@@ -2850,7 +2960,7 @@ index 73e2d4942537..adb898ad7c1b 100644
  
  # Whether the thumb should be rounded for the non-native scrollbars.
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index a9ac18bb23cb..4057c95af5b9 100644
+index a9ac18bb23cb..86c2a657cb0e 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -73,9 +73,9 @@ pref("security.osreauthenticator.password_last_changed_hi", 0);
@@ -2990,6 +3100,15 @@ index a9ac18bb23cb..4057c95af5b9 100644
  
  // Exponential back-off start is 5 seconds like in HTTP/1.1.
  // Maximum back-off is pingInterval.
+@@ -3592,7 +3592,7 @@ pref("dom.input.fallbackUploadDir", "");
+ #endif
+ 
+ // Default media volume
+-pref("media.default_volume", "1.0");
++pref("media.default_volume", "0.5");
+ 
+ pref("dom.storageManager.prompt.testing", false);
+ pref("dom.storageManager.prompt.testing.allow", false);
 @@ -3623,7 +3623,7 @@ pref("browser.translations.neverTranslateLanguages", "");
  // translation behavior on about:translations. Requires a page refresh.
  pref("browser.translations.useHTML", false);
@@ -3750,20 +3869,32 @@ index 9d5ee0ca9100..64af35a469a1 100644
  
  set_config("ANDROID_PACKAGE_NAME", android_package_name)
 diff --git a/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp b/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
-index 71bfe46c09c4..e8f9b1c286d4 100644
+index e848fd909e56..91f48bc6f4d9 100644
 --- a/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
 +++ b/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
-@@ -351,8 +351,8 @@ nsresult SetDefaultBrowserUserChoice(
+@@ -227,19 +227,19 @@ static bool VerifyUserDefault(const wchar_t* aExt, const wchar_t* aProgID) {
+ 
+ nsresult SetDefaultBrowserUserChoice(
+     const wchar_t* aAumi, const nsTArray<nsString>& aExtraFileExtensions) {
+-  auto urlProgID = FormatProgID(L"FirefoxURL", aAumi);
++  auto urlProgID = FormatProgID(L"SnowfoxURL", aAumi);
+   if (!CheckProgIDExists(urlProgID.get())) {
+     LOG_ERROR_MESSAGE(L"ProgID %s not found", urlProgID.get());
+     return NS_ERROR_WDBA_NO_PROGID;
    }
  
-   nsTArray<nsString> browserDefaults = {
--      u"https"_ns, u"FirefoxURL"_ns,  u"http"_ns, u"FirefoxURL"_ns,
--      u".html"_ns, u"FirefoxHTML"_ns, u".htm"_ns, u"FirefoxHTML"_ns};
-+      u"https"_ns, u"SnowfoxURL"_ns,  u"http"_ns, u"SnowfoxURL"_ns,
-+      u".html"_ns, u"SnowfoxHTML"_ns, u".htm"_ns, u"SnowfoxHTML"_ns};
+-  auto htmlProgID = FormatProgID(L"FirefoxHTML", aAumi);
++  auto htmlProgID = FormatProgID(L"SnowfoxHTML", aAumi);
+   if (!CheckProgIDExists(htmlProgID.get())) {
+     LOG_ERROR_MESSAGE(L"ProgID %s not found", htmlProgID.get());
+     return NS_ERROR_WDBA_NO_PROGID;
+   }
  
-   browserDefaults.AppendElements(aExtraFileExtensions);
- 
+-  auto pdfProgID = FormatProgID(L"FirefoxPDF", aAumi);
++  auto pdfProgID = FormatProgID(L"SnowfoxPDF", aAumi);
+   if (!CheckProgIDExists(pdfProgID.get())) {
+     LOG_ERROR_MESSAGE(L"ProgID %s not found", pdfProgID.get());
+     return NS_ERROR_WDBA_NO_PROGID;
 diff --git a/toolkit/mozapps/extensions/internal/AddonSettings.sys.mjs b/toolkit/mozapps/extensions/internal/AddonSettings.sys.mjs
 index 09bb0adc9717..8d6fbe2b2322 100644
 --- a/toolkit/mozapps/extensions/internal/AddonSettings.sys.mjs

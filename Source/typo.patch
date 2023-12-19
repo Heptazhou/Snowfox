@@ -1,3 +1,31 @@
+ browser/app/profile/firefox.js                     | 40 +++++++++++-----------
+ browser/base/content/browser-sync.js               |  4 +--
+ browser/components/preferences/preferences.js      |  2 +-
+ browser/components/search/content/searchbar.js     |  2 +-
+ .../client/framework/browser-toolbox/window.js     |  2 +-
+ devtools/client/fronts/inspector.js                |  2 +-
+ devtools/server/actors/watcher/session-context.js  |  2 +-
+ .../storage/vendor/stringvalidator/validator.js    |  2 +-
+ dom/media/CubebUtils.cpp                           |  4 +--
+ dom/media/MediaDevices.cpp                         |  2 +-
+ dom/media/MediaInfo.h                              |  2 +-
+ gfx/webrender_bindings/DCLayerTree.cpp             |  2 +-
+ media/libsoundtouch/src/TDStretch.cpp              |  2 +-
+ media/libvorbis/lib/vorbis_envelope.c              |  2 +-
+ modules/libpref/init/StaticPrefList.yaml           | 28 +++++++--------
+ modules/libpref/init/all.js                        |  4 +--
+ netwerk/protocol/http/nsHttpHandler.cpp            |  2 +-
+ netwerk/protocol/http/nsHttpHandler.h              |  4 +--
+ nsprpub/pr/src/misc/prtime.c                       |  2 +-
+ toolkit/components/glean/docs/user/migration.md    |  2 +-
+ .../resistfingerprinting/nsRFPService.cpp          |  6 ++--
+ toolkit/content/license.html                       |  2 +-
+ toolkit/content/widgets/datepicker.js              |  2 +-
+ toolkit/content/widgets/datetimebox.js             |  4 +--
+ toolkit/modules/AppConstants.sys.mjs               |  2 +-
+ toolkit/xre/nsAppRunner.cpp                        |  4 +--
+ 26 files changed, 66 insertions(+), 66 deletions(-)
+
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
 index 8b7cf5176945..51b0ca0f4829 100644
 --- a/browser/app/profile/firefox.js
@@ -286,7 +314,7 @@ index 6d2a7a58bda0..bb7a492c3a7c 100644
    float penalty=gi->stretch_penalty-(ve->stretch/2-VE_MINSTRETCH);
    if(penalty<0.f)penalty=0.f;
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index adb898ad7c1b..5d1b104e3cb2 100644
+index adb898ad7c1b..5302443fc9c2 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -65,7 +65,7 @@
@@ -352,6 +380,24 @@ index adb898ad7c1b..5d1b104e3cb2 100644
  - name: dom.security.https_only_mode_break_upgrade_downgrade_endless_loop
    type: RelaxedAtomicBool
    value: true
+@@ -3740,7 +3740,7 @@
+   value: false
+   mirror: always
+ 
+-# Pref that controls the Element.setHTML API idenpendetly of the sanitizer
++# Pref that controls the Element.setHTML API independently of the sanitizer
+ # API.
+ - name: dom.security.setHTML.enabled
+   type: bool
+@@ -3992,7 +3992,7 @@
+   value: 25 * 1024
+   mirror: always
+ 
+-# Whether or not the unsupported legacy implemenation should be enabled. Please
++# Whether or not the unsupported legacy implementation should be enabled. Please
+ # don't advertise this pref as a way for disabling LSNG. This pref is intended
+ # for internal testing only and will be removed in near future. Accidental
+ # disabling of LSNG can lead to a data loss in a combination with disabled
 @@ -4896,7 +4896,7 @@
    mirror: always
  
@@ -396,7 +442,7 @@ index adb898ad7c1b..5d1b104e3cb2 100644
    type: RelaxedAtomicBool
    value: false
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index 5f6bc40c3489..39baf8495daf 100644
+index 977730a83306..9f9c975df50c 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -661,7 +661,7 @@ pref("devtools.performance.recording.ui-base-url", "https://profiler.firefox.com
