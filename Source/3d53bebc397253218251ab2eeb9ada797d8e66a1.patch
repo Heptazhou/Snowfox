@@ -65,7 +65,7 @@
  js/src/octane/gbemu-part1.js                       |   8 +-
  js/src/octane/mandreel.js                          |   2 +-
  layout/style/TopLevelImageDocument.css             |   9 +-
- layout/style/res/ua.css                            |  10 +
+ layout/style/res/ua.css                            |  15 ++
  media/libcubeb/src/cubeb_alsa.c                    |   4 +-
  media/libcubeb/src/cubeb_winmm.c                   |  14 +-
  media/libsoundtouch/src/TDStretch.cpp              |   2 +-
@@ -108,7 +108,7 @@
  toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp |   4 +-
  .../extensions/internal/AddonSettings.sys.mjs      |   2 +-
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
- 110 files changed, 769 insertions(+), 504 deletions(-)
+ 110 files changed, 774 insertions(+), 504 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index ad8f90640745..ac0e68e59599 100644
@@ -2471,20 +2471,25 @@ index f03295f67374..47f336d9182d 100644
  
    img {
 diff --git a/layout/style/res/ua.css b/layout/style/res/ua.css
-index 940da45cc8de..1c390d6eea8b 100644
+index 940da45cc8de..7009c5173a40 100644
 --- a/layout/style/res/ua.css
 +++ b/layout/style/res/ua.css
-@@ -389,6 +389,16 @@
+@@ -389,6 +389,21 @@
   * inherits from) depend on the root element's style, as that
   * is trivially cyclic.
   */
++
++/* Fix color-scheme for empty/blank/unstyled pages */
 +:root:where(html:has(body:-moz-only-whitespace)),
 +:root:where(html:not(:has(body > :not(:is([hidden],
 +          :-moz-only-whitespace, noscript, script))))),
-+:root:where(html:not(:has(head > :is(style,
-+        link[rel="stylesheet"],
-+        link[type="text/css"],
-+        meta[name="color-scheme"])))) {
++:root:where(html:not(:has(:is(body[background], body[bgcolor],
++        body > link[rel="stylesheet"],
++        head > link[rel="stylesheet"],
++        head > meta[name="color-scheme"],
++        head > style)))),
++/* Fix color-scheme for transparent iframe(s) */
++:root:where(html) :where(iframe) {
 +  color-scheme: dark light;
 +}
 +

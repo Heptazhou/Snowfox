@@ -21,7 +21,7 @@ const PKG = ("pkg/")
 const SRC = ("src/")
 
 const ESR = v"115".major
-const VER = v"122.0.0-1"
+const VER = v"122.0.1-1"
 
 const schemes =
 	[
@@ -165,6 +165,7 @@ const strip_list_msc =
 		"rand"
 		"rawFrom"
 		"rdfrom"
+		"refer_flag"
 		"referfrom"
 		"req_id"
 		"retcode"
@@ -331,6 +332,7 @@ const strip_list_ubo =
 		"spm"
 		"src_content"
 		"src_custom"
+		"sudaref"
 		"twclid"
 		"vero_conv"
 		"vero_id"
