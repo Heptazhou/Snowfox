@@ -34,10 +34,10 @@ RUN sed -ri 's/(EUID) == 0/\1 <= -1/g'            /bin/makepkg     && \
 	echo -e 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
 
 RUN pacman-key --init && pacman-key --lsign-key farseerfc@archlinux.org && \
-	yes | pacman -Syu dbus-daemon-units && yes | pacman -S archlinuxcn-keyring && \
-	yes | pacman -S --needed 7-zip-full grml-zsh-config julia sha3sum zsh-completions \
-	git mc nano-syntax-highlighting nodejs-lts-iron python-pip rustup tree \
-	cbindgen clang cross dump_syms llvm mercurial msitools nasm unzip upx wasi-compiler-rt wget && \
+	yes | pacman -Syu dbus-broker-units && yes | pacman -S archlinuxcn-keyring fastfetch && \
+	yes | pacman -S --needed grml-zsh-config nano-syntax-highlighting zsh-completions \
+	7-zip-full clang git julia llvm mc nodejs-lts-iron python-pip sha3sum tree unzip wget \
+	cbindgen cross dump_syms mercurial msitools nasm upx wasi-{compiler-rt,libc++{,abi}} && \
 	yes | pacman -Scc && chsh -s /bin/zsh && chmod +x /bin/jl
 
 RUN cd /bin && ln -s clear cls && ln -s nano nn && ln -s nano vi && \

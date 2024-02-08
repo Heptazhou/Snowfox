@@ -20,8 +20,10 @@ const JLC = ["julia" * (Sys.iswindows() ? ".exe" : ""), "--startup-file=no", "--
 const PKG = ("pkg/")
 const SRC = ("src/")
 
+# https://archive.mozilla.org/pub/firefox/
+# https://whattrainisitnow.com
 const ESR = v"115".major
-const VER = v"122.0.1-1"
+const VER = v"123.0.0-1"
 
 const schemes =
 	[

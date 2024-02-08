@@ -25,7 +25,7 @@ const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "3d53bebc397253218251ab2eeb9ada797d8e66a1.patch"
+		"../" * "80749c8fcdaf9475ec6315f83df51c1b0cda6a9b.patch"
 		"../" * "crlf.patch" * " --binary"
 		"../" * "font.patch"
 		"../" * "typo.patch"
@@ -375,8 +375,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""				"twitter@search.mozilla.org"\n""" *
 							"""			]\n""",
 							"""			"Install": [\n""" *
-							"""				"$o/ublock-origin/latest.xpi",\n""" *
-							"""				"$o/qr-code-address-bar/latest.xpi"\n""" *
+							"""				"$o/qr-code-address-bar/latest.xpi",\n""" *
+							"""				"$o/ublock-origin/latest.xpi"\n""" *
 							"""			],\n""" *
 							"""			"Uninstall": []\n""", "p") # ~ do not sort this
 						s = replace(s, # SearchEngines
@@ -409,6 +409,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""					"IconURL": "$icon_goog"\n""" *
 							"""				}\n""" *
 							"""			]\n""", "p") # ~ do not sort this
+						s = replace(s, r"\"DisableSetDesktopBackground\": \Kfalse(?=,)" => "true")
 					end
 					if (f ≡ "search-config.json")
 						s = cd(@__DIR__) do
@@ -503,6 +504,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""clearPref("general.useragent.compatMode.firefox");\n""" *
 							"""clearPref("image.avif.force-loop");\n""" *
 							"""clearPref("image.http.accept");\n""" *
+							"""clearPref("image.rgbx-mode");\n""" *
 							"""clearPref("layout.css.prefers-color-scheme.content-override");\n""" *
 							"""clearPref("network.http.referer.XOriginPolicy");\n""" *
 							"""clearPref("network.http.windows-sso.enabled");\n""" *
@@ -510,6 +512,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""clearPref("privacy.fingerprintingProtection.overrides");\n""" *
 							"""clearPref("privacy.fingerprintingProtection.pbmode");\n""" *
 							"""clearPref("privacy.fingerprintingProtection");\n""" *
+							"""clearPref("privacy.resistFingerprinting.autoDeclineNoUserInputCanvasPrompts");\n""" *
 							"""clearPref("privacy.spoof_english");\n""" *
 							"""clearPref("security.OCSP.enabled");\n""" *
 							"""clearPref("security.OCSP.require");\n""" *

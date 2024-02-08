@@ -3,15 +3,15 @@
  browser/app/macbuild/Contents/Info.plist.in        |   2 +-
  browser/app/moz.build                              |   2 +-
  browser/app/nsBrowserApp.cpp                       |   2 +-
- browser/app/profile/firefox.js                     | 100 ++++-----
+ browser/app/profile/firefox.js                     | 102 ++++-----
  .../{firefox.exe.manifest => snowfox.exe.manifest} |   4 +-
  browser/app/splash.rc                              |   4 +-
  browser/base/content/overrides/app-license.html    |   6 +-
  browser/branding/branding-common.mozbuild          |   2 +-
- .../enterprisepolicies/content/aboutPolicies.css   |   6 +
- .../enterprisepolicies/content/aboutPolicies.js    |   5 +-
+ .../enterprisepolicies/content/aboutPolicies.css   |   2 +
+ .../enterprisepolicies/content/aboutPolicies.js    |  21 +-
  .../schemas/policies-schema.json                   |   2 +-
- .../components/firefoxview/firefoxview-next.mjs    |  12 +
+ browser/components/firefoxview/firefoxview.mjs     |  12 +
  .../installerprefs/InstallerPrefs.sys.mjs          |   2 +-
  .../content-src/components/Search/Search.jsx       |   2 +-
  .../newtab/data/content/activity-stream.bundle.js  |   1 +
@@ -24,6 +24,7 @@
  browser/components/screenshots/fileHelpers.mjs     |   6 +-
  .../components/search/extensions/ddg/manifest.json |  10 +-
  browser/components/search/jar.mn                   |   2 +-
+ .../components/sessionstore/SessionStore.sys.mjs   |  14 +-
  browser/components/shell/ShellService.sys.mjs      |  10 +-
  browser/components/shell/nsWindowsShellService.cpp |   6 +-
  .../urlbar/QuickActionsLoaderDefault.sys.mjs       |   2 +-
@@ -62,6 +63,7 @@
  image/decoders/nsAVIFDecoder.cpp                   |   6 +
  image/decoders/nsJXLDecoder.cpp                    | 242 +++++++++++++++++++--
  image/decoders/nsJXLDecoder.h                      |  14 +-
+ image/imgFrame.cpp                                 |   6 +-
  js/src/octane/gbemu-part1.js                       |   8 +-
  js/src/octane/mandreel.js                          |   2 +-
  layout/style/TopLevelImageDocument.css             |   9 +-
@@ -70,7 +72,7 @@
  media/libcubeb/src/cubeb_winmm.c                   |  14 +-
  media/libsoundtouch/src/TDStretch.cpp              |   2 +-
  media/libvorbis/lib/vorbis_envelope.c              |   4 +-
- modules/libpref/init/StaticPrefList.yaml           | 106 ++++-----
+ modules/libpref/init/StaticPrefList.yaml           | 110 +++++-----
  modules/libpref/init/all.js                        |  50 ++---
  netwerk/protocol/http/nsHttpHandler.cpp            |   8 +-
  python/mozbuild/mozbuild/action/exe_7z_archive.py  |   1 +
@@ -87,7 +89,7 @@
  toolkit/components/printing/content/print.js       |   2 +-
  toolkit/components/remote/nsDBusRemoteClient.cpp   |   8 +-
  toolkit/components/remote/nsDBusRemoteServer.cpp   |  10 +-
- .../resistfingerprinting/RFPHelper.sys.mjs         |  17 ++
+ .../resistfingerprinting/RFPHelper.sys.mjs         |  22 ++
  .../components/resistfingerprinting/nsRFPService.h |   8 +-
  toolkit/components/search/OpenSearchEngine.sys.mjs |   2 +-
  .../components/url-classifier/SafeBrowsing.sys.mjs |   4 +-
@@ -108,22 +110,22 @@
  toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp |   4 +-
  .../extensions/internal/AddonSettings.sys.mjs      |   2 +-
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
- 110 files changed, 774 insertions(+), 504 deletions(-)
+ 112 files changed, 803 insertions(+), 518 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index ad8f90640745..ac0e68e59599 100644
 --- a/browser/actors/EncryptedMediaParent.sys.mjs
 +++ b/browser/actors/EncryptedMediaParent.sys.mjs
-@@ -108,6 +108,9 @@ export class EncryptedMediaParent extends JSWindowActorParent {
+@@ -114,6 +114,9 @@ export class EncryptedMediaParent extends JSWindowActorParent {
  
        case "api-disabled":
        case "cdm-disabled":
 +        if (!Services.prefs.getBoolPref("media.eme.showBrowserMessage", true)) {
 +          return;
 +        }
+         this.handledMessages.add(status);
          notificationId = "drmContentDisabled";
          buttonCallback = () => {
-           this.ensureEMEEnabled(browser, keySystem);
 diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
 index 7a09bc249462..23b45f24a0f1 100644
 --- a/browser/app/Makefile.in
@@ -192,7 +194,7 @@ index 314534215586..ddd30660c2fa 100644
      }
      FreeLibrary(user32);
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 077216094f0b..195bdcfbe9cb 100644
+index eba9a1f284c3..25c81466a874 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -50,7 +50,7 @@ pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/pri
@@ -291,7 +293,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  
  // Controls the empty search behavior in Search Mode:
  //  0 - Show nothing
-@@ -805,15 +805,15 @@ pref("permissions.manager.defaultsUrl", "resource://app/defaults/permissions");
+@@ -806,15 +806,15 @@ pref("permissions.manager.defaultsUrl", "resource://app/defaults/permissions");
  
  // Set default fallback values for site permissions we want
  // the user to be able to globally change.
@@ -313,7 +315,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  
  pref("permissions.fullscreen.allowed", false);
  
-@@ -844,7 +844,7 @@ pref("browser.link.open_newwindow.restriction", 2);
+@@ -845,7 +845,7 @@ pref("browser.link.open_newwindow.restriction", 2);
  
  // Tabbed browser
  pref("browser.tabs.closeTabByDblclick", false);
@@ -322,7 +324,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  pref("browser.tabs.allowTabDetach", true);
  // Open related links to a tab, e.g., link in current tab, at next to the
  // current tab if |insertRelatedAfterCurrent| is true.  Otherwise, always
-@@ -854,22 +854,22 @@ pref("browser.tabs.insertRelatedAfterCurrent", true);
+@@ -855,22 +855,22 @@ pref("browser.tabs.insertRelatedAfterCurrent", true);
  // if |insertAfterCurrent| is true.  Otherwise, append new tab to the end
  // for non-related links. Note that if this is set to true, it will trump
  // the value of browser.tabs.insertRelatedAfterCurrent.
@@ -351,7 +353,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  
  //Control the visibility of Tab Manager Menu.
  pref("browser.tabs.tabmanager.enabled", true);
-@@ -972,7 +972,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
+@@ -977,7 +977,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
    pref("browser.lowMemoryResponseOnWarn", false);
  #endif
  
@@ -360,16 +362,16 @@ index 077216094f0b..195bdcfbe9cb 100644
  
  // By default, do not export HTML at shutdown.
  // If true, at shutdown the bookmarks in your menu and toolbar will
-@@ -1039,7 +1039,7 @@ pref("privacy.history.custom",              false);
+@@ -1049,7 +1049,7 @@ pref("privacy.history.custom",              false);
  // 4 - Today
  // 5 - Last 5 minutes
  // 6 - Last 24 hours
 -pref("privacy.sanitize.timeSpan", 1);
 +pref("privacy.sanitize.timeSpan", 0);
  
- pref("privacy.panicButton.enabled",         true);
+ pref("privacy.sanitize.useOldClearHistoryDialog", true);
  
-@@ -1170,9 +1170,9 @@ pref("browser.preferences.search", true);
+@@ -1182,9 +1182,9 @@ pref("browser.preferences.search", true);
  #if defined(NIGHTLY_BUILD)
  pref("browser.preferences.experimental", true);
  #else
@@ -381,7 +383,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  pref("browser.preferences.experimental.hidden", false);
  pref("browser.preferences.defaultPerformanceSettings.enabled", true);
  
-@@ -1617,7 +1617,7 @@ pref("prompts.defaultModalType", 3);
+@@ -1630,7 +1630,7 @@ pref("prompts.defaultModalType", 3);
  
  pref("browser.topsites.useRemoteSetting", true);
  // Fetch sponsored Top Sites from Mozilla Tiles Service (Contile)
@@ -390,7 +392,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  pref("browser.topsites.contile.endpoint", "https://contile.services.mozilla.com/v1/tiles");
  
  // Whether to enable the Share-of-Voice feature for Sponsored Topsites via Contile.
-@@ -1670,10 +1670,10 @@ pref("messaging-system.askForFeedback", true);
+@@ -1683,10 +1683,10 @@ pref("messaging-system.askForFeedback", true);
  
  // The pref that controls if ASRouter uses the remote fluent files.
  // It's enabled by default, but could be disabled to force ASRouter to use the local files.
@@ -403,7 +405,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  pref("browser.newtabpage.activity-stream.discoverystream.hardcoded-basic-layout", false);
  pref("browser.newtabpage.activity-stream.discoverystream.hybridLayout.enabled", false);
  pref("browser.newtabpage.activity-stream.discoverystream.hideCardBackground.enabled", false);
-@@ -1921,7 +1921,7 @@ pref("browser.translation.neverForLanguages", "");
+@@ -1937,7 +1937,7 @@ pref("browser.translation.neverForLanguages", "");
  
  // Enable Firefox translations powered by the Bergamot translations
  // engine https://browser.mt/.
@@ -412,7 +414,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  
  // Enable the new Firefox Translations Settings UI Design
  pref("browser.translations.newSettingsUI.enable", false);
-@@ -2089,7 +2089,7 @@ pref("browser.promo.focus.disallowed_regions", "cn");
+@@ -2100,7 +2100,7 @@ pref("browser.promo.focus.disallowed_regions", "cn");
  pref("browser.promo.focus.enabled", true);
  
  // Default to enabling pin promos to be shown where allowed.
@@ -421,7 +423,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  
  // Default to enabling cookie banner reduction promos to be shown where allowed.
  // Set to true for Fx113 (see bug 1808611)
-@@ -2127,7 +2127,7 @@ pref("browser.contentblocking.cfr-milestone.milestone-achieved", 0);
+@@ -2138,7 +2138,7 @@ pref("browser.contentblocking.cfr-milestone.milestone-achieved", 0);
  pref("browser.contentblocking.cfr-milestone.milestones", "[1000, 5000, 10000, 25000, 50000, 100000, 250000, 314159, 500000, 750000, 1000000, 1250000, 1500000, 1750000, 2000000, 2250000, 2500000, 8675309]");
  
  // Controls the initial state of the protections panel collapsible info message.
@@ -430,7 +432,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  
  // Always enable newtab segregation using containers
  pref("privacy.usercontext.about_newtab_segregation.enabled", true);
-@@ -2389,7 +2389,7 @@ pref("app.normandy.onsync_skew_sec", 600);
+@@ -2403,7 +2403,7 @@ pref("app.normandy.onsync_skew_sec", 600);
  //      the app and browser.
  #if defined(RELEASE_OR_BETA) && !defined(MOZ_DEV_EDITION)
    pref("intl.multilingual.enabled", true);
@@ -439,7 +441,7 @@ index 077216094f0b..195bdcfbe9cb 100644
    pref("intl.multilingual.liveReload", true);
    pref("intl.multilingual.liveReloadBidirectional", false);
    pref("intl.multilingual.aboutWelcome.languageMismatchEnabled", true);
-@@ -2482,17 +2482,17 @@ pref("devtools.every-frame-target.enabled", true);
+@@ -2496,17 +2496,17 @@ pref("devtools.every-frame-target.enabled", true);
  
  // Controls the hability to debug popups from the same DevTools
  // of the original tab the popups are coming from
@@ -462,7 +464,16 @@ index 077216094f0b..195bdcfbe9cb 100644
  pref("devtools.command-button-errorcount.enabled", true);
  #ifndef MOZILLA_OFFICIAL
    pref("devtools.command-button-experimental-prefs.enabled", true);
-@@ -2552,7 +2552,7 @@ pref("devtools.layout.grid.opened", true);
+@@ -2531,7 +2531,7 @@ pref("devtools.inspector.imagePreviewTooltipSize", 300);
+ // Enable user agent style inspection in rule-view
+ pref("devtools.inspector.showUserAgentStyles", false);
+ // Show native anonymous content and user agent shadow roots
+-pref("devtools.inspector.showAllAnonymousContent", false);
++pref("devtools.inspector.showAllAnonymousContent", true);
+ // Enable overflow debugging in the inspector.
+ pref("devtools.overflow.debugging.enabled", true);
+ // Enable drag to edit properties in the inspector rule view.
+@@ -2568,7 +2568,7 @@ pref("devtools.layout.grid.opened", true);
  #if defined(NIGHTLY_BUILD)
    pref("devtools.layout.boxmodel.highlightProperty", true);
  #else
@@ -471,7 +482,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  #endif
  
  // By how many times eyedropper will magnify pixels
-@@ -2656,13 +2656,13 @@ pref("devtools.styleeditor.transitions", true);
+@@ -2672,13 +2672,13 @@ pref("devtools.styleeditor.transitions", true);
  
  // Screenshot Option Settings.
  pref("devtools.screenshot.clipboard.enabled", false);
@@ -488,7 +499,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  
  // Web console filters
  pref("devtools.webconsole.filter.error", true);
-@@ -2700,19 +2700,19 @@ pref("devtools.webconsole.inputHistoryCount", 300);
+@@ -2716,19 +2716,19 @@ pref("devtools.webconsole.inputHistoryCount", 300);
  // Persistent logging: |true| if you want the relevant tool to keep all of the
  // logged messages after reloading the page, |false| if you want the output to
  // be cleared each time page navigation happens.
@@ -511,7 +522,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  #endif
  
  // Saved editor mode state in the console.
-@@ -2745,8 +2745,8 @@ pref("devtools.hud.loglimit", 10000);
+@@ -2761,8 +2761,8 @@ pref("devtools.hud.loglimit", 10000);
  // - autoclosebrackets: whether to permit automatic bracket/quote closing.
  // - detectindentation: whether to detect the indentation from the file
  // - enableCodeFolding: Whether to enable code folding or not.
@@ -522,7 +533,7 @@ index 077216094f0b..195bdcfbe9cb 100644
  pref("devtools.editor.keymap", "default");
  pref("devtools.editor.autoclosebrackets", true);
  pref("devtools.editor.detectindentation", true);
-@@ -2837,7 +2837,7 @@ pref("first-startup.timeout", 30000);
+@@ -2853,7 +2853,7 @@ pref("first-startup.timeout", 30000);
  #ifdef MOZ_DEV_EDITION
    pref("browser.menu.showViewImageInfo", true);
  #else
@@ -598,7 +609,7 @@ index a38663a3dc1e..6ddd5b806ed3 100644
          FINAL_TARGET_FILES.VisualElements += [
              "PrivateBrowsing_150.png",
 diff --git a/browser/components/enterprisepolicies/content/aboutPolicies.css b/browser/components/enterprisepolicies/content/aboutPolicies.css
-index e84ae785ee6d..ec7e1128d73c 100644
+index e84ae785ee6d..9c09e05ac621 100644
 --- a/browser/components/enterprisepolicies/content/aboutPolicies.css
 +++ b/browser/components/enterprisepolicies/content/aboutPolicies.css
 @@ -58,6 +58,7 @@ body {
@@ -613,42 +624,73 @@ index e84ae785ee6d..ec7e1128d73c 100644
  
  td {
    padding: 1rem;
-+  overflow-wrap: break-word;
++  word-break: break-all;
  }
  
  /*
-@@ -97,6 +99,10 @@ tbody:nth-child(4n + 1) {
-   background-color: var(--in-content-box-background-odd);
- }
- 
-+.arr_sep td:last-child {
-+  word-break: break-all;
-+}
-+
- .arr_sep.odd:not(:last-child) td:not(:first-child) {
-   border-bottom: 2px solid #f9f9fa;
- }
 diff --git a/browser/components/enterprisepolicies/content/aboutPolicies.js b/browser/components/enterprisepolicies/content/aboutPolicies.js
-index 39b4fc067c1e..e58e1c49994b 100644
+index 39b4fc067c1e..20668766cfc7 100644
 --- a/browser/components/enterprisepolicies/content/aboutPolicies.js
 +++ b/browser/components/enterprisepolicies/content/aboutPolicies.js
-@@ -51,9 +51,8 @@ function addMissingColumns() {
-     if (rowLength < maxColumns) {
-       let missingColumns = maxColumns - rowLength;
+@@ -43,18 +43,16 @@ function addMissingColumns() {
+       maxColumns = table.rows[i].cells.length;
+     }
+   }
++  if (maxColumns > 1 && maxColumns < 6) {
++    maxColumns++;
++  }
  
+   // add the missing columns
+   for (let i = 0, length = table.rows.length; i < length; i++) {
+     const rowLength = table.rows[i].cells.length;
+ 
+-    if (rowLength < maxColumns) {
+-      let missingColumns = maxColumns - rowLength;
+-
 -      while (missingColumns > 0) {
 -        table.rows[i].insertCell();
 -        missingColumns--;
-+      if (missingColumns > 0 && rowLength > 0) {
-+        table.rows[i].cells[rowLength - 1].colSpan = 1 + missingColumns;
-       }
+-      }
++    if (0 < rowLength && rowLength < maxColumns) {
++      table.rows[i].cells[rowLength - 1].colSpan = maxColumns - rowLength + 1;
      }
    }
+ }
+@@ -138,6 +136,9 @@ function generatePolicy(data, row, depth, new_cont, islast, arr_sep = false) {
+   const color_class = row.classList.contains("odd") ? "odd" : "even";
+ 
+   if (Array.isArray(data)) {
++    if (!data.length) {
++      data.push(undefined);
++    }
+     for (let count in data) {
+       if (count == 0) {
+         if (count == data.length - 1) {
+@@ -154,7 +155,9 @@ function generatePolicy(data, row, depth, new_cont, islast, arr_sep = false) {
+         }
+       } else if (count == data.length - 1) {
+         let last_row = document.createElement("tr");
+-        last_row.classList.add(color_class, "arr_sep");
++        if (typeof data[count] != "object") {
++          last_row.classList.add(color_class, "arr_sep");
++        }
+ 
+         for (let i = 0; i < depth; i++) {
+           last_row.appendChild(col(""));
+@@ -231,7 +234,7 @@ function generatePolicy(data, row, depth, new_cont, islast, arr_sep = false) {
+       count++;
+     }
+   } else {
+-    row.appendChild(col(JSON.stringify(data)));
++    row.appendChild(col(JSON.stringify(data) ?? ""));
+ 
+     if (arr_sep) {
+       row.classList.add("arr_sep");
 diff --git a/browser/components/enterprisepolicies/schemas/policies-schema.json b/browser/components/enterprisepolicies/schemas/policies-schema.json
-index f160343d0c84..793ca79e54ef 100644
+index 15ba0cbbc766..845995e49620 100644
 --- a/browser/components/enterprisepolicies/schemas/policies-schema.json
 +++ b/browser/components/enterprisepolicies/schemas/policies-schema.json
-@@ -1254,7 +1254,7 @@
+@@ -1258,7 +1258,7 @@
      },
  
      "SearchEngines": {
@@ -657,12 +699,12 @@ index f160343d0c84..793ca79e54ef 100644
  
        "type": "object",
        "properties": {
-diff --git a/browser/components/firefoxview/firefoxview-next.mjs b/browser/components/firefoxview/firefoxview-next.mjs
-index 7cdb325e5c13..381919b30384 100644
---- a/browser/components/firefoxview/firefoxview-next.mjs
-+++ b/browser/components/firefoxview/firefoxview-next.mjs
-@@ -57,7 +57,19 @@ function recordNavigationTelemetry(source, eventTarget) {
-   );
+diff --git a/browser/components/firefoxview/firefoxview.mjs b/browser/components/firefoxview/firefoxview.mjs
+index 962e187559bd..637ad4bf5e94 100644
+--- a/browser/components/firefoxview/firefoxview.mjs
++++ b/browser/components/firefoxview/firefoxview.mjs
+@@ -86,7 +86,19 @@ async function updateSearchKeyboardShortcut() {
+   searchKeyboardShortcut = key.toLocaleLowerCase();
  }
  
 +function hideSync_onFxaDisabled() {
@@ -708,10 +750,10 @@ index 0814594d8324..42d59aad0e86 100644
              <div className="wordmark" />
            </div>
 diff --git a/browser/components/newtab/data/content/activity-stream.bundle.js b/browser/components/newtab/data/content/activity-stream.bundle.js
-index 9a93cbd6d143..38a630f87de5 100644
+index 5c6170c6eafc..e8b4b45fe520 100644
 --- a/browser/components/newtab/data/content/activity-stream.bundle.js
 +++ b/browser/components/newtab/data/content/activity-stream.bundle.js
-@@ -9563,6 +9563,7 @@ class _Search extends (external_React_default()).PureComponent {
+@@ -8995,6 +8995,7 @@ class _Search extends (external_React_default()).PureComponent {
      return /*#__PURE__*/external_React_default().createElement("div", {
        className: wrapperClassName
      }, this.props.showLogo && /*#__PURE__*/external_React_default().createElement("div", {
@@ -720,10 +762,10 @@ index 9a93cbd6d143..38a630f87de5 100644
      }, /*#__PURE__*/external_React_default().createElement("div", {
        className: "logo"
 diff --git a/browser/components/newtab/lib/FeatureCalloutMessages.sys.mjs b/browser/components/newtab/lib/FeatureCalloutMessages.sys.mjs
-index c494c8b77c98..eb2916ad2481 100644
+index 3f55e21769f5..7e8a137aaa53 100644
 --- a/browser/components/newtab/lib/FeatureCalloutMessages.sys.mjs
 +++ b/browser/components/newtab/lib/FeatureCalloutMessages.sys.mjs
-@@ -813,6 +813,7 @@ const MESSAGES = () => {
+@@ -887,6 +887,7 @@ const MESSAGES = () => {
      "FIREFOX_VIEW",
      messages
    );
@@ -745,7 +787,7 @@ index 1195da05fa6a..7686cf8251d7 100644
        .replace("{{ MARKUP }}", markup)
        .replace("{{ CACHE_TIME }}", cacheTime);
 diff --git a/browser/components/preferences/main.inc.xhtml b/browser/components/preferences/main.inc.xhtml
-index 3048309ffc80..e412c16a7816 100644
+index 764cbf10314e..e621d2eef745 100644
 --- a/browser/components/preferences/main.inc.xhtml
 +++ b/browser/components/preferences/main.inc.xhtml
 @@ -52,7 +52,7 @@
@@ -766,7 +808,7 @@ index 3048309ffc80..e412c16a7816 100644
        </hbox>
      </stack>
    </vbox>
-@@ -767,7 +767,7 @@
+@@ -765,7 +765,7 @@
            support-page="media-keyboard-control"
      />
    </hbox>
@@ -775,7 +817,7 @@ index 3048309ffc80..e412c16a7816 100644
      <checkbox id="cfrRecommendations"
              class="tail-with-learn-more"
              data-l10n-id="browsing-cfr-recommendations"
-@@ -777,7 +777,7 @@
+@@ -775,7 +775,7 @@
            support-page="extensionrecommendations"
      />
    </hbox>
@@ -785,10 +827,10 @@ index 3048309ffc80..e412c16a7816 100644
              class="tail-with-learn-more"
              data-l10n-id="browsing-cfr-features"
 diff --git a/browser/components/preferences/main.js b/browser/components/preferences/main.js
-index 2cf8a0453393..93564fc72176 100644
+index d0434e3104ad..945dbc7609e2 100644
 --- a/browser/components/preferences/main.js
 +++ b/browser/components/preferences/main.js
-@@ -1729,7 +1729,7 @@ var gMainPane = {
+@@ -1712,7 +1712,7 @@ var gMainPane = {
        let alwaysCheckPref = Preferences.get(
          "browser.shell.checkDefaultBrowser"
        );
@@ -798,7 +840,7 @@ index 2cf8a0453393..93564fc72176 100644
    },
  
 diff --git a/browser/components/preferences/privacy.inc.xhtml b/browser/components/preferences/privacy.inc.xhtml
-index 7e89a3646cb4..254641a5f2a4 100644
+index 790469ceea3d..107f16d7ef5a 100644
 --- a/browser/components/preferences/privacy.inc.xhtml
 +++ b/browser/components/preferences/privacy.inc.xhtml
 @@ -67,7 +67,7 @@
@@ -837,7 +879,7 @@ index 7e89a3646cb4..254641a5f2a4 100644
                      data-l10n-id="history-private-browsing-permanent"
                      preference="browser.privatebrowsing.autostart"/>
            <vbox class="indent">
-@@ -1117,9 +1117,9 @@
+@@ -1032,9 +1032,9 @@
  </hbox>
  
  <!-- addons, forgery (phishing) UI Security -->
@@ -850,10 +892,10 @@ index 7e89a3646cb4..254641a5f2a4 100644
                data-l10n-id="security-enable-safe-browsing"
                class="tail-with-learn-more"/>
 diff --git a/browser/components/preferences/privacy.js b/browser/components/preferences/privacy.js
-index 29a4d1d7f03c..a64c5fddfe9c 100644
+index 9b9716a0625f..4d1e3b344ff9 100644
 --- a/browser/components/preferences/privacy.js
 +++ b/browser/components/preferences/privacy.js
-@@ -3290,7 +3290,7 @@ var gPrivacyPane = {
+@@ -3181,7 +3181,7 @@ var gPrivacyPane = {
      var preference = Preferences.get("security.OCSP.enabled");
      // This is the case if the preference is the default value.
      if (preference.value === undefined) {
@@ -862,7 +904,7 @@ index 29a4d1d7f03c..a64c5fddfe9c 100644
      }
      return preference.value != 0;
    },
-@@ -3311,7 +3311,7 @@ var gPrivacyPane = {
+@@ -3202,7 +3202,7 @@ var gPrivacyPane = {
    writeEnableOCSP() {
      var checkbox = document.getElementById("enableOCSP");
      var defaults = Services.prefs.getDefaultBranch(null);
@@ -936,6 +978,40 @@ index a9617478d203..c40f2c8a4e70 100644
 +        search-extensions/ddg/                                      (extensions/ddg/**)
  
  % resource search-extensions %search-extensions/ contentaccessible=yes
+diff --git a/browser/components/sessionstore/SessionStore.sys.mjs b/browser/components/sessionstore/SessionStore.sys.mjs
+index baa258089ef8..f96b69ef77b0 100644
+--- a/browser/components/sessionstore/SessionStore.sys.mjs
++++ b/browser/components/sessionstore/SessionStore.sys.mjs
+@@ -1351,10 +1351,11 @@ var SessionStoreInternal = {
+     );
+     this._prefBranch.addObserver("sessionstore.restore_on_demand", this, true);
+ 
+-    gResistFingerprintingEnabled = Services.prefs.getBoolPref(
+-      "privacy.resistFingerprinting"
+-    );
++    gResistFingerprintingEnabled =
++      Services.prefs.getBoolPref("privacy.resistFingerprinting") ||
++      Services.prefs.getBoolPref("privacy.fingerprintingProtection");
+     Services.prefs.addObserver("privacy.resistFingerprinting", this);
++    Services.prefs.addObserver("privacy.fingerprintingProtection", this);
+ 
+     this._shistoryInParent = Services.appinfo.sessionHistoryInParent;
+   },
+@@ -2883,10 +2884,11 @@ var SessionStoreInternal = {
+         );
+         this._capClosedWindows();
+         break;
++      case "privacy.fingerprintingProtection":
+       case "privacy.resistFingerprinting":
+-        gResistFingerprintingEnabled = Services.prefs.getBoolPref(
+-          "privacy.resistFingerprinting"
+-        );
++        gResistFingerprintingEnabled =
++          Services.prefs.getBoolPref("privacy.resistFingerprinting") ||
++          Services.prefs.getBoolPref("privacy.fingerprintingProtection");
+         break;
+       case "sessionstore.restore_on_demand":
+         this._restore_on_demand = this._prefBranch.getBoolPref(
 diff --git a/browser/components/shell/ShellService.sys.mjs b/browser/components/shell/ShellService.sys.mjs
 index c4af0be7de22..adfe5805e6a4 100644
 --- a/browser/components/shell/ShellService.sys.mjs
@@ -975,7 +1051,7 @@ index c4af0be7de22..adfe5805e6a4 100644
        } catch (err) {
          telemetryResult = "ErrOther";
 diff --git a/browser/components/shell/nsWindowsShellService.cpp b/browser/components/shell/nsWindowsShellService.cpp
-index 4a8343357166..c72cd24adcb6 100644
+index 99de65f127a1..df54ce79cf27 100644
 --- a/browser/components/shell/nsWindowsShellService.cpp
 +++ b/browser/components/shell/nsWindowsShellService.cpp
 @@ -331,9 +331,9 @@ nsWindowsShellService::CheckAllProgIDsExist(bool* aResult) {
@@ -1080,7 +1156,7 @@ index 7153562de34f..8e533531b4e0 100644
        // Crop the filename size at less than 246 bytes, so as to leave
        // room for the extension and an ellipsis [...]. Note that JS
 diff --git a/browser/installer/package-manifest.in b/browser/installer/package-manifest.in
-index b3213b8c4498..527a2e751c77 100644
+index 4068c0c165fc..6906563fdc73 100644
 --- a/browser/installer/package-manifest.in
 +++ b/browser/installer/package-manifest.in
 @@ -39,7 +39,7 @@
@@ -1163,7 +1239,7 @@ index cbcb2e9be0c9..a1339cd93912 100644
  !define TELEMETRY_INSTALL_PING_VERSION 1
  !define TELEMETRY_INSTALL_PING_DOCTYPE install
 diff --git a/browser/installer/windows/nsis/installer.nsi b/browser/installer/windows/nsis/installer.nsi
-index e128c99ec798..92f51e42b58c 100755
+index 7ec5f9fe6f66..8281a4bf7586 100755
 --- a/browser/installer/windows/nsis/installer.nsi
 +++ b/browser/installer/windows/nsis/installer.nsi
 @@ -224,9 +224,9 @@ Page custom preSummary leaveSummary
@@ -1849,10 +1925,10 @@ index e34810dde842..b9dec3348cb9 100644
  
  export var require = loader.require;
 diff --git a/dom/base/Document.cpp b/dom/base/Document.cpp
-index 46a9d67dbcd1..167922501634 100644
+index b69aa3550b8b..b184ab109fc0 100644
 --- a/dom/base/Document.cpp
 +++ b/dom/base/Document.cpp
-@@ -18736,7 +18736,7 @@ ColorScheme Document::DefaultColorScheme() const {
+@@ -18853,7 +18853,7 @@ ColorScheme Document::DefaultColorScheme() const {
  ColorScheme Document::PreferredColorScheme(IgnoreRFP aIgnoreRFP) const {
    if (ShouldResistFingerprinting(RFPTarget::CSSPrefersColorScheme) &&
        aIgnoreRFP == IgnoreRFP::No) {
@@ -1908,10 +1984,10 @@ index cfbc148337bd..73423a0cad7c 100644
                new MediaDevice(new MediaEngineFake(), info, u""_ns));
          }
 diff --git a/dom/media/MediaInfo.h b/dom/media/MediaInfo.h
-index 5477e674051b..87e99e88a08a 100644
+index abe5dfd9da02..820d05aa99b1 100644
 --- a/dom/media/MediaInfo.h
 +++ b/dom/media/MediaInfo.h
-@@ -596,7 +596,7 @@ class MediaInfo {
+@@ -671,7 +671,7 @@ class MediaInfo {
      // Set dummy values so that HasAudio() will return true;
      // See AudioInfo::IsValid()
      mAudio.mChannels = 2;
@@ -2039,7 +2115,7 @@ index f291a0934ab2..d9cb0584619f 100644
               "Calling CloneAnimationDecoder for non-animating DecoderType");
  
 diff --git a/image/decoders/nsAVIFDecoder.cpp b/image/decoders/nsAVIFDecoder.cpp
-index 5b7b827391fd..492b4318ff81 100644
+index eef526393b69..f6f9a462f367 100644
 --- a/image/decoders/nsAVIFDecoder.cpp
 +++ b/image/decoders/nsAVIFDecoder.cpp
 @@ -17,6 +17,7 @@
@@ -2049,8 +2125,8 @@ index 5b7b827391fd..492b4318ff81 100644
 +#include "mozilla/StaticPrefs_image.h"
  #include "mozilla/Telemetry.h"
  #include "mozilla/TelemetryComms.h"
- 
-@@ -1830,6 +1831,11 @@ nsAVIFDecoder::DecodeResult nsAVIFDecoder::DoDecodeInternal(
+ #include "mozilla/UniquePtrExtensions.h"
+@@ -1829,6 +1830,11 @@ nsAVIFDecoder::DecodeResult nsAVIFDecoder::DoDecodeInternal(
      }
  
      if (isDone) {
@@ -2393,6 +2469,33 @@ index 6cde7456ca03..6dc162f9397b 100644
  };
  
  }  // namespace mozilla::image
+diff --git a/image/imgFrame.cpp b/image/imgFrame.cpp
+index 0df40fcfa93c..9b95167e0962 100644
+--- a/image/imgFrame.cpp
++++ b/image/imgFrame.cpp
+@@ -23,6 +23,7 @@
+ #include "mozilla/MemoryReporting.h"
+ #include "mozilla/ProfilerLabels.h"
+ #include "mozilla/StaticPrefs_browser.h"
++#include "mozilla/StaticPrefs_image.h"
+ #include "nsMargin.h"
+ #include "nsRefreshDriver.h"
+ #include "nsThreadUtils.h"
+@@ -107,11 +108,12 @@ static bool ClearSurface(SourceSurfaceSharedData* aSurface,
+   MOZ_ASSERT(data);
+ 
+   if (aFormat == SurfaceFormat::OS_RGBX) {
++    const auto x = StaticPrefs::image_rgbx_mode() > 0 ? 0xFF : 0x00;
+     // Skia doesn't support RGBX surfaces, so ensure the alpha value is set
+-    // to opaque white. While it would be nice to only do this for Skia,
++    // to opaque b / w. While it would be nice to only do this for Skia,
+     // imgFrame can run off main thread and past shutdown where
+     // we might not have gfxPlatform, so just memset every time instead.
+-    memset(data, 0xFF, stride * aSize.height);
++    memset(data, x, stride * aSize.height);
+   } else if (aSurface->OnHeap()) {
+     // We only need to memset it if the buffer was allocated on the heap.
+     // Otherwise, it's allocated via mmap and refers to a zeroed page and will
 diff --git a/js/src/octane/gbemu-part1.js b/js/src/octane/gbemu-part1.js
 index 10f19e4a195f..38d372b9ae81 100644
 --- a/js/src/octane/gbemu-part1.js
@@ -2581,7 +2684,7 @@ index 22d39aa6e0bb..6d2a7a58bda0 100644
              _analysis_output_always("pcmR",seq,v->pcm[1],v->pcm_current,0,0,totalshift);
  
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index 5a29c29ccfc8..eba6f6d88dde 100644
+index 89f9d460ee2b..a62bca73ce8f 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -1328,7 +1328,7 @@
@@ -2629,7 +2732,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  - name: devtools.console.stdout.content
-@@ -3531,7 +3531,7 @@
+@@ -3525,7 +3525,7 @@
  #      at the same time as the top-level of a file.
  - name: dom.script_loader.delazification.strategy
    type: uint32_t
@@ -2638,7 +2741,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # Maximum total size after which the delazification strategy, specified by
-@@ -3643,7 +3643,7 @@
+@@ -3637,7 +3637,7 @@
  # (some Firefox functionality requests, like OCSP will not be affected)
  - name: dom.security.https_only_mode
    type: RelaxedAtomicBool
@@ -2647,7 +2750,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # If true, all content requests in Private Browsing Mode will get
-@@ -3651,14 +3651,14 @@
+@@ -3645,14 +3645,14 @@
  # to true then this pref has no effect)
  - name: dom.security.https_only_mode_pbm
    type: RelaxedAtomicBool
@@ -2664,7 +2767,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # Time limit, in milliseconds, before sending the http background
-@@ -3686,14 +3686,14 @@
+@@ -3680,14 +3680,14 @@
  # to local IP addresses are also upgraded
  - name: dom.security.https_only_mode.upgrade_local
    type: RelaxedAtomicBool
@@ -2681,7 +2784,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # WARNING: Don't ever update that pref manually! It is only used
-@@ -3701,7 +3701,7 @@
+@@ -3695,7 +3695,7 @@
  # the pref dom.security.https_only_mode from above.
  - name: dom.security.https_only_mode_ever_enabled
    type: RelaxedAtomicBool
@@ -2690,7 +2793,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # WARNING: Don't ever update that pref manually! It is only used
-@@ -3709,21 +3709,21 @@
+@@ -3703,21 +3703,21 @@
  # the pref dom.security.https_only_mode_pbm from above.
  - name: dom.security.https_only_mode_ever_enabled_pbm
    type: RelaxedAtomicBool
@@ -2715,7 +2818,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # If true, top-level requests in Private Browsing Mode will get
-@@ -4922,11 +4922,7 @@
+@@ -4891,11 +4891,7 @@
  # (if feasible). This mimics native behaviour on MacOS.
  - name: editor.word_select.delete_space_after_doubleclick_selection
    type: bool
@@ -2727,7 +2830,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  #---------------------------------------------------------------------------
-@@ -6235,10 +6231,10 @@
+@@ -6204,10 +6200,10 @@
    mirror: once
    do_not_use_directly: true
  
@@ -2740,7 +2843,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  - name: gfx.omta.background-color
-@@ -7075,7 +7071,7 @@
+@@ -7044,7 +7040,7 @@
  # 2 = Strict: reject violations of "should" specification directives
  - name: image.avif.compliance_strictness
    type: RelaxedAtomicInt32
@@ -2749,7 +2852,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # Whether we apply container-level transforms like mirroring and rotation
-@@ -7100,13 +7096,19 @@
+@@ -7069,13 +7065,25 @@
  # major brand is set to 'avif'.
  - name: image.avif.sequence.animate_avif_major_branded_images
    type: RelaxedAtomicBool
@@ -2768,10 +2871,16 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    type: RelaxedAtomicBool
 -  value: false
 +  value: true
++  mirror: always
++
++# 0 = black, 1 = white.
++- name: image.rgbx-mode
++  type: RelaxedAtomicInt32
++  value: 0
    mirror: always
  
  #---------------------------------------------------------------------------
-@@ -7478,7 +7480,7 @@
+@@ -7444,7 +7452,7 @@
  # Use better error message when accessing property of null or undefined.
  - name: javascript.options.property_error_message_fix
    type: bool
@@ -2780,7 +2889,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # Support for weak references in JavaScript (WeakRef and FinalizationRegistry).
-@@ -8513,7 +8515,7 @@
+@@ -8423,7 +8431,7 @@
  #   3 - also user-installed fonts
  - name: layout.css.font-visibility
    type: int32_t
@@ -2789,7 +2898,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # Is support for GeometryUtils.getBoxQuads enabled?
-@@ -9354,7 +9356,7 @@
+@@ -9271,7 +9279,7 @@
  - name: layout.word_select.eat_space_to_next_word
    type: bool
  #ifdef XP_WIN
@@ -2798,7 +2907,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
  #else
    value: false
  #endif
-@@ -9453,16 +9455,16 @@
+@@ -9370,16 +9378,16 @@
  
  
  # This pref defines what the blocking policy would be used in blocking autoplay.
@@ -2818,7 +2927,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # Whether to allow autoplay on extension background pages.
-@@ -9475,7 +9477,7 @@
+@@ -9392,7 +9400,7 @@
  # 0=Allowed, 1=Blocked, 5=All Blocked
  - name: media.autoplay.default
    type: int32_t
@@ -2827,7 +2936,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # File-backed MediaCache size.
-@@ -10626,7 +10628,7 @@
+@@ -10521,7 +10529,7 @@
  
  - name: media.autoplay.block-event.enabled
    type: bool
@@ -2836,7 +2945,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  - name: media.media-capabilities.enabled
-@@ -11474,7 +11476,7 @@
+@@ -11375,7 +11383,7 @@
  # false=allow onion referer, true=hide onion referer (use empty referer).
  - name: network.http.referer.hideOnionSource
    type: bool
@@ -2845,7 +2954,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # Include an origin header on non-GET and non-HEAD requests regardless of CORS.
-@@ -13183,13 +13185,13 @@
+@@ -13140,13 +13148,13 @@
  # 2 - spoof
  - name: privacy.spoof_english
    type: RelaxedAtomicUint32
@@ -2862,7 +2971,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # Potentially send "global privacy control" HTTP header and set navigator
-@@ -13271,13 +13273,13 @@
+@@ -13228,13 +13236,13 @@
  # designed to minimize breakage while maximizing protection.
  - name: privacy.fingerprintingProtection
    type: RelaxedAtomicBool
@@ -2878,7 +2987,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
    do_not_use_directly: true
  
-@@ -13328,7 +13330,7 @@
+@@ -13285,7 +13293,7 @@
  
  - name: privacy.resistFingerprinting.target_video_res
    type: uint32_t
@@ -2887,16 +2996,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # Enable resetting the fingerprinting randomization key daily for normal windwos.
-@@ -13475,7 +13477,7 @@
- # Partition the OCSP cache by the partitionKey.
- - name: privacy.partition.network_state.ocsp_cache
-   type: RelaxedAtomicBool
--  value: @IS_NIGHTLY_BUILD@
-+  value: true
-   mirror: always
- 
- # Partition the OCSP cache by the partitionKey for private browsing mode.
-@@ -14038,9 +14040,9 @@
+@@ -13989,9 +13997,9 @@
  - name: security.OCSP.enabled
    type: RelaxedAtomicUint32
  #ifdef ANDROID
@@ -2908,7 +3008,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
  #endif
    mirror: always
  
-@@ -14050,7 +14052,7 @@
+@@ -14001,7 +14009,7 @@
  # false => soft-fail (if an OCSP request times out, continue the connection)
  - name: security.OCSP.require
    type: RelaxedAtomicBool
@@ -2917,7 +3017,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # How many milliseconds to wait for an OCSP response before assuming it failed
-@@ -14068,7 +14070,11 @@
+@@ -14019,7 +14027,11 @@
  # (when fetching for hard-fail).
  - name: security.OCSP.timeoutMilliseconds.hard
    type: RelaxedAtomicUint32
@@ -2929,7 +3029,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  # Whether or not to enable OCSP must-staple (in other words, TLS-feature with
-@@ -14161,7 +14167,7 @@
+@@ -14112,7 +14124,7 @@
  # 3: Consult CRLite and enforce "Not Revoked" results, but defer to OCSP for "Revoked".
  - name: security.pki.crlite_mode
    type: RelaxedAtomicUint32
@@ -2938,13 +3038,16 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  - name: security.tls.version.min
-@@ -14236,12 +14242,12 @@
+@@ -14187,7 +14199,7 @@
  
  - name: security.tls.enable_0rtt_data
    type: RelaxedAtomicBool
 -  value: true
 +  value: false
    mirror: always
+ 
+ - name: security.tls.enable_kyber
+@@ -14197,7 +14209,7 @@
  
  - name: security.ssl.treat_unsafe_negotiation_as_broken
    type: RelaxedAtomicBool
@@ -2953,7 +3056,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  - name: security.ssl.require_safe_negotiation
-@@ -15000,7 +15006,7 @@
+@@ -14956,7 +14968,7 @@
  
  - name: view_source.wrap_long_lines
    type: bool
@@ -2962,7 +3065,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  - name: view_source.syntax_highlight
-@@ -15130,7 +15136,7 @@
+@@ -15086,7 +15098,7 @@
  
  - name: webgl.enable-debug-renderer-info
    type: RelaxedAtomicBool
@@ -2971,7 +3074,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  - name: webgl.enable-draft-extensions
-@@ -15145,7 +15151,7 @@
+@@ -15101,7 +15113,7 @@
  
  - name: webgl.enable-renderer-query
    type: RelaxedAtomicBool
@@ -2980,7 +3083,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
    mirror: always
  
  - name: webgl.enable-surface-texture
-@@ -15437,7 +15443,7 @@
+@@ -15389,7 +15401,7 @@
  # The minimum size of the scroll thumb, in the scrollbar direction.
  - name: widget.non-native-theme.gtk.scrollbar.thumb-cross-size
    type: uint32_t
@@ -2990,7 +3093,7 @@ index 5a29c29ccfc8..eba6f6d88dde 100644
  
  # Whether the thumb should be rounded for the non-native scrollbars.
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index 30b5928cba0f..f7d627d38013 100644
+index 03653fd1fcc1..633366e501b1 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -73,9 +73,9 @@ pref("security.osreauthenticator.password_last_changed_hi", 0);
@@ -3044,7 +3147,7 @@ index 30b5928cba0f..f7d627d38013 100644
  #endif
  
    // These values (aec, agc, and noise) are from:
-@@ -859,7 +859,7 @@ pref("privacy.resistFingerprinting.exemptedDomains", "*.example.invalid");
+@@ -850,7 +850,7 @@ pref("privacy.resistFingerprinting.exemptedDomains", "*.example.invalid");
  
  // If privacy.fingerprintingProtection is enabled, this pref can be used to add
  // or remove features from its effects
@@ -3053,7 +3156,7 @@ index 30b5928cba0f..f7d627d38013 100644
  
  // If privacy.fingerprintingProtection is enabled, this pref can be used to add
  // or remove features on a domain granular level.
-@@ -1596,7 +1596,7 @@ pref("intl.ellipsis",                       "chrome://global-platform/locale/int
+@@ -1587,7 +1587,7 @@ pref("intl.ellipsis",                       "chrome://global-platform/locale/int
  // OS locale set instead of the app locale set.
  pref("intl.regional_prefs.use_os_locales",  false);
  pref("font.language.group",                 "chrome://global/locale/intl.properties");
@@ -3062,7 +3165,7 @@ index 30b5928cba0f..f7d627d38013 100644
  
  // This pref controls pseudolocales for testing localization.
  // See https://firefox-source-docs.mozilla.org/l10n/fluent/tutorial.html#manually-testing-ui-with-pseudolocalization
-@@ -3070,7 +3070,7 @@ pref("toolkit.zoomManager.zoomValues", ".3,.5,.67,.8,.9,1,1.1,1.2,1.33,1.5,1.7,2
+@@ -3057,7 +3057,7 @@ pref("toolkit.zoomManager.zoomValues", ".3,.5,.67,.8,.9,1,1.1,1.2,1.33,1.5,1.7,2
  // By default the Accept header sent for images loaded over HTTP(S) is derived
  // by ImageAcceptHeader() in nsHttpHandler.cpp. If set, this pref overrides it.
  // There is also network.http.accept which works in scope of document.
@@ -3071,7 +3174,7 @@ index 30b5928cba0f..f7d627d38013 100644
  
  // sendbuffer of 0 means use OS default, sendbuffer unset means use
  // gecko default which varies depending on windows version and is OS
-@@ -3134,9 +3134,9 @@ pref("browser.region.network.url", "https://location.services.mozilla.com/v1/cou
+@@ -3121,9 +3121,9 @@ pref("browser.region.network.url", "https://location.services.mozilla.com/v1/cou
  pref("browser.region.network.scan", false);
  // Timeout for whole region request.
  pref("browser.region.timeout", 5000);
@@ -3083,7 +3186,7 @@ index 30b5928cba0f..f7d627d38013 100644
  
  // XPInstall prefs
  pref("xpinstall.whitelist.required", true);
-@@ -3203,7 +3203,7 @@ pref("network.buffer.cache.size",  32768);
+@@ -3190,7 +3190,7 @@ pref("network.buffer.cache.size",  32768);
  pref("dom.webnotifications.requireinteraction.count", 3);
  
  // Show favicons in web notifications.
@@ -3092,7 +3195,7 @@ index 30b5928cba0f..f7d627d38013 100644
  
  // DOM full-screen API.
  #ifdef XP_MACOSX
-@@ -3216,22 +3216,22 @@ pref("alerts.showFavicons", false);
+@@ -3203,22 +3203,22 @@ pref("alerts.showFavicons", false);
  #endif
  // transition duration of fade-to-black and fade-from-black, unit: ms
  #ifndef MOZ_WIDGET_GTK
@@ -3121,7 +3224,7 @@ index 30b5928cba0f..f7d627d38013 100644
  
  // Push
  
-@@ -3254,7 +3254,7 @@ pref("dom.push.quotaUpdateDelay", 3000); // 3 seconds
+@@ -3241,7 +3241,7 @@ pref("dom.push.quotaUpdateDelay", 3000); // 3 seconds
  
  // Is the network connection allowed to be up?
  // This preference should be used in UX to enable/disable push.
@@ -3130,7 +3233,7 @@ index 30b5928cba0f..f7d627d38013 100644
  
  // Exponential back-off start is 5 seconds like in HTTP/1.1.
  // Maximum back-off is pingInterval.
-@@ -3605,7 +3605,7 @@ pref("dom.input.fallbackUploadDir", "");
+@@ -3592,7 +3592,7 @@ pref("dom.input.fallbackUploadDir", "");
  #endif
  
  // Default media volume
@@ -3139,7 +3242,7 @@ index 30b5928cba0f..f7d627d38013 100644
  
  pref("dom.storageManager.prompt.testing", false);
  pref("dom.storageManager.prompt.testing.allow", false);
-@@ -3640,7 +3640,7 @@ pref("browser.translations.neverTranslateLanguages", "");
+@@ -3627,7 +3627,7 @@ pref("browser.translations.neverTranslateLanguages", "");
  // translation behavior on about:translations. Requires a page refresh.
  pref("browser.translations.useHTML", false);
  // Automatically popup an offer to translate on sites.
@@ -3148,7 +3251,7 @@ index 30b5928cba0f..f7d627d38013 100644
  // Simulate the behavior of using a device that does not support the translations engine.
  // Requires restart.
  pref("browser.translations.simulateUnsupportedEngine", false);
-@@ -3788,8 +3788,8 @@ pref("services.common.log.logger.tokenserverclient", "Debug");
+@@ -3771,8 +3771,8 @@ pref("services.common.log.logger.tokenserverclient", "Debug");
    pref("services.sync.log.logger.engine", "Debug");
    pref("services.sync.log.cryptoDebug", false);
  
@@ -3159,7 +3262,7 @@ index 30b5928cba0f..f7d627d38013 100644
  
    #ifdef EARLY_BETA_OR_EARLIER
      // Enable the (fairly costly) client/server validation through early Beta, but
-@@ -3897,7 +3897,7 @@ pref("devtools.errorconsole.deprecation_warnings", true);
+@@ -3880,7 +3880,7 @@ pref("devtools.errorconsole.deprecation_warnings", true);
  #else
    // In local builds, enable the browser toolbox by default.
    pref("devtools.chrome.enabled", true, sticky);
@@ -3169,7 +3272,7 @@ index 30b5928cba0f..f7d627d38013 100644
  
  // Disable service worker debugging on all channels (see Bug 1651605).
 diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
-index e3f735437a08..fdf8a47cf44c 100644
+index 4b5b7581cdb9..ea7b47db61a8 100644
 --- a/netwerk/protocol/http/nsHttpHandler.cpp
 +++ b/netwerk/protocol/http/nsHttpHandler.cpp
 @@ -382,11 +382,9 @@ nsresult nsHttpHandler::Init() {
@@ -3185,7 +3288,7 @@ index e3f735437a08..fdf8a47cf44c 100644
  
    mMisc.AssignLiteral("rv:" MOZILLA_UAVERSION);
  
-@@ -1673,7 +1671,7 @@ void nsHttpHandler::PrefsChanged(const char* pref) {
+@@ -1681,7 +1679,7 @@ void nsHttpHandler::PrefsChanged(const char* pref) {
    if (imageAcceptPrefChanged) {
      nsAutoCString userSetImageAcceptHeader;
  
@@ -3194,7 +3297,7 @@ index e3f735437a08..fdf8a47cf44c 100644
        rv = Preferences::GetCString("image.http.accept",
                                     userSetImageAcceptHeader);
        if (NS_FAILED(rv)) {
-@@ -1691,7 +1689,7 @@ void nsHttpHandler::PrefsChanged(const char* pref) {
+@@ -1699,7 +1697,7 @@ void nsHttpHandler::PrefsChanged(const char* pref) {
    if (PREF_CHANGED("network.http.accept") || imageAcceptPrefChanged) {
      nsAutoCString userSetDocumentAcceptHeader;
  
@@ -3349,10 +3452,10 @@ index 3929f5ff2d33..e3ddfcf4d960 100644
      serialNumber: hashify(getObjPath(x509, "serialNumber.valueBlock.valueHex")),
      signature: {
 diff --git a/toolkit/components/pdfjs/content/build/pdf.mjs b/toolkit/components/pdfjs/content/build/pdf.mjs
-index 7bfa63b4f423..e9169bf1c668 100644
+index 2faa7f2888a4..8416fde85494 100644
 --- a/toolkit/components/pdfjs/content/build/pdf.mjs
 +++ b/toolkit/components/pdfjs/content/build/pdf.mjs
-@@ -12254,8 +12254,8 @@ class PopupElement {
+@@ -12309,8 +12309,8 @@ class PopupElement {
        modificationDate.classList.add("popupDate");
        modificationDate.setAttribute("data-l10n-id", "pdfjs-annotation-date-string");
        modificationDate.setAttribute("data-l10n-args", JSON.stringify({
@@ -3364,10 +3467,10 @@ index 7bfa63b4f423..e9169bf1c668 100644
        header.append(modificationDate);
      }
 diff --git a/toolkit/components/pdfjs/content/web/viewer.css b/toolkit/components/pdfjs/content/web/viewer.css
-index 6e8a18126fb1..fac65bc1f1e2 100644
+index 4ee9a5cd328d..b826cd9b9867 100644
 --- a/toolkit/components/pdfjs/content/web/viewer.css
 +++ b/toolkit/components/pdfjs/content/web/viewer.css
-@@ -3364,11 +3364,11 @@ dialog :link{
+@@ -3377,11 +3377,11 @@ dialog :link{
    text-align:start;
  }
  #documentPropertiesDialog .row > span{
@@ -3382,7 +3485,7 @@ index 6e8a18126fb1..fac65bc1f1e2 100644
  }
  #documentPropertiesDialog .buttonRow{
 diff --git a/toolkit/components/pdfjs/content/web/viewer.mjs b/toolkit/components/pdfjs/content/web/viewer.mjs
-index d74417ee248f..4f61673d79b8 100644
+index c918567ca972..37f7486eb4c1 100644
 --- a/toolkit/components/pdfjs/content/web/viewer.mjs
 +++ b/toolkit/components/pdfjs/content/web/viewer.mjs
 @@ -2257,7 +2257,7 @@ class PDFCursorTools {
@@ -3529,7 +3632,7 @@ index 030d00dc2539..64f27dc375ae 100644
        // We failed completelly to get a valid bus name - just quit
        // to prevent crash at dbus_bus_request_name().
 diff --git a/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs b/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs
-index a085aa492a4e..3c1ccd66ad6d 100644
+index a085aa492a4e..8fd46c2dc1ce 100644
 --- a/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs
 +++ b/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs
 @@ -5,6 +5,7 @@
@@ -3548,7 +3651,7 @@ index a085aa492a4e..3c1ccd66ad6d 100644
      this._handleResistFingerprintingChanged();
      this._handleLetterboxingPrefChanged();
    }
-@@ -280,14 +282,29 @@ class _RFPHelper {
+@@ -280,14 +282,34 @@ class _RFPHelper {
      this._addOrClearContentMargin(aBrowser);
    }
  
@@ -3557,11 +3660,16 @@ index a085aa492a4e..3c1ccd66ad6d 100644
 +    if (FppOverrides.match(/^[+-]AllTargets\b/) == null) {
 +      FppOverrides = "+AllTargets";
 +    }
++    const dlm = ",";
 +    const pm = LetterboxingEnabled ? "+" : "-";
-+    for (const s of ["ScreenRect", "CSSDeviceSize"]) {
-+      const r = RegExp(`,?[+-]${s}(?=,|$)`, "g");
-+      FppOverrides = FppOverrides.replace(r, "") + `,${pm}${s}`;
++    for (const x of ["CSSDeviceSize", "ScreenRect"]) {
++      const r = RegExp(`${dlm}?[+-]${x}(?=${dlm}|$)`, "g");
++      const s = dlm + pm + x;
++      FppOverrides = FppOverrides.replace(r, s) + s;
 +    }
++    FppOverrides = FppOverrides.split(dlm)
++      .filter((val, idx, arr) => idx == arr.indexOf(val))
++      .join(dlm); // unique!
 +    Services.prefs.setStringPref(kPrefFppOverrides, FppOverrides);
 +  }
 +
@@ -3579,7 +3687,7 @@ index a085aa492a4e..3c1ccd66ad6d 100644
      }
    }
 diff --git a/toolkit/components/resistfingerprinting/nsRFPService.h b/toolkit/components/resistfingerprinting/nsRFPService.h
-index 5235f2c79ffe..b5232984da45 100644
+index 9642bdc9b530..c1b8c1470066 100644
 --- a/toolkit/components/resistfingerprinting/nsRFPService.h
 +++ b/toolkit/components/resistfingerprinting/nsRFPService.h
 @@ -58,12 +58,12 @@
@@ -3600,10 +3708,10 @@ index 5235f2c79ffe..b5232984da45 100644
  
  struct JSContext;
 diff --git a/toolkit/components/search/OpenSearchEngine.sys.mjs b/toolkit/components/search/OpenSearchEngine.sys.mjs
-index 6d5e876286e6..839c3643c92a 100644
+index 190e4e0c9c1b..cd19c7bf2c8b 100644
 --- a/toolkit/components/search/OpenSearchEngine.sys.mjs
 +++ b/toolkit/components/search/OpenSearchEngine.sys.mjs
-@@ -217,7 +217,7 @@ export class OpenSearchEngine extends SearchEngine {
+@@ -147,7 +147,7 @@ export class OpenSearchEngine extends SearchEngine {
  
        // Keep track of the last modified date, so that we can make conditional
        // requests for future updates.
@@ -3776,10 +3884,10 @@ index 14b34c7e8929..a46ece12ea3f 100644
                    tds = tds.concat(list);
                  } else {
 diff --git a/toolkit/content/aboutwebrtc/aboutWebrtc.mjs b/toolkit/content/aboutwebrtc/aboutWebrtc.mjs
-index d61366d4f633..484ca9efe80a 100644
+index 3c41a4aa66da..84b334c8dd46 100644
 --- a/toolkit/content/aboutwebrtc/aboutWebrtc.mjs
 +++ b/toolkit/content/aboutwebrtc/aboutWebrtc.mjs
-@@ -1279,7 +1279,7 @@ function renderTransportStats(
+@@ -1277,7 +1277,7 @@ function renderTransportStats(
      );
    }
  
@@ -3802,7 +3910,7 @@ index d720491d4b0e..67c88ca98065 100644
        calViewSize = 42,
      }) {
 diff --git a/toolkit/content/widgets/datetimebox.js b/toolkit/content/widgets/datetimebox.js
-index 926ba2cf8e8b..daa3f89246c0 100644
+index c71a7a855ee4..6f862aaa0383 100644
 --- a/toolkit/content/widgets/datetimebox.js
 +++ b/toolkit/content/widgets/datetimebox.js
 @@ -173,7 +173,7 @@ this.DateTimeBoxWidget = class {
@@ -3814,7 +3922,7 @@ index 926ba2cf8e8b..daa3f89246c0 100644
      this.mMillisecSeparatorText = ".";
      this.mMaxLength = 2;
      this.mMillisecMaxLength = 3;
-@@ -813,7 +813,7 @@ this.DateTimeBoxWidget = class {
+@@ -788,7 +788,7 @@ this.DateTimeBoxWidget = class {
        options.year = options.month = options.day = "numeric";
      }
  
@@ -3837,11 +3945,11 @@ index d01a1e149fb9..c819a9280aaf 100644
 +       *[title] Snowfox Account
      }
 diff --git a/toolkit/locales/en-US/toolkit/branding/brandings.ftl b/toolkit/locales/en-US/toolkit/branding/brandings.ftl
-index 504598d05e1a..540786f04335 100644
+index cc95fbc3b8e1..af506dc510d7 100644
 --- a/toolkit/locales/en-US/toolkit/branding/brandings.ftl
 +++ b/toolkit/locales/en-US/toolkit/branding/brandings.ftl
-@@ -19,7 +19,7 @@
- -monitor-brand-short-name = Monitor
+@@ -20,7 +20,7 @@
+ -mozmonitor-brand-name = Mozilla Monitor
  -pocket-brand-name = Pocket
  -send-brand-name = Firefox Send
 --screenshots-brand-name = Firefox Screenshots
@@ -3849,7 +3957,7 @@ index 504598d05e1a..540786f04335 100644
  -mozilla-vpn-brand-name = Mozilla VPN
  -profiler-brand-name = Firefox Profiler
  -translations-brand-name = Firefox Translations
-@@ -36,12 +36,12 @@
+@@ -37,12 +37,12 @@
  
  # “Suggest” can be localized, “Firefox” must be treated as a brand
  # and kept in English.
@@ -3914,10 +4022,10 @@ index f93a5d64fec8..311e30a9d71c 100644
  
  set_config("ANDROID_PACKAGE_NAME", android_package_name)
 diff --git a/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp b/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
-index c41198b20a4d..57c436df0e30 100644
+index 8bc0889e6765..2af21f8ac936 100644
 --- a/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
 +++ b/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
-@@ -399,8 +399,8 @@ nsresult SetDefaultBrowserUserChoice(
+@@ -262,8 +262,8 @@ nsresult SetDefaultBrowserUserChoice(
    }
  
    nsTArray<nsString> browserDefaults = {

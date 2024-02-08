@@ -2,3 +2,4 @@
 * -linguist-vendored linguist-detectable
 *.patch linguist-vendored
 crlf*.patch text eol=crlf
+mozconfig linguist-language=Shell

@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2023 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -205,7 +205,7 @@ function move(dir::String, recursive::Bool = SUBMODULES)
 				(mkpath(d); foreach(p -> mv(s * p, d * p, force = true), readdir(s)); rm(s)))
 			end
 			for f ∈ fs
-				if (f) ∈ (".gitignore", ".gitlab-ci.yml", "pack_vs.py") ||
+				if (f) ∈ (".gitattributes", ".gitignore", ".gitlab-ci.yml", "pack_vs.py") ||
 				   endswith(r"\.(aps|md|mk)")(f) || startswith(r"\.(forgejo|woodpecker)")(f) ||
 				   contains(r"(build|fail|fetch|patch|tree)\.sh$|^(category|file).*\.svg$")(f)
 					rm(f)
