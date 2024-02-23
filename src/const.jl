@@ -23,7 +23,7 @@ const SRC = ("src/")
 # https://archive.mozilla.org/pub/firefox/
 # https://whattrainisitnow.com
 const ESR = v"115".major
-const VER = v"123.0.0-1"
+const VER = v"123.0.1-1"
 
 const schemes =
 	[
@@ -72,6 +72,7 @@ const strip_list_msc =
 		"accept_quality"
 		"ad_od"
 		"adpicid"
+		"adsVersion"
 		"ADTAG"
 		"amp"
 		"app_version"
@@ -97,6 +98,7 @@ const strip_list_msc =
 		"current_qn"
 		"current_quality"
 		"device_id"
+		"device_type"
 		"dm_progress"
 		"dmid"
 		"embeds_origin"
@@ -118,6 +120,7 @@ const strip_list_msc =
 		"fromtitle"
 		"fromTitle"
 		"fromurl"
+		"game_version"
 		"gbv"
 		"group_id"
 		"gsm"
@@ -147,6 +150,7 @@ const strip_list_msc =
 		"newreg"
 		"oid"
 		"orgRef"
+		"orig_msid"
 		"oriquery"
 		"p2p_type"
 		"paipv"

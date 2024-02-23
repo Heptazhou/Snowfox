@@ -3,7 +3,7 @@
  browser/app/macbuild/Contents/Info.plist.in        |   2 +-
  browser/app/moz.build                              |   2 +-
  browser/app/nsBrowserApp.cpp                       |   2 +-
- browser/app/profile/firefox.js                     | 102 ++++-----
+ browser/app/profile/firefox.js                     | 114 +++++-----
  .../{firefox.exe.manifest => snowfox.exe.manifest} |   4 +-
  browser/app/splash.rc                              |   4 +-
  browser/base/content/overrides/app-license.html    |   6 +-
@@ -46,7 +46,7 @@
  devtools/client/memory/utils.js                    |   4 +-
  .../src/components/request-details/CachePanel.js   |   2 +-
  devtools/client/storage/ui.js                      |   6 +-
- devtools/server/actors/utils/capture-screenshot.js |  10 +-
+ devtools/server/actors/utils/capture-screenshot.js |   7 +-
  devtools/shared/loader/Loader.sys.mjs              |   2 +-
  dom/base/Document.cpp                              |   2 +-
  dom/base/nsScreen.cpp                              |   4 +-
@@ -57,6 +57,7 @@
  dom/media/webaudio/blink/Reverb.cpp                |   2 +-
  dom/media/webrtc/CubebDeviceEnumerator.cpp         |   2 +-
  dom/workers/RuntimeService.cpp                     |  11 +-
+ dom/xml/resources/XMLPrettyPrint.css               |   3 +-
  gfx/thebes/PrintTargetPDF.cpp                      |   2 +-
  gfx/thebes/PrintTargetSkPDF.cpp                    |   2 +-
  image/DecoderFactory.cpp                           |   6 +
@@ -82,6 +83,7 @@
  services/sync/modules/telemetry.sys.mjs            |   2 +-
  taskcluster/gecko_taskgraph/util/hash.py           |  10 +-
  .../taskcluster_taskgraph/taskgraph/util/hash.py   |   2 +-
+ toolkit/actors/PictureInPictureChild.sys.mjs       |   6 +-
  .../components/certviewer/content/certDecoder.mjs  |  12 +-
  toolkit/components/pdfjs/content/build/pdf.mjs     |   4 +-
  toolkit/components/pdfjs/content/web/viewer.css    |   4 +-
@@ -89,17 +91,17 @@
  toolkit/components/printing/content/print.js       |   2 +-
  toolkit/components/remote/nsDBusRemoteClient.cpp   |   8 +-
  toolkit/components/remote/nsDBusRemoteServer.cpp   |  10 +-
- .../resistfingerprinting/RFPHelper.sys.mjs         |  22 ++
+ .../resistfingerprinting/RFPHelper.sys.mjs         |  20 ++
  .../components/resistfingerprinting/nsRFPService.h |   8 +-
  toolkit/components/search/OpenSearchEngine.sys.mjs |   2 +-
- .../components/url-classifier/SafeBrowsing.sys.mjs |   4 +-
- .../UrlClassifierHashCompleter.sys.mjs             |   4 +-
- .../UrlClassifierListManager.sys.mjs               |   4 +-
+ .../components/url-classifier/SafeBrowsing.sys.mjs |   2 +-
+ .../UrlClassifierHashCompleter.sys.mjs             |   2 +-
+ .../UrlClassifierListManager.sys.mjs               |   2 +-
  toolkit/components/utils/ClientEnvironment.sys.mjs |   2 +-
  toolkit/content/aboutNetError.mjs                  |   2 +-
  toolkit/content/aboutRights-unbranded.xhtml        |   6 +-
  toolkit/content/aboutRights.xhtml                  |   4 +-
- toolkit/content/aboutUrlClassifier.js              |  16 +-
+ toolkit/content/aboutUrlClassifier.js              |  10 +-
  toolkit/content/aboutwebrtc/aboutWebrtc.mjs        |   2 +-
  toolkit/content/widgets/datekeeper.js              |   2 +-
  toolkit/content/widgets/datetimebox.js             |   4 +-
@@ -110,7 +112,7 @@
  toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp |   4 +-
  .../extensions/internal/AddonSettings.sys.mjs      |   2 +-
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
- 112 files changed, 803 insertions(+), 518 deletions(-)
+ 114 files changed, 803 insertions(+), 522 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index ad8f90640745..ac0e68e59599 100644
@@ -194,7 +196,7 @@ index 314534215586..ddd30660c2fa 100644
      }
      FreeLibrary(user32);
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index eba9a1f284c3..25c81466a874 100644
+index eba9a1f284c3..f0fc90f91a63 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -50,7 +50,7 @@ pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/pri
@@ -432,6 +434,15 @@ index eba9a1f284c3..25c81466a874 100644
  
  // Always enable newtab segregation using containers
  pref("privacy.usercontext.about_newtab_segregation.enabled", true);
+@@ -2315,7 +2315,7 @@ pref("signon.management.page.os-auth.enabled", false);
+ // "offered"        - we have offered feature to user and they have not yet made a decision.
+ // "enabled"        - user opted in to the feature.
+ // "disabled"       - user opted out of the feature.
+-pref("signon.firefoxRelay.feature", "available");
++pref("signon.firefoxRelay.feature", "disabled");
+ pref("signon.management.page.breach-alerts.enabled", true);
+ pref("signon.management.page.vulnerable-passwords.enabled", true);
+ pref("signon.management.page.sort", "name");
 @@ -2403,7 +2403,7 @@ pref("app.normandy.onsync_skew_sec", 600);
  //      the app and browser.
  #if defined(RELEASE_OR_BETA) && !defined(MOZ_DEV_EDITION)
@@ -441,6 +452,24 @@ index eba9a1f284c3..25c81466a874 100644
    pref("intl.multilingual.liveReload", true);
    pref("intl.multilingual.liveReloadBidirectional", false);
    pref("intl.multilingual.aboutWelcome.languageMismatchEnabled", true);
+@@ -2425,12 +2425,12 @@ pref("browser.discovery.containers.enabled", true);
+ pref("browser.discovery.sites", "addons.mozilla.org");
+ 
+ pref("browser.engagement.recent_visited_origins.expiry", 86400); // 24 * 60 * 60 (24 hours in seconds)
+-pref("browser.engagement.downloads-button.has-used", false);
++pref("browser.engagement.downloads-button.has-used", true);
+ pref("browser.engagement.fxa-toolbar-menu-button.has-used", false);
+-pref("browser.engagement.home-button.has-used", false);
+-pref("browser.engagement.sidebar-button.has-used", false);
+-pref("browser.engagement.library-button.has-used", false);
+-pref("browser.engagement.ctrlTab.has-used", false);
++pref("browser.engagement.home-button.has-used", true);
++pref("browser.engagement.sidebar-button.has-used", true);
++pref("browser.engagement.library-button.has-used", true);
++pref("browser.engagement.ctrlTab.has-used", true);
+ 
+ pref("browser.aboutConfig.showWarning", true);
+ 
 @@ -2496,17 +2496,17 @@ pref("devtools.every-frame-target.enabled", true);
  
  // Controls the hability to debug popups from the same DevTools
@@ -1892,18 +1921,15 @@ index 095bb4730bda..f4bc3132c1c1 100644
  
        switch (reason) {
 diff --git a/devtools/server/actors/utils/capture-screenshot.js b/devtools/server/actors/utils/capture-screenshot.js
-index e7b46620b2e9..d5013c5013ab 100644
+index e7b46620b2e9..64da3a7f849e 100644
 --- a/devtools/server/actors/utils/capture-screenshot.js
 +++ b/devtools/server/actors/utils/capture-screenshot.js
-@@ -191,10 +191,10 @@ function getFilename(defaultName) {
+@@ -191,10 +191,7 @@ function getFilename(defaultName) {
    const dayString = date.getDate().toString().padStart(2, "0");
    const dateString = `${date.getFullYear()}-${monthString}-${dayString}`;
  
 -  const timeString = date.toTimeString().replace(/:/g, ".").split(" ")[0];
-+  const timeString = date
-+    .toLocaleTimeString("sv")
-+    .replace(/:/g, ".")
-+    .split(" ")[0];
++  const timeString = date.toLocaleTimeString("sv").replace(/:/g, ".").split(" ")[0]; // prettier-ignore
  
 -  return (
 -    L10N.getFormatStr("screenshotGeneratedFilename", dateString, timeString) +
@@ -2064,6 +2090,27 @@ index bcfbe33925af..3506c303d966 100644
    return std::min(uint32_t(unclampedHardwareConcurrency),
                    StaticPrefs::dom_maxHardwareConcurrency());
  }
+diff --git a/dom/xml/resources/XMLPrettyPrint.css b/dom/xml/resources/XMLPrettyPrint.css
+index 845833c46f3a..90e8e2e0906d 100644
+--- a/dom/xml/resources/XMLPrettyPrint.css
++++ b/dom/xml/resources/XMLPrettyPrint.css
+@@ -25,7 +25,7 @@
+ 
+ #tree,
+ .expandable-children {
+-  margin-inline-start: 1em;
++  margin-inline-start: 2em;
+ }
+ 
+ .expandable-body {
+@@ -52,6 +52,7 @@
+   font: initial;
+ }
+ 
++#tree,
+ .comment {
+   font-family: monospace;
+   white-space: pre;
 diff --git a/gfx/thebes/PrintTargetPDF.cpp b/gfx/thebes/PrintTargetPDF.cpp
 index 3b61696f4c3d..5c0f018f107a 100644
 --- a/gfx/thebes/PrintTargetPDF.cpp
@@ -2574,7 +2621,7 @@ index f03295f67374..47f336d9182d 100644
  
    img {
 diff --git a/layout/style/res/ua.css b/layout/style/res/ua.css
-index 940da45cc8de..7009c5173a40 100644
+index 940da45cc8de..eeba4100e6e4 100644
 --- a/layout/style/res/ua.css
 +++ b/layout/style/res/ua.css
 @@ -389,6 +389,21 @@
@@ -2590,7 +2637,7 @@ index 940da45cc8de..7009c5173a40 100644
 +        body > link[rel="stylesheet"],
 +        head > link[rel="stylesheet"],
 +        head > meta[name="color-scheme"],
-+        head > style)))),
++        head > style:not(:-moz-only-whitespace))))),
 +/* Fix color-scheme for transparent iframe(s) */
 +:root:where(html) :where(iframe) {
 +  color-scheme: dark light;
@@ -3421,6 +3468,29 @@ index 5d884fc3188a..63dfc2bdd2f8 100644
      for path in sorted(found):
          h.update(
              "{} {}\n".format(
+diff --git a/toolkit/actors/PictureInPictureChild.sys.mjs b/toolkit/actors/PictureInPictureChild.sys.mjs
+index 62dc6cdfff08..bed63fac5958 100644
+--- a/toolkit/actors/PictureInPictureChild.sys.mjs
++++ b/toolkit/actors/PictureInPictureChild.sys.mjs
+@@ -717,15 +717,15 @@ export class PictureInPictureToggleChild extends JSWindowActorChild {
+ 
+     lazy.logConsole.debug(
+       "Toggle duration experiment - first time toggle seen on:",
+-      new Date(firstSeenStartSeconds * 1000).toLocaleDateString()
++      new Date(firstSeenStartSeconds * 1000).toLocaleDateString("sv")
+     );
+     lazy.logConsole.debug(
+       "Toggle duration experiment - first time toggle will change on:",
+-      new Date(firstSeenEndSeconds * 1000).toLocaleDateString()
++      new Date(firstSeenEndSeconds * 1000).toLocaleDateString("sv")
+     );
+     lazy.logConsole.debug(
+       "Toggle duration experiment - current date:",
+-      new Date(currentDateSeconds * 1000).toLocaleDateString()
++      new Date(currentDateSeconds * 1000).toLocaleDateString("sv")
+     );
+ 
+     if (currentDateSeconds >= firstSeenEndSeconds) {
 diff --git a/toolkit/components/certviewer/content/certDecoder.mjs b/toolkit/components/certviewer/content/certDecoder.mjs
 index 3929f5ff2d33..e3ddfcf4d960 100644
 --- a/toolkit/components/certviewer/content/certDecoder.mjs
@@ -3632,7 +3702,7 @@ index 030d00dc2539..64f27dc375ae 100644
        // We failed completelly to get a valid bus name - just quit
        // to prevent crash at dbus_bus_request_name().
 diff --git a/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs b/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs
-index a085aa492a4e..8fd46c2dc1ce 100644
+index a085aa492a4e..6a020fd56065 100644
 --- a/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs
 +++ b/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs
 @@ -5,6 +5,7 @@
@@ -3651,41 +3721,41 @@ index a085aa492a4e..8fd46c2dc1ce 100644
      this._handleResistFingerprintingChanged();
      this._handleLetterboxingPrefChanged();
    }
-@@ -280,14 +282,34 @@ class _RFPHelper {
+@@ -280,16 +282,34 @@ class _RFPHelper {
      this._addOrClearContentMargin(aBrowser);
    }
  
-+  _handlePrefFppOverrides(LetterboxingEnabled) {
-+    let FppOverrides = String(Services.prefs.getStringPref(kPrefFppOverrides));
-+    if (FppOverrides.match(/^[+-]AllTargets\b/) == null) {
-+      FppOverrides = "+AllTargets";
++  _updatePrefFppOverrides(overrides = "", letterboxing = false) {
++    if (overrides.match(/^[+-]AllTargets\b/) == null) {
++      overrides = "+AllTargets";
 +    }
 +    const dlm = ",";
-+    const pm = LetterboxingEnabled ? "+" : "-";
++    const pm = letterboxing ? "+" : "-";
 +    for (const x of ["CSSDeviceSize", "ScreenRect"]) {
 +      const r = RegExp(`${dlm}?[+-]${x}(?=${dlm}|$)`, "g");
 +      const s = dlm + pm + x;
-+      FppOverrides = FppOverrides.replace(r, s) + s;
++      overrides = overrides.replace(r, s) + s;
 +    }
-+    FppOverrides = FppOverrides.split(dlm)
-+      .filter((val, idx, arr) => idx == arr.indexOf(val))
-+      .join(dlm); // unique!
-+    Services.prefs.setStringPref(kPrefFppOverrides, FppOverrides);
++    return overrides.split(dlm).filter((v, i, a) => a.indexOf(v) == i).join(dlm); // prettier-ignore
 +  }
 +
    _handleLetterboxingPrefChanged() {
++    let FppOverrides = String(Services.prefs.getStringPref(kPrefFppOverrides));
      if (Services.prefs.getBoolPref(kPrefLetterboxing, false)) {
        Services.ww.registerNotification(this);
-+      this._handlePrefFppOverrides(true);
        this._registerActor();
        this._attachAllWindows();
++      FppOverrides = this._updatePrefFppOverrides(FppOverrides, 1);
      } else {
++      FppOverrides = this._updatePrefFppOverrides(FppOverrides, 0);
        this._unregisterActor();
        this._detachAllWindows();
-+      this._handlePrefFppOverrides(false);
        Services.ww.unregisterNotification(this);
      }
++    Services.prefs.setStringPref(kPrefFppOverrides, FppOverrides);
    }
+ 
+   _registerActor() {
 diff --git a/toolkit/components/resistfingerprinting/nsRFPService.h b/toolkit/components/resistfingerprinting/nsRFPService.h
 index 9642bdc9b530..c1b8c1470066 100644
 --- a/toolkit/components/resistfingerprinting/nsRFPService.h
@@ -3721,47 +3791,41 @@ index 190e4e0c9c1b..cd19c7bf2c8b 100644
        // Set the new engine's icon, if it doesn't yet have one.
        if (!this._iconURI && engineToUpdate._iconURI) {
 diff --git a/toolkit/components/url-classifier/SafeBrowsing.sys.mjs b/toolkit/components/url-classifier/SafeBrowsing.sys.mjs
-index 5f0b5faec8ac..a3cc36ef1854 100644
+index 5f0b5faec8ac..76c7087dfb6c 100644
 --- a/toolkit/components/url-classifier/SafeBrowsing.sys.mjs
 +++ b/toolkit/components/url-classifier/SafeBrowsing.sys.mjs
-@@ -11,8 +11,8 @@ function log(...stuff) {
-     return;
+@@ -12,7 +12,7 @@ function log(...stuff) {
    }
  
--  var d = new Date();
+   var d = new Date();
 -  let msg = "SafeBrowsing: " + d.toTimeString() + ": " + stuff.join(" ");
-+  var d = new Date().toLocaleTimeString("sv");
-+  let msg = "SafeBrowsing: " + d + ": " + stuff.join(" ");
++  let msg = "SafeBrowsing: " + d.toLocaleTimeString("sv") + ": " + stuff.join(" "); // prettier-ignore
    dump(Services.urlFormatter.trimSensitiveURLs(msg) + "\n");
  }
  
 diff --git a/toolkit/components/url-classifier/UrlClassifierHashCompleter.sys.mjs b/toolkit/components/url-classifier/UrlClassifierHashCompleter.sys.mjs
-index 48a4c432fb0a..c9b84d07778b 100644
+index 48a4c432fb0a..d64a536d89ff 100644
 --- a/toolkit/components/url-classifier/UrlClassifierHashCompleter.sys.mjs
 +++ b/toolkit/components/url-classifier/UrlClassifierHashCompleter.sys.mjs
-@@ -40,8 +40,8 @@ function log(...stuff) {
-     return;
+@@ -41,7 +41,7 @@ function log(...stuff) {
    }
  
--  var d = new Date();
+   var d = new Date();
 -  let msg = "hashcompleter: " + d.toTimeString() + ": " + stuff.join(" ");
-+  var d = new Date().toLocaleTimeString("sv");
-+  let msg = "hashcompleter: " + d + ": " + stuff.join(" ");
++  let msg = "hashcompleter: " + d.toLocaleTimeString("sv") + ": " + stuff.join(" "); // prettier-ignore
    dump(Services.urlFormatter.trimSensitiveURLs(msg) + "\n");
  }
  
 diff --git a/toolkit/components/url-classifier/UrlClassifierListManager.sys.mjs b/toolkit/components/url-classifier/UrlClassifierListManager.sys.mjs
-index 410e203672f5..9cf990331cb0 100644
+index 410e203672f5..df54eaceb17e 100644
 --- a/toolkit/components/url-classifier/UrlClassifierListManager.sys.mjs
 +++ b/toolkit/components/url-classifier/UrlClassifierListManager.sys.mjs
-@@ -37,8 +37,8 @@ function log(...stuff) {
-     return;
+@@ -38,7 +38,7 @@ function log(...stuff) {
    }
  
--  var d = new Date();
+   var d = new Date();
 -  let msg = "listmanager: " + d.toTimeString() + ": " + stuff.join(" ");
-+  var d = new Date().toLocaleTimeString("sv");
-+  let msg = "listmanager: " + d + ": " + stuff.join(" ");
++  let msg = "listmanager: " + d.toLocaleTimeString("sv") + ": " + stuff.join(" "); // prettier-ignore
    msg = Services.urlFormatter.trimSensitiveURLs(msg);
    Services.console.logStringMessage(msg);
    dump(msg + "\n");
@@ -3837,31 +3901,27 @@ index 324b97f45210..45fb126ffb02 100644
            ></a>
          </li>
 diff --git a/toolkit/content/aboutUrlClassifier.js b/toolkit/content/aboutUrlClassifier.js
-index 14b34c7e8929..a46ece12ea3f 100644
+index 14b34c7e8929..117f7428dcc6 100644
 --- a/toolkit/content/aboutUrlClassifier.js
 +++ b/toolkit/content/aboutUrlClassifier.js
-@@ -301,18 +301,18 @@ var Provider = {
- 
+@@ -302,17 +302,17 @@ var Provider = {
        let pref =
          "browser.safebrowsing.provider." + provider + ".lastupdatetime";
--      let lut = Services.prefs.getCharPref(pref, "");
+       let lut = Services.prefs.getCharPref(pref, "");
 -      values["col-lastupdatetime"] = lut ? new Date(lut * 1) : null;
-+      let lut = Services.prefs.getCharPref(pref, "") * 1;
-+      values["col-lastupdatetime"] = lut ? new Date(lut).toISOString() : null;
++      values["col-lastupdatetime"] = lut ? new Date(lut * 1).toISOString() : null; // prettier-ignore
  
        pref = "browser.safebrowsing.provider." + provider + ".nextupdatetime";
--      let nut = Services.prefs.getCharPref(pref, "");
+       let nut = Services.prefs.getCharPref(pref, "");
 -      values["col-nextupdatetime"] = nut ? new Date(nut * 1) : null;
-+      let nut = Services.prefs.getCharPref(pref, "") * 1;
-+      values["col-nextupdatetime"] = nut ? new Date(nut).toISOString() : null;
++      values["col-nextupdatetime"] = nut ? new Date(nut * 1).toISOString() : null; // prettier-ignore
  
        let listmanager = Cc[
          "@mozilla.org/url-classifier/listmanager;1"
        ].getService(Ci.nsIUrlListManager);
--      let bot = listmanager.getBackOffTime(provider);
+       let bot = listmanager.getBackOffTime(provider);
 -      values["col-backofftime"] = bot ? new Date(bot * 1) : null;
-+      let bot = listmanager.getBackOffTime(provider) * 1;
-+      values["col-backofftime"] = bot ? new Date(bot).toISOString() : null;
++      values["col-backofftime"] = bot ? new Date(bot * 1).toISOString() : null; // prettier-ignore
  
        for (let key of Object.keys(values)) {
          let elem = document.getElementById(provider + "-" + key);
