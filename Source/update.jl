@@ -18,14 +18,14 @@
 
 include("base_func.jl")
 
-const zst_cmd = "zstd -17 -M1024M -T$(Sys.CPU_THREADS) --long"
+const zst_cmd = "zstdmt -17 -M1024M --long"
 const url_git = "https://github.com/0h7z/Snowfox"
 const url_doh = "https://cloudflare-dns.com/dns-query" # https://mozilla.cloudflare-dns.com/dns-query
 const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "80749c8fcdaf9475ec6315f83df51c1b0cda6a9b.patch"
+		"../" * "49da40c543bd94b50675f107f6c029cfe9383570.patch"
 		"../" * "crlf.patch" * " --binary"
 		"../" * "font.patch"
 		"../" * "typo.patch"
@@ -404,7 +404,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""					"Description": "Search Google",\n""" *
 							"""					"Alias": "@goog",\n""" *
 							"""					"Method": "GET",\n""" *
-							"""					"URLTemplate": "https://www.google.com/search?hl=en&newwindow=1&$q",\n""" *
+							"""					"URLTemplate": "https://www.google.com/search?hl=en&filter=0&newwindow=1&$q",\n""" *
 							"""					"SuggestURLTemplate": "https://www.google.com/complete/search?$q",\n""" *
 							"""					"IconURL": "$icon_goog"\n""" *
 							"""				}\n""" *

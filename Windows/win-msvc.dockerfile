@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #
-# % docker build -t snowfox:win-base -< win-base.dockerfile
+# % docker build -t snowfox:win-msvc -< win-msvc.dockerfile
 # % docker images
 #
 # % docker container prune -f
@@ -27,23 +27,23 @@ ENV JULIA_NUM_THREADS=auto \
 	JULIA_SYS_ISDOCKER=1
 
 RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
-	git clone https://github.com/Heptazhou/Snowfox.git && cd /Snowfox/Windows && \
-	jl make.jl / && sha256sum -c *.sha256 && sha3-512sum -c *.sha3-512
+	git clone https://github.com/Heptazhou/Firefox.git --depth=1 -b v124 && \
+	mv -fv Firefox src && git config --global core.pager ""
 
 ADD https://api.github.com/repos/Heptazhou/Snowfox/git/refs/heads/master version.json
 
 RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
-	cd /Snowfox/Windows && git pull -ftp && \
-	jl make.jl / && sha256sum -c *.sha256 && sha3-512sum -c *.sha3-512
+	cd /src && git describe --always --tags > version && \
+	curl -LOf https://github.com/Heptazhou/Snowfox/raw/master/Windows/vs.jl
 
-RUN cd /Snowfox/Windows && mkdir -p $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
-	ln -s /src/browser/locales/l10n $MOZBUILD_STATE_PATH/l10n-central && \
+RUN cd /src && mkdir -p $MOZBUILD_STATE_PATH && \
+	git log --date=iso --show-signature && \
 	ln -s /src/mach /bin/mach && mkdir /pkg && \
-	tar fx snowfox-v`cat version`.source.tar.zst && \
-	mv -fv snowfox-v`cat version` src && \
-	rm -fr snowfox-*.zst && mv src / && \
-	cp -t /src mozconfig && cp -t /pkg 7z.jl
+	jl vs.jl / && cd $MOZBUILD_STATE_PATH && \
+	cp -t /pkg *.zst
 
-RUN sed -ri 's/(EUID) == 0/\1 < 0/g' /bin/makepkg && \
-	yes | sudo yay -S nsis && yes | sudo yay -Scc && systemd-machine-id-setup
+FROM scratch
+COPY --from=0 /pkg /pkg
+
+# % id=`docker create snowfox:win-msvc -q` && docker cp $id:pkg . -q && docker rm $id
 

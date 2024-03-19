@@ -23,7 +23,7 @@ const SRC = ("src/")
 # https://archive.mozilla.org/pub/firefox/
 # https://whattrainisitnow.com
 const ESR = v"115".major
-const VER = v"123.0.1-1"
+const VER = v"124.0.0-1"
 
 const schemes =
 	[
@@ -104,6 +104,7 @@ const strip_list_msc =
 		"embeds_origin"
 		"embeds_referring_origin"
 		"embeds_widget_referrer"
+		"enctid"
 		"eqid"
 		"euid"
 		"euri"
@@ -139,6 +140,7 @@ const strip_list_msc =
 		"lfid"
 		"live_from"
 		"live_play_network"
+		"lpsn"
 		"luicode"
 		"media_mid"
 		"mktgSourceCode"
@@ -207,6 +209,7 @@ const strip_list_msc =
 		"sharefrom"
 		"sharer_shareid"
 		"sharer_sharetime"
+		"sid"
 		"sigin"
 		"simid"
 		"sme"
@@ -231,6 +234,7 @@ const strip_list_msc =
 		"suglabid"
 		"suguuid"
 		"tdsourcetag"
+		"teclient"
 		"timestamp"
 		"treatmentID"
 		"ts"

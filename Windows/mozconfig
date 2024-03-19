@@ -5,7 +5,6 @@ ac_add_options --disable-default-browser-agent
 ac_add_options --disable-maintenance-service
 ac_add_options --disable-tests
 ac_add_options --disable-updater
-ac_add_options --enable-bootstrap=wine,nsis
 ac_add_options --enable-hardening
 ac_add_options --enable-install-strip
 ac_add_options --enable-optimize

@@ -26,21 +26,21 @@ FROM archlinux:base-devel
 ENV MOZBUILD_STATE_PATH=/moz RUSTUP_HOME=/rust \
 	PATH=/bin:$PATH
 
-RUN sed -ri 's/(EUID) == 0/\1 <= -1/g'            /bin/makepkg     && \
-	sed -ri 's/^.*Color/DisableDownloadTimeout/g' /etc/pacman.conf && \
-	sed -ri 's/^NoProgressBar/Color/g'            /etc/pacman.conf && \
-	echo -e '''#!/bin/env sh\njulia --compile=min --color=yes $@\nexit $?' >> /bin/jl && \
+RUN sed -ri 's/^NoProgressBar/Color/g'                                        /etc/pacman.conf && \
+	echo -e '\nNoExtract  =' usr/lib{,32}/wine/i386-\*/\*                  >> /etc/pacman.conf && \
 	echo -e '\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$arch' >> /etc/pacman.conf && \
-	echo -e 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+	echo -e '''#!/bin/env sh\njulia --compile=min --color=yes $@\nexit $?' >> /bin/jl && \
+	echo    'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' \
+	| cat - /etc/pacman.d/mirrorlist | tee /etc/pacman.d/mirrorlist > /dev/null
 
 RUN pacman-key --init && pacman-key --lsign-key farseerfc@archlinux.org && \
 	yes | pacman -Syu dbus-broker-units && yes | pacman -S archlinuxcn-keyring fastfetch && \
 	yes | pacman -S --needed grml-zsh-config nano-syntax-highlighting zsh-completions \
-	7-zip-full clang git julia llvm mc nodejs-lts-iron python-pip sha3sum tree unzip wget \
-	cbindgen cross dump_syms mercurial msitools nasm upx wasi-{compiler-rt,libc++{,abi}} && \
-	yes | pacman -Scc && chsh -s /bin/zsh && chmod +x /bin/jl
+	7-zip-full clang julia llvm mc nodejs-lts-iron python-pip sha3sum tree unzip wget \
+	cbindgen cross dump_syms msitools nasm upx wasi-{compiler-rt,libc++{,abi}} yay && \
+	yes | pacman -Sdd wine-valve && yes | pacman -Scc && chsh -s /bin/zsh
 
-RUN cd /bin && ln -s clear cls && ln -s nano nn && ln -s nano vi && \
+RUN cd /bin && ln -s clear cls && ln -s nano nn && ln -s nano vi && chmod +x jl && \
 	git config --global init.defaultbranch master && \
 	git config --global pull.rebase true && \
 	git config --global user.email root@localhost && \

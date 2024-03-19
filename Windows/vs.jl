@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2023-2024 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,17 +14,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 # [compat]
-# julia = "≥ 1.5"
+# julia = "≥ 1"
 
-include("base_func.jl")
+const sh(c::String) = run(`sh -c $c`) # include not allowed here
 
 const py = "taskcluster/scripts/misc/get_vs.py"
 
 const vs = "build/vs/vs2019.yaml"
 
-isempty(ARGS) || cd("/src") do
-	dd = get(ENV, "MOZBUILD_STATE_PATH", "/moz") * "/vs"
-	sh("mach python --virtualenv=build $py $vs $dd")
-	sh("mach clobber")
+isempty(ARGS) || let moz = "\${MOZBUILD_STATE_PATH:=/moz}"
+	sh.(["mach python --virtualenv=build $py $vs $moz/vs"])
+	sh.(["mach clobber"])
+	sh.(["tar PIfc \"zstdmt -17 -M1024M --long\" $moz/vs{.tar.zst,}"])
 end
 
