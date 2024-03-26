@@ -28,7 +28,7 @@ ENV CARGO_BUILD_JOBS=1 \
 
 RUN cd /tmp && rustup default 1.77 && rustup target add x86_64-pc-windows-msvc && \
 	curl -LO https://github.com/Heptazhou/Firefox/releases/latest/download/vs.tar.zst && \
-	tar Pfx vs.tar.zst && rm vs.tar.zst
+	tar Pfx vs.tar.zst && rm vs.tar.zst && systemd-machine-id-setup
 RUN cd /src && ver=`cargo pkgid windows | grep -Po '#\K.+'` && cd $MOZBUILD_STATE_PATH && \
 	curl -LR https://crates.io/api/v1/crates/windows/$ver/download -o windows.crate && \
 	tar Ufx windows.crate && rm windows.crate && mv windows-{$ver,rs}

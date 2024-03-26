@@ -23,24 +23,24 @@
 
 FROM archlinux:base-devel
 
-ENV MOZBUILD_STATE_PATH=/moz RUSTUP_HOME=/rust \
+ENV MIRRORLIST=/etc/pacman.d/mirrorlist MOZBUILD_STATE_PATH=/moz RUSTUP_HOME=/rust \
 	PATH=/bin:$PATH
 
-RUN sed -ri 's/^NoProgressBar/Color/g'                                        /etc/pacman.conf && \
-	echo -e '\nNoExtract  =' usr/lib{,32}/wine/i386-\*/\*                  >> /etc/pacman.conf && \
+RUN sed -re 's/(SigLevel) .+/\1 = Optional/g' -e 's/NoProgressBar/Color/g' -i /etc/pacman.conf && \
 	echo -e '\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$arch' >> /etc/pacman.conf && \
-	echo -e '''#!/bin/env sh\njulia --compile=min --color=yes $@\nexit $?' >> /bin/jl && \
-	echo    'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' \
-	| cat - /etc/pacman.d/mirrorlist | tee /etc/pacman.d/mirrorlist > /dev/null
+	echo -e '\nNoExtract  =' usr/lib{,32}/wine/i386-\*/\*                  >> /etc/pacman.conf && \
+	echo -e 'Server = https://mirrors.dotsrc.org/archlinux/$repo/os/$arch' >> $MIRRORLIST      && \
+	echo -e 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' >> $MIRRORLIST      && \
+	tac $MIRRORLIST > $MIRRORLIST~ && mv $MIRRORLIST{~,}
 
 RUN pacman-key --init && pacman-key --lsign-key farseerfc@archlinux.org && \
-	yes | pacman -Syu dbus-broker-units && yes | pacman -S archlinuxcn-keyring fastfetch && \
+	yes | pacman -Syu dbus-daemon-units && yes | pacman -S archlinuxcn-keyring fastfetch && \
 	yes | pacman -S --needed grml-zsh-config nano-syntax-highlighting zsh-completions \
 	7-zip-full clang julia llvm mc nodejs-lts-iron python-pip sha3sum tree unzip wget \
 	cbindgen cross dump_syms msitools nasm upx wasi-{compiler-rt,libc++{,abi}} yay && \
 	yes | pacman -Sdd wine-valve && yes | pacman -Scc && chsh -s /bin/zsh
 
-RUN cd /bin && ln -s clear cls && ln -s nano nn && ln -s nano vi && chmod +x jl && \
+RUN cd /bin && ln -s clear cls && ln -s julia jl && ln -s nano nn && ln -s nano vi && \
 	git config --global init.defaultbranch master && \
 	git config --global pull.rebase true && \
 	git config --global user.email root@localhost && \

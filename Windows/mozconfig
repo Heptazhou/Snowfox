@@ -1,4 +1,5 @@
 ac_add_options --allow-addon-sideload
+ac_add_options --disable-bootstrap
 ac_add_options --disable-crashreporter
 ac_add_options --disable-debug
 ac_add_options --disable-default-browser-agent

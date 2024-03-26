@@ -44,6 +44,6 @@ RUN cd /Snowfox/Windows && mkdir -p $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
 	rm -fr snowfox-*.zst && mv src / && \
 	cp -t /src mozconfig && cp -t /pkg 7z.jl
 
-RUN sed -ri 's/(EUID) == 0/\1 < 0/g' /bin/makepkg && \
-	yes | sudo yay -S nsis && yes | sudo yay -Scc && systemd-machine-id-setup
+RUN v=nsis-3.09-1 && yes | pacman -U \
+	https://github.com/0h7z/aur/releases/download/$v/$v-x86_64.pkg.tar.zst
 
