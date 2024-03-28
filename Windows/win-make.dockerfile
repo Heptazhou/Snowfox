@@ -26,8 +26,7 @@ FROM snowfox:win-base
 ENV CARGO_BUILD_JOBS=1 \
 	CARGO_INCREMENTAL=0
 
-RUN cd /tmp && rustup default 1.77 && rustup target add x86_64-pc-windows-msvc && \
-	curl -LO https://github.com/Heptazhou/Firefox/releases/latest/download/vs.tar.zst && \
+RUN cd /src && rustup default 1.77 && rustup target add x86_64-pc-windows-msvc && \
 	tar Pfx vs.tar.zst && rm vs.tar.zst && systemd-machine-id-setup
 RUN cd /src && ver=`cargo pkgid windows | grep -Po '#\K.+'` && cd $MOZBUILD_STATE_PATH && \
 	curl -LR https://crates.io/api/v1/crates/windows/$ver/download -o windows.crate && \
@@ -38,6 +37,7 @@ RUN cd /src && mach build
 RUN cd /src && mach buildsymbols
 RUN cd /src && mach package-multi-locale \
 	--locales `cat browser/locales/shipped-locales` > /dev/null
+
 RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt /pkg \
 	install/sea/* snowfox-* && rm /pkg/*.xpt_artifacts.* || true
 RUN cd /pkg && jl 7z.jl / && rm 7z.jl

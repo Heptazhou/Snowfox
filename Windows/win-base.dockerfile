@@ -44,6 +44,6 @@ RUN cd /Snowfox/Windows && mkdir -p $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
 	rm -fr snowfox-*.zst && mv src / && \
 	cp -t /src mozconfig && cp -t /pkg 7z.jl
 
-RUN v=nsis-3.09-1 && yes | pacman -U \
-	https://github.com/0h7z/aur/releases/download/$v/$v-x86_64.pkg.tar.zst
+RUN cd /src && curl -LO \
+	https://github.com/Heptazhou/Firefox/releases/latest/download/vs.tar.zst
 

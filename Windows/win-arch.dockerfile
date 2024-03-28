@@ -27,23 +27,23 @@ ENV MIRRORLIST=/etc/pacman.d/mirrorlist MOZBUILD_STATE_PATH=/moz RUSTUP_HOME=/ru
 	PATH=/bin:$PATH
 
 RUN sed -re 's/(SigLevel) .+/\1 = Optional/g' -e 's/NoProgressBar/Color/g' -i /etc/pacman.conf && \
-	echo -e '\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$arch' >> /etc/pacman.conf && \
-	echo -e '\nNoExtract  =' usr/lib{,32}/wine/i386-\*/\*                  >> /etc/pacman.conf && \
 	echo -e 'Server = https://mirrors.dotsrc.org/archlinux/$repo/os/$arch' >> $MIRRORLIST      && \
 	echo -e 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' >> $MIRRORLIST      && \
-	tac $MIRRORLIST > $MIRRORLIST~ && mv $MIRRORLIST{~,}
+	tac $MIRRORLIST > $MIRRORLIST~ && mv $MIRRORLIST{~,} && pacman-key --init
 
-RUN pacman-key --init && pacman-key --lsign-key farseerfc@archlinux.org && \
-	yes | pacman -Syu dbus-daemon-units && yes | pacman -S archlinuxcn-keyring fastfetch && \
-	yes | pacman -S --needed grml-zsh-config nano-syntax-highlighting zsh-completions \
-	7-zip-full clang julia llvm mc nodejs-lts-iron python-pip sha3sum tree unzip wget \
-	cbindgen cross dump_syms msitools nasm upx wasi-{compiler-rt,libc++{,abi}} yay && \
-	yes | pacman -Sdd wine-valve && yes | pacman -Scc && chsh -s /bin/zsh
+RUN yes | pacman -Syu dbus-daemon-units fastfetch grml-zsh-config mc zsh-completions && \
+	yes | pacman -S --needed bash-completion git julia nano-syntax-highlighting sha3sum \
+	clang llvm msitools nasm nodejs-lts-iron python-pip wasi-{compiler-rt,libc++{,abi}} \
+	cbindgen cross dump_syms unzip upx wget && yes | pacman -Scc && chsh -s /bin/zsh
+
+RUN  url=https://github.com/0h7z/aur/releases/download && yes | pacman -U \
+	$url/7-zip-full-v23.01-4/7-zip-full-23.01-4-x86_64.pkg.tar.zst \
+	$url/nsis-v3.09-1/nsis-3.09-1-x86_64.pkg.tar.zst \
+	$url/wine64-v9.5-1/wine64-9.5-1-x86_64.pkg.tar.zst && yes | pacman -Scc
 
 RUN cd /bin && ln -s clear cls && ln -s julia jl && ln -s nano nn && ln -s nano vi && \
-	git config --global init.defaultbranch master && \
 	git config --global pull.rebase true && \
+	git config --global safe.directory "*" && \
 	git config --global user.email root@localhost && \
-	git config --global user.name root && \
-	git config --global safe.directory "*"
+	git config --global user.name root
 
