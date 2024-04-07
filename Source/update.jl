@@ -25,7 +25,7 @@ const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "49da40c543bd94b50675f107f6c029cfe9383570.patch"
+		"../" * "e41be1e61b11e44df25beae413ad0e05c04970ac.patch"
 		"../" * "crlf.patch" * " --binary"
 		"../" * "font.patch"
 		"../" * "typo.patch"
