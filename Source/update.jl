@@ -25,7 +25,7 @@ const url_doc = "https://0h7z.com/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
-		"../" * "e41be1e61b11e44df25beae413ad0e05c04970ac.patch"
+		"../" * "$(string(:v, VER.major)).patch"
 		"../" * "crlf.patch" * " --binary"
 		"../" * "font.patch"
 		"../" * "typo.patch"
@@ -37,6 +37,7 @@ const patch_b =
 		"patches/bootstrap-without-vcs.patch"
 		"patches/bootstrap.patch"
 		"patches/dbus_name.patch"
+		"patches/encoding_rs.patch"
 		"patches/flatpak-autoconf.patch"
 		"patches/fullpage-translations-customization.patch"
 		"patches/fullpage-translations.patch"

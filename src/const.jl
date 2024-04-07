@@ -22,8 +22,8 @@ const SRC = ("src/")
 
 # https://archive.mozilla.org/pub/firefox/
 # https://whattrainisitnow.com
-const ESR = v"115".major
-const VER = v"125.0.0-0"
+const ESR = v"115".major # 128
+const VER = v"126.0.1-1"
 
 const schemes =
 	[
@@ -63,6 +63,7 @@ const strip_list_msc =
 		"__cft__[0]"
 		"__tn__"
 		"_at_"
+		"_cldee"
 		"_ff"
 		"_nc_sid"
 		"_rand"
@@ -106,6 +107,7 @@ const strip_list_msc =
 		"embeds_widget_referrer"
 		"enctid"
 		"eqid"
+		"esid"
 		"euid"
 		"euri"
 		"fclid"
@@ -173,6 +175,7 @@ const strip_list_msc =
 		"rand"
 		"rawFrom"
 		"rdfrom"
+		"recipientid"
 		"refer_flag"
 		"referfrom"
 		"req_id"

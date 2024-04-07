@@ -16,7 +16,7 @@
 # [compat]
 # julia = "≥ 1"
 
-const sh(c::String) = run(`sh -c $c`) # include not allowed here
+const sh(c::String) = run(`sh -c $c`)
 
 const py = "taskcluster/scripts/misc/get_vs.py"
 
@@ -24,7 +24,7 @@ const vs = "build/vs/vs2019.yaml"
 
 isempty(ARGS) || let moz = "\${MOZBUILD_STATE_PATH:=/moz}"
 	sh.(["mach python --virtualenv=build $py $vs $moz/vs"])
-	sh.(["mach clobber"])
-	sh.(["tar PIfc \"zstdmt -17 -M1024M --long\" $moz/vs{.tar.zst,}"])
+	sh.(["mach clobber", "tree -La 2 $moz/vs"])
+	sh.(["tar IfCc \"zstdmt -17 -M1024M --long\" $moz/vs.tar.zst $moz vs"])
 end
 

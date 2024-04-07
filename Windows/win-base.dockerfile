@@ -44,6 +44,6 @@ RUN cd /Snowfox/Windows && mkdir -p $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
 	rm -fr snowfox-*.zst && mv src / && \
 	cp -t /src mozconfig && cp -t /pkg 7z.jl
 
-RUN cd /src && curl -LO \
+RUN cd $MOZBUILD_STATE_PATH && curl -LO \
 	https://github.com/Heptazhou/Firefox/releases/latest/download/vs.tar.zst
 
