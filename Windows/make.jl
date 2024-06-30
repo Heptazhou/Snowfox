@@ -23,10 +23,10 @@ const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
 
 # https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html#schedule
 # https://releases.rs
-const VRS, _ = "1.77", "win-make.dockerfile"
+const VRS, _ = "1.78", "win-make.dockerfile"
 
 # https://github.com/Heptazhou/Firefox/releases
-const VVS, _ = "v125", "win-msvc.dockerfile"
+const VVS, _ = "v125", VER
 
 try
 	cd(@__DIR__)

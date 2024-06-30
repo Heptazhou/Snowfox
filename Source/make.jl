@@ -90,7 +90,7 @@ function fetch()
 	@info "Fetching . . ."
 	cd((@__DIR__)) do
 		ispath(SRC) && throw(SystemError(SRC, 17)) # EEXIST 17 File exists
-		@exec [GIT, "clone", "--depth=1", CLN, SRC, "-b", "126.0.1-1"]
+		@exec [GIT, "clone", "--depth=1", CLN, SRC]
 		@exec [GIT, "clone", "--depth=1", CFG, SRC * "submodules/" * "settings"]
 		@exec [JLC..., "move.jl", SRC, "1"]
 		@exec [JLC..., "remote.jl"]

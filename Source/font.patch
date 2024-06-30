@@ -2,10 +2,10 @@
  1 file changed, 15 insertions(+), 15 deletions(-)
 
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index da2042c6e31a..19b4dc85f771 100644
+index ad6c3bb45fbb..94c4f901a1d9 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
-@@ -2224,13 +2224,13 @@ pref("font.size.monospace.x-math", 13);
+@@ -2191,13 +2191,13 @@ pref("font.size.monospace.x-math", 13);
    pref("font.name-list.monospace.he", "Fixed Miriam Transparent, Miriam Fixed, Rod, Consolas, Courier New");
    pref("font.name-list.cursive.he", "Guttman Yad, Ktav, Arial");
  
@@ -25,7 +25,7 @@ index da2042c6e31a..19b4dc85f771 100644
    pref("font.name-list.cursive.ko", "Gungsuh");
  
    pref("font.name-list.serif.th", "Tahoma");
-@@ -2253,27 +2253,27 @@ pref("font.size.monospace.x-math", 13);
+@@ -2220,27 +2220,27 @@ pref("font.size.monospace.x-math", 13);
    pref("font.name-list.monospace.x-western", "Consolas");
    pref("font.name-list.cursive.x-western", "Comic Sans MS");
  
