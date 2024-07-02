@@ -1,9 +1,10 @@
  browser/actors/EncryptedMediaParent.sys.mjs        |   3 +
+ browser/actors/ScreenshotsComponentChild.sys.mjs   |   6 +
  browser/app/Makefile.in                            |   8 +-
  browser/app/macbuild/Contents/Info.plist.in        |   2 +-
  browser/app/moz.build                              |   2 +-
  browser/app/nsBrowserApp.cpp                       |   2 +-
- browser/app/profile/firefox.js                     | 114 +++++-----
+ browser/app/profile/firefox.js                     | 116 +++++-----
  .../{firefox.exe.manifest => snowfox.exe.manifest} |   4 +-
  browser/app/splash.rc                              |   4 +-
  browser/base/content/overrides/app-license.html    |   6 +-
@@ -20,7 +21,7 @@
  browser/components/preferences/main.js             |   2 +-
  browser/components/preferences/privacy.inc.xhtml   |  12 +-
  browser/components/preferences/privacy.js          |   4 +-
- browser/components/screenshots/fileHelpers.mjs     |   6 +-
+ browser/components/screenshots/fileHelpers.mjs     |   8 +-
  .../components/search/extensions/ddg/manifest.json |  10 +-
  browser/components/search/jar.mn                   |   2 +-
  .../components/sessionstore/SessionStore.sys.mjs   |  14 +-
@@ -111,7 +112,7 @@
  .../extensions/internal/AddonSettings.sys.mjs      |   2 +-
  toolkit/themes/shared/aboutServiceWorkers.css      |   5 +
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
- 113 files changed, 798 insertions(+), 523 deletions(-)
+ 114 files changed, 807 insertions(+), 524 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 66fc21f9be2e..9a7d104cacd7 100644
@@ -127,6 +128,30 @@ index 66fc21f9be2e..9a7d104cacd7 100644
          this.handledMessages.add(status);
          notificationId = "drmContentDisabled";
          buttonCallback = () => {
+diff --git a/browser/actors/ScreenshotsComponentChild.sys.mjs b/browser/actors/ScreenshotsComponentChild.sys.mjs
+index b578dfe7fa14..75055a392232 100644
+--- a/browser/actors/ScreenshotsComponentChild.sys.mjs
++++ b/browser/actors/ScreenshotsComponentChild.sys.mjs
+@@ -40,6 +40,8 @@ export class ScreenshotsComponentChild extends JSWindowActorChild {
+         return this.getFullPageBounds();
+       case "Screenshots:getVisibleBounds":
+         return this.getVisibleBounds();
++      case "Screenshots:getDocumentOrigin":
++        return this.getDocumentOrigin();
+       case "Screenshots:getDocumentTitle":
+         return this.getDocumentTitle();
+       case "Screenshots:GetMethodsUsed":
+@@ -159,6 +161,10 @@ export class ScreenshotsComponentChild extends JSWindowActorChild {
+     this.endScreenshotsOverlay({ doNotResetMethods: true });
+   }
+ 
++  getDocumentOrigin() {
++    return this.document.location?.origin ?? "";
++  }
++
+   getDocumentTitle() {
+     return this.document.title;
+   }
 diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
 index 08490ba27ca2..d0033b03f9cf 100644
 --- a/browser/app/Makefile.in
@@ -195,7 +220,7 @@ index e1f11b9cfdfa..a68079180132 100644
      }
      FreeLibrary(user32);
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 28de24860b74..3136b7a5b550 100644
+index 28de24860b74..72322b9bc864 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -48,7 +48,7 @@ pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/pri
@@ -252,6 +277,15 @@ index 28de24860b74..3136b7a5b550 100644
  pref("browser.startup.homepage",            "about:home");
  pref("browser.startup.homepage.abouthome_cache.enabled", true);
  pref("browser.startup.homepage.abouthome_cache.loglevel", "Warn");
+@@ -326,7 +326,7 @@ pref("browser.startup.preXulSkeletonUI", true);
+ // Whether the checkbox to enable Windows launch on login is shown
+ pref("browser.startup.windowsLaunchOnLogin.enabled", true);
+ // Whether to show the launch on login infobar notification
+-pref("browser.startup.windowsLaunchOnLogin.disableLaunchOnLoginPrompt", false);
++pref("browser.startup.windowsLaunchOnLogin.disableLaunchOnLoginPrompt", true);
+ #endif
+ 
+ // Show an upgrade dialog on major upgrades.
 @@ -338,7 +338,7 @@ pref("browser.warnOnQuit", true);
  
  // Whether to warn when quitting when using the shortcut key.
@@ -917,20 +951,24 @@ index 2d6fe7cacd20..0fb577c54058 100644
    },
  
 diff --git a/browser/components/screenshots/fileHelpers.mjs b/browser/components/screenshots/fileHelpers.mjs
-index b3024904809a..0cf5037df2f4 100644
+index b3024904809a..58afa6beea7d 100644
 --- a/browser/components/screenshots/fileHelpers.mjs
 +++ b/browser/components/screenshots/fileHelpers.mjs
-@@ -42,7 +42,9 @@ export async function getFilename(filenameTitle, browser) {
-       : FALLBACK_MAX_LEAFNAME,
-     MAX_LEAFNAME
-   );
-+  const host = location?.origin?.replace(/[:/]+|$/g, " ") || "";
-   /* eslint-disable no-control-regex */
-+  filenameTitle = host + filenameTitle;
-   filenameTitle = filenameTitle
-     .replace(/[\\/]/g, "_")
-     .replace(/[\u200e\u200f\u202a-\u202e]/g, "")
-@@ -54,8 +56,8 @@ export async function getFilename(filenameTitle, browser) {
+@@ -28,9 +28,13 @@ ChromeUtils.defineESModuleGetters(lazy, {
+  */
+ export async function getFilename(filenameTitle, browser) {
+   if (filenameTitle === null) {
++    const _origin = await lazy.ScreenshotsUtils.getActor(browser).sendQuery(
++      "Screenshots:getDocumentOrigin"
++    );
+     filenameTitle = await lazy.ScreenshotsUtils.getActor(browser).sendQuery(
+       "Screenshots:getDocumentTitle"
+     );
++    filenameTitle = _origin.replace(/[:/]+|$/g, " ") + filenameTitle;
+   }
+   const date = new Date();
+   const knownDownloadsDir = await getDownloadDirectory();
+@@ -54,8 +58,8 @@ export async function getFilename(filenameTitle, browser) {
      date.getTime() - date.getTimezoneOffset() * 60 * 1000
    ).toISOString();
    const filenameDate = currentDateTime.substring(0, 10);

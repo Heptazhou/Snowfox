@@ -30,7 +30,7 @@
  29 files changed, 76 insertions(+), 76 deletions(-)
 
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 3136b7a5b550..31be33d95ff7 100644
+index 72322b9bc864..464fabc3c928 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -343,7 +343,7 @@ pref("browser.warnOnQuit", true);
