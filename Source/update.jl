@@ -318,6 +318,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"$p -z -r 's/(import-from-firefox\\s*=\\s*\\.label\\s*=\\s*)Snowfox/\\1Firefox/g' $q" *
 							#
 							"$p -e 's/Mozilla Snowfox/Snowfox/g' $q", "p")
+						s = replace(s, r"\"( en-US )[^\"]+ \"" => s"\"\1\"")
 						s = replace(s, r"\bwget \K-q" => "-T20 -t0 --retry-connrefused -q")
 						s = replace(s, r"^N=\K\d+$"m => max(Sys.CPU_THREADS, 8))
 					end

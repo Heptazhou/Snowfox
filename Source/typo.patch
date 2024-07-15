@@ -2,7 +2,7 @@
  browser/base/content/browser-sync.js               |  4 +--
  browser/components/preferences/preferences.js      |  2 +-
  browser/components/search/content/searchbar.js     |  2 +-
- .../components/sessionstore/SessionStore.sys.mjs   | 14 ++++----
+ .../components/sessionstore/SessionStore.sys.mjs   | 16 ++++-----
  .../client/framework/browser-toolbox/window.js     |  2 +-
  devtools/client/fronts/inspector.js                |  2 +-
  devtools/server/actors/watcher/session-context.js  |  2 +-
@@ -27,13 +27,13 @@
  toolkit/content/widgets/datetimebox.js             |  4 +--
  toolkit/modules/AppConstants.sys.mjs               |  2 +-
  toolkit/xre/nsAppRunner.cpp                        |  4 +--
- 29 files changed, 76 insertions(+), 76 deletions(-)
+ 29 files changed, 77 insertions(+), 77 deletions(-)
 
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 72322b9bc864..464fabc3c928 100644
+index f74e38c0e936..139afbfdd2e4 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
-@@ -343,7 +343,7 @@ pref("browser.warnOnQuit", true);
+@@ -346,7 +346,7 @@ pref("browser.warnOnQuit", true);
    pref("browser.warnOnQuitShortcut", true);
  #endif
  
@@ -51,7 +51,7 @@ index 72322b9bc864..464fabc3c928 100644
  pref("browser.tabs.remote.separatePrivilegedContentProcess", true);
  
  #if defined(NIGHTLY_BUILD) && !defined(MOZ_ASAN)
-@@ -975,7 +975,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
+@@ -979,7 +979,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
    // implementation, but otherwise the 10s value is arbitrary.
    pref("browser.lowMemoryPollingIntervalMS", 10000);
  
@@ -60,7 +60,7 @@ index 72322b9bc864..464fabc3c928 100644
    // pressure. Changes to the pref take effect immediately. Browser restart not
    // required. The pref value is a bitmask:
    // 0x0: No response (other than recording for telemetry, crash reporting)
-@@ -993,7 +993,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
+@@ -997,7 +997,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
    // Controls which macOS memory-pressure level triggers the browser low memory
    // response. Changes to the pref take effect immediately. Browser restart not
    // required. By default, use the "critical" level as that occurs after "warn"
@@ -69,7 +69,7 @@ index 72322b9bc864..464fabc3c928 100644
    // The macOS system memory-pressure level is either none, "warn", or
    // "critical". The OS notifies the browser when the level changes. A false
    // value for the pref indicates the low memory response should occur when
-@@ -1927,7 +1927,7 @@ pref("identity.sync.tokenserver.uri", "https://token.services.mozilla.com/1.0/sy
+@@ -1962,7 +1962,7 @@ pref("identity.sync.tokenserver.uri", "https://token.services.mozilla.com/1.0/sy
  
  // Auto-config URL for FxA self-hosters, makes an HTTP request to
  // [identity.fxaccounts.autoconfig.uri]/.well-known/fxa-client-configuration
@@ -78,7 +78,7 @@ index 72322b9bc864..464fabc3c928 100644
  // of making changes to "identity.fxaccounts.*.uri".
  pref("identity.fxaccounts.autoconfig.uri", "");
  
-@@ -2105,19 +2105,19 @@ pref("browser.contentblocking.reject-and-isolate-cookies.preferences.ui.enabled"
+@@ -2134,19 +2134,19 @@ pref("browser.contentblocking.reject-and-isolate-cookies.preferences.ui.enabled"
  //     "fppPrivate": Fingerprinting Protection enabled in private windows
  //     "-fppPrivate": Fingerprinting Protection disabled in private windows
  //   Cookie behavior:
@@ -110,7 +110,7 @@ index 72322b9bc864..464fabc3c928 100644
  // One value from each section must be included in the browser.contentblocking.features.strict pref.
  pref("browser.contentblocking.features.strict", "tp,tpPrivate,cookieBehavior5,cookieBehaviorPBM5,cm,fp,stp,emailTP,emailTPPrivate,lvl2,rp,rpTop,ocsp,qps,qpsPBM,fpp,fppPrivate");
  
-@@ -2562,7 +2562,7 @@ pref("devtools.target-switching.server.enabled", true);
+@@ -2587,7 +2587,7 @@ pref("devtools.target-switching.server.enabled", true);
  // remote frames).
  pref("devtools.every-frame-target.enabled", true);
  
@@ -119,7 +119,7 @@ index 72322b9bc864..464fabc3c928 100644
  // of the original tab the popups are coming from
  pref("devtools.popups.debug", true);
  
-@@ -2723,9 +2723,9 @@ pref("devtools.netmonitor.har.multiple-pages", false);
+@@ -2748,9 +2748,9 @@ pref("devtools.netmonitor.har.multiple-pages", false);
  pref("devtools.netmonitor.audits.slow", 500);
  
  // Enable the new Edit and Resend panel
@@ -132,10 +132,10 @@ index 72322b9bc864..464fabc3c928 100644
  // Enable the Storage Inspector
  pref("devtools.storage.enabled", true);
 diff --git a/browser/base/content/browser-sync.js b/browser/base/content/browser-sync.js
-index 9aa6cc5cd4e1..eb51b8a32bd6 100644
+index 372693c3c7b0..71994434b3c2 100644
 --- a/browser/base/content/browser-sync.js
 +++ b/browser/base/content/browser-sync.js
-@@ -764,7 +764,7 @@ var gSync = {
+@@ -756,7 +756,7 @@ var gSync = {
      if (!fxAccounts.device.recentDeviceList) {
        if (await this.refreshFxaDevices()) {
          // Assuming we made the call successfully it should be impossible to end
@@ -144,7 +144,7 @@ index 9aa6cc5cd4e1..eb51b8a32bd6 100644
          if (!fxAccounts.device.recentDeviceList) {
            console.warn("Refreshing device list didn't find any devices.");
          }
-@@ -1700,7 +1700,7 @@ var gSync = {
+@@ -1685,7 +1685,7 @@ var gSync = {
  
    // "Send Tab to Device" menu item
    updateTabContextMenu(aPopupMenu, aTargetTab) {
@@ -154,10 +154,10 @@ index 9aa6cc5cd4e1..eb51b8a32bd6 100644
      this.init();
  
 diff --git a/browser/components/preferences/preferences.js b/browser/components/preferences/preferences.js
-index 34d6a9b11d81..474a3f6c7b23 100644
+index 7e21bab426b6..87478e0f1a08 100644
 --- a/browser/components/preferences/preferences.js
 +++ b/browser/components/preferences/preferences.js
-@@ -226,7 +226,7 @@ function init_all() {
+@@ -224,7 +224,7 @@ function init_all() {
      register_module("paneMoreFromMozilla", gMoreFromMozillaPane);
    }
    // The Sync category needs to be the last of the "real" categories
@@ -167,7 +167,7 @@ index 34d6a9b11d81..474a3f6c7b23 100644
    if (Services.prefs.getBoolPref("identity.fxaccounts.enabled")) {
      document.getElementById("category-sync").hidden = false;
 diff --git a/browser/components/search/content/searchbar.js b/browser/components/search/content/searchbar.js
-index e0fe7f41e3b8..84e91d93c9c5 100644
+index 0d2a9bf183d6..04e93ee2028d 100644
 --- a/browser/components/search/content/searchbar.js
 +++ b/browser/components/search/content/searchbar.js
 @@ -744,7 +744,7 @@
@@ -180,10 +180,10 @@ index e0fe7f41e3b8..84e91d93c9c5 100644
            // but since we're overriding openPopup we need to unhide the panel
            // ourselves.
 diff --git a/browser/components/sessionstore/SessionStore.sys.mjs b/browser/components/sessionstore/SessionStore.sys.mjs
-index 07de9de3b158..6551f3b8142d 100644
+index 80d0a0322876..1d9491c9f298 100644
 --- a/browser/components/sessionstore/SessionStore.sys.mjs
 +++ b/browser/components/sessionstore/SessionStore.sys.mjs
-@@ -350,7 +350,7 @@ export var SessionStore = {
+@@ -342,7 +342,7 @@ export var SessionStore = {
              to identify which closed tabs to include in the count.
     * @param {Window} aOptions.sourceWindow
              A browser window used to identity privateness.
@@ -192,7 +192,7 @@ index 07de9de3b158..6551f3b8142d 100644
     * @param {boolean} [aOptions.private = false]
              Explicit indicator to constrain tab count to only private or non-private windows,
     * @param {boolean} [aOptions.closedTabsFromAllWindows]
-@@ -388,7 +388,7 @@ export var SessionStore = {
+@@ -380,7 +380,7 @@ export var SessionStore = {
              to identify which closed tabs to get data from
     * @param {Window} aOptions.sourceWindow
              A browser window used to identity privateness.
@@ -201,7 +201,7 @@ index 07de9de3b158..6551f3b8142d 100644
     * @param {boolean} [aOptions.private = false]
              Explicit indicator to constrain tab data to only private or non-private windows,
     * @param {boolean} [aOptions.closedTabsFromAllWindows]
-@@ -490,7 +490,7 @@ export var SessionStore = {
+@@ -482,7 +482,7 @@ export var SessionStore = {
              A SessionStore window id used to look up the window where the tab was closed
     * @param {number} aSourceOptions.sourceClosedId
              The closedId used to look up the closed window where the tab was closed
@@ -210,7 +210,16 @@ index 07de9de3b158..6551f3b8142d 100644
     */
    forgetClosedTabById: function ss_forgetClosedTabById(
      aClosedId,
-@@ -2564,7 +2564,7 @@ var SessionStoreInternal = {
+@@ -498,7 +498,7 @@ export var SessionStore = {
+    *
+    * @param {integer} aClosedId
+    *        The closedId of the window
+-   * @throws {InvalidArgumentError} if the closedId doesnt match a closed window
++   * @throws {InvalidArgumentError} if the closedId doesn't match a closed window
+    */
+   forgetClosedWindowById: function ss_forgetClosedWindowById(aClosedId) {
+     SessionStoreInternal.forgetClosedWindowById(aClosedId);
+@@ -2552,7 +2552,7 @@ var SessionStoreInternal = {
      // Clear closed tab data.
      if (windowData._closedTabs.length) {
        // Remove all of the closed tabs data.
@@ -219,7 +228,7 @@ index 07de9de3b158..6551f3b8142d 100644
        // and removes the tabs from from the _lastClosedActions list
        while (windowData._closedTabs.length) {
          this.removeClosedTabData(windowData, windowData._closedTabs, 0);
-@@ -5222,7 +5222,7 @@ var SessionStoreInternal = {
+@@ -5205,7 +5205,7 @@ var SessionStoreInternal = {
        // Remove all previous tab data.
        tabsDataArray.length = 0;
      } else {
@@ -228,7 +237,7 @@ index 07de9de3b158..6551f3b8142d 100644
        tabsDataArray.splice(numTabsInWindow - numTabsToRestore);
      }
  
-@@ -5436,7 +5436,7 @@ var SessionStoreInternal = {
+@@ -5419,7 +5419,7 @@ var SessionStoreInternal = {
        // TAB_LAZY_STATES holds data for lazy-browser tabs to proxy for
        // data unobtainable from the unbound browser.  This only applies to lazy
        // browsers and will be removed once the browser is inserted in the document.
@@ -237,7 +246,7 @@ index 07de9de3b158..6551f3b8142d 100644
        let url = "about:blank";
        let title = "";
  
-@@ -7324,7 +7324,7 @@ var TabRestoreQueue = {
+@@ -7307,7 +7307,7 @@ var TabRestoreQueue = {
    },
  };
  
@@ -247,10 +256,10 @@ index 07de9de3b158..6551f3b8142d 100644
  // windows they still hold a reference to but we don't.
  var DyingWindowCache = {
 diff --git a/devtools/client/framework/browser-toolbox/window.js b/devtools/client/framework/browser-toolbox/window.js
-index e1b4c8031bf1..4b8a79538761 100644
+index 98dc8a5717f0..8a494907a812 100644
 --- a/devtools/client/framework/browser-toolbox/window.js
 +++ b/devtools/client/framework/browser-toolbox/window.js
-@@ -144,7 +144,7 @@ function setPrefDefaults() {
+@@ -142,7 +142,7 @@ function setPrefDefaults() {
    // if we ever opened a URL from the browser toolbox. (but it doesn't seem to be enough)
    Services.prefs.setBoolPref("browser.sessionstore.resume_from_crash", false);
  
@@ -273,7 +282,7 @@ index 116993078b5c..f9bbf93e7847 100644
          );
        }
 diff --git a/devtools/server/actors/watcher/session-context.js b/devtools/server/actors/watcher/session-context.js
-index 645739945567..33920fe75b65 100644
+index 15f1b40934d3..105bfe09e205 100644
 --- a/devtools/server/actors/watcher/session-context.js
 +++ b/devtools/server/actors/watcher/session-context.js
 @@ -75,7 +75,7 @@ function createBrowserElementSessionContext(browserElement, config) {
@@ -297,7 +306,7 @@ index e11886599b8f..40eca29f138d 100644
   * Permission is hereby granted, free of charge, to any person obtaining
   * a copy of this software and associated documentation files (the
 diff --git a/dom/media/CubebUtils.cpp b/dom/media/CubebUtils.cpp
-index 0bac47545b6f..7db33f442427 100644
+index 50037961b9a4..9933e87004e2 100644
 --- a/dom/media/CubebUtils.cpp
 +++ b/dom/media/CubebUtils.cpp
 @@ -138,7 +138,7 @@ std::unordered_map<std::string, LABELS_MEDIA_AUDIO_BACKEND>
@@ -332,10 +341,10 @@ index 749570c6b6a9..5865e6ec45bd 100644
    vc.mMediaSource.Reset();
    vc.mMediaSource.Construct().AssignASCII(
 diff --git a/dom/media/MediaInfo.h b/dom/media/MediaInfo.h
-index d70ff6a3782b..7ac11efc9e37 100644
+index 2c4fd2c64043..a65af26e2c92 100644
 --- a/dom/media/MediaInfo.h
 +++ b/dom/media/MediaInfo.h
-@@ -679,7 +679,7 @@ class MediaInfo {
+@@ -704,7 +704,7 @@ class MediaInfo {
  
    bool HasValidMedia() const { return HasVideo() || HasAudio(); }
  
@@ -358,7 +367,7 @@ index 842939d78511..123fd813f609 100644
    if (!registration->GetActive()->HandlesFetch()) {
      // Checkin if the channel is not allowed for the service worker.
 diff --git a/gfx/webrender_bindings/DCLayerTree.cpp b/gfx/webrender_bindings/DCLayerTree.cpp
-index c867740ba5d9..cc83fa1320cd 100644
+index 86bb27600007..8bc405e77688 100644
 --- a/gfx/webrender_bindings/DCLayerTree.cpp
 +++ b/gfx/webrender_bindings/DCLayerTree.cpp
 @@ -166,7 +166,7 @@ bool DCLayerTree::Initialize(HWND aHwnd, nsACString& aError) {
@@ -397,7 +406,7 @@ index 6d2a7a58bda0..bb7a492c3a7c 100644
    float penalty=gi->stretch_penalty-(ve->stretch/2-VE_MINSTRETCH);
    if(penalty<0.f)penalty=0.f;
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index 14c0ff37fc41..8025878adea2 100644
+index dc5a83f70d99..85da3f87ce16 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -66,7 +66,7 @@
@@ -426,9 +435,9 @@ index 14c0ff37fc41..8025878adea2 100644
 +# Space-separated list of regexes that are compared to URLs of resources
  # being checked by content-analysis.  Resources that match are not checked
  # and are always permitted.
- - name: browser.contentanalysis.allow_url_regex_list
-@@ -1205,7 +1205,7 @@
-   value: ""
+ # By default this does not check any about: page except for about:blank
+@@ -1207,7 +1207,7 @@
+   value: "^about:(?!blank|srcdoc).*"
    mirror: never
  
 -# Space-separated list of regexs that are compared to URLs of resources
@@ -436,7 +445,7 @@ index 14c0ff37fc41..8025878adea2 100644
  # being checked by content-analysis.  Resources that match are not checked
  # and are always denied.
  - name: browser.contentanalysis.deny_url_regex_list
-@@ -1559,7 +1559,7 @@
+@@ -1562,7 +1562,7 @@
    value: true
    mirror: always
  
@@ -445,7 +454,7 @@ index 14c0ff37fc41..8025878adea2 100644
  - name: browser.places.interactions.typing_timeout_ms
    type: RelaxedAtomicUint32
    value: 3000
-@@ -1872,7 +1872,7 @@
+@@ -1875,7 +1875,7 @@
    mirror: never
  
  # When true, soft reloads (including location.reload())
@@ -454,7 +463,7 @@ index 14c0ff37fc41..8025878adea2 100644
  # be loaded normally as-if users normally navigated to the page.
  - name: browser.soft_reload.only_force_validate_top_level_document
    type: bool
-@@ -2631,7 +2631,7 @@
+@@ -2615,7 +2615,7 @@
    value: true
    mirror: always
  
@@ -463,7 +472,7 @@ index 14c0ff37fc41..8025878adea2 100644
  # events to be further coalesced in the child side after they
  # are sent.
  - name: dom.events.coalesce.touchmove
-@@ -3372,7 +3372,7 @@
+@@ -3361,7 +3361,7 @@
  
  # An upper limit for the "age" of an origin. Any origin which is older than the
  # threshold is considered as unaccessed. That doesn't necessarily mean that
@@ -472,7 +481,7 @@ index 14c0ff37fc41..8025878adea2 100644
  # dom.quotaManager.checkQuotaInfoLoadTime is true and loading of quota info
  # takes a long time (dom.quotaManager.longQuotaInfoLoadTimeThresholdMs is used
  # to decide what is a long quota info load time).
-@@ -3440,7 +3440,7 @@
+@@ -3429,7 +3429,7 @@
      mirror: always
      do_not_use_directly: true
  
@@ -481,7 +490,7 @@ index 14c0ff37fc41..8025878adea2 100644
    # QuotaVFS.
  -   name: dom.quotaManager.overrideXFullPathname
      type: RelaxedAtomicBool
-@@ -3756,7 +3756,7 @@
+@@ -3745,7 +3745,7 @@
    mirror: always
  
  # If true, tries to break upgrade downgrade cycles where https-only tries
@@ -490,7 +499,7 @@ index 14c0ff37fc41..8025878adea2 100644
  - name: dom.security.https_only_mode_break_upgrade_downgrade_endless_loop
    type: RelaxedAtomicBool
    value: true
-@@ -3841,7 +3841,7 @@
+@@ -3837,7 +3837,7 @@
    value: false
    mirror: always
  
@@ -499,7 +508,7 @@ index 14c0ff37fc41..8025878adea2 100644
  # API.
  - name: dom.security.setHTML.enabled
    type: bool
-@@ -4104,7 +4104,7 @@
+@@ -4112,7 +4112,7 @@
    value: 25 * 1024
    mirror: always
  
@@ -508,7 +517,7 @@ index 14c0ff37fc41..8025878adea2 100644
  # don't advertise this pref as a way for disabling LSNG. This pref is intended
  # for internal testing only and will be removed in near future. Accidental
  # disabling of LSNG can lead to a data loss in a combination with disabled
-@@ -5016,7 +5016,7 @@
+@@ -5018,7 +5018,7 @@
    mirror: always
  
  # Controls if a double click word selection also deletes one adjacent whitespace
@@ -517,7 +526,7 @@ index 14c0ff37fc41..8025878adea2 100644
  - name: editor.word_select.delete_space_after_doubleclick_selection
    type: bool
    value: true
-@@ -9286,7 +9286,7 @@
+@@ -9335,7 +9335,7 @@
    mirror: always
  
  # On Android, don't synth mouse move events after scrolling, as they cause
@@ -526,7 +535,7 @@ index 14c0ff37fc41..8025878adea2 100644
  # satisfactorily resolved.
  - name: layout.reflow.synthMouseMove
    type: bool
-@@ -14056,13 +14056,13 @@
+@@ -14166,13 +14166,13 @@
    value: 1080
    mirror: always
  
@@ -543,10 +552,10 @@ index 14c0ff37fc41..8025878adea2 100644
    type: RelaxedAtomicBool
    value: false
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index 94c4f901a1d9..8b31f438eba7 100644
+index b933190ffc9a..a09804c246a5 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
-@@ -658,7 +658,7 @@ pref("devtools.performance.recording.ui-base-url", "https://profiler.firefox.com
+@@ -661,7 +661,7 @@ pref("devtools.performance.recording.ui-base-url", "https://profiler.firefox.com
  // When gathering profiles from child processes, this is the longest time (in
  // seconds) allowed between two responses. 0 = Use internal default.
  pref("devtools.performance.recording.child.timeout_s", 0);
@@ -555,7 +564,7 @@ index 94c4f901a1d9..8b31f438eba7 100644
  // it's a developer focused item. It can still be enabled by going to profiler.firefox.com,
  // but by default it is off on Release and Beta. Note that this only adds it to the
  // the customization palette, not to the navbar.
-@@ -848,7 +848,7 @@ pref("privacy.fingerprintingProtection.overrides", "+AllTargets,-CSSPrefersColor
+@@ -847,7 +847,7 @@ pref("privacy.fingerprintingProtection.overrides", "+AllTargets,-CSSPrefersColor
  // or remove features on a domain granular level.
  pref("privacy.fingerprintingProtection.granularOverrides", "");
  
@@ -565,10 +574,10 @@ index 94c4f901a1d9..8b31f438eba7 100644
  // (See nsICookieService::BEHAVIOR_REJECT_TRACKER cookie behavior)
  // See: Bug 1505212, Bug 1659394, Bug 1631811, Bug 1665035.
 diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
-index 48583b5a5cb5..8f1ab4a9734d 100644
+index abcc05cf2abf..6048afb75756 100644
 --- a/netwerk/protocol/http/nsHttpHandler.cpp
 +++ b/netwerk/protocol/http/nsHttpHandler.cpp
-@@ -326,7 +326,7 @@ nsresult nsHttpHandler::Init() {
+@@ -354,7 +354,7 @@ nsresult nsHttpHandler::Init() {
  
    InitUserAgentComponents();
  
@@ -578,10 +587,10 @@ index 48583b5a5cb5..8f1ab4a9734d 100644
      mActiveTabPriority =
          Preferences::GetBool(HTTP_PREF("active_tab_priority"), true);
 diff --git a/netwerk/protocol/http/nsHttpHandler.h b/netwerk/protocol/http/nsHttpHandler.h
-index 65ce5d6d1275..c36e4ebbaa16 100644
+index 40d50808211c..909ed90d4d9b 100644
 --- a/netwerk/protocol/http/nsHttpHandler.h
 +++ b/netwerk/protocol/http/nsHttpHandler.h
-@@ -489,7 +489,7 @@ class nsHttpHandler final : public nsIHttpProtocolHandler,
+@@ -487,7 +487,7 @@ class nsHttpHandler final : public nsIHttpProtocolHandler,
  
    bool EchConfigEnabled(bool aIsHttp3 = false) const;
    // When EchConfig is enabled and all records with echConfig are failed, this
@@ -626,10 +635,10 @@ index 5743b488e6c5..bd1052812ff1 100644
  ```yaml
  js:
 diff --git a/toolkit/components/resistfingerprinting/nsRFPService.cpp b/toolkit/components/resistfingerprinting/nsRFPService.cpp
-index 34c34a249627..173c2f15ef50 100644
+index 8f05998e684a..e50502db20cd 100644
 --- a/toolkit/components/resistfingerprinting/nsRFPService.cpp
 +++ b/toolkit/components/resistfingerprinting/nsRFPService.cpp
-@@ -428,7 +428,7 @@ double nsRFPService::TimerResolution(RTPCallerType aRTPCallerType) {
+@@ -437,7 +437,7 @@ double nsRFPService::TimerResolution(RTPCallerType aRTPCallerType) {
  }
  
  /**
@@ -638,7 +647,7 @@ index 34c34a249627..173c2f15ef50 100644
   * between a lower clamped value and an upper clamped value. Assuming a clamping
   * resolution of 100, here is an example:
   *
-@@ -442,7 +442,7 @@ double nsRFPService::TimerResolution(RTPCallerType aRTPCallerType) {
+@@ -451,7 +451,7 @@ double nsRFPService::TimerResolution(RTPCallerType aRTPCallerType) {
   *
   * The question is: does time go backwards?
   *
@@ -661,10 +670,10 @@ index f57753239cec..28831a8cf8a6 100644
      if (value === undefined) {
        document.l10n.setAttributes(item, l10nId);
 diff --git a/toolkit/content/license.html b/toolkit/content/license.html
-index 3f05da0118ff..4d468dc1d281 100644
+index 93e9a661dcd8..eda80246e80e 100644
 --- a/toolkit/content/license.html
 +++ b/toolkit/content/license.html
-@@ -5341,7 +5341,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+@@ -5343,7 +5343,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  </p>
  <pre>
  
@@ -687,10 +696,10 @@ index f771add298ee..ca6ed2b9ae73 100644
      _createComponents() {
        this.components = {
 diff --git a/toolkit/content/widgets/datetimebox.js b/toolkit/content/widgets/datetimebox.js
-index 33a437b1b321..7ca6969560b2 100644
+index d66f883f3a65..9343cf95f604 100644
 --- a/toolkit/content/widgets/datetimebox.js
 +++ b/toolkit/content/widgets/datetimebox.js
-@@ -339,9 +339,9 @@ this.DateTimeBoxWidget = class {
+@@ -351,9 +351,9 @@ this.DateTimeBoxWidget = class {
  
      if (aIsNumeric) {
        field.classList.add("numeric");
@@ -703,10 +712,10 @@ index 33a437b1b321..7ca6969560b2 100644
        // Interval when pressing pageUp/pageDown key.
        field.setAttribute("pginterval", aPageUpDownInterval);
 diff --git a/toolkit/modules/AppConstants.sys.mjs b/toolkit/modules/AppConstants.sys.mjs
-index f56813ee3ee9..147b3a1c216a 100644
+index 467883519bc3..2f545270cc24 100644
 --- a/toolkit/modules/AppConstants.sys.mjs
 +++ b/toolkit/modules/AppConstants.sys.mjs
-@@ -481,7 +481,7 @@ export var AppConstants = Object.freeze({
+@@ -483,7 +483,7 @@ export var AppConstants = Object.freeze({
      false,
  #endif
  
@@ -716,10 +725,10 @@ index f56813ee3ee9..147b3a1c216a 100644
      return (
        Services.prefs
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
-index 2145fe39fd80..565cde35eec9 100644
+index 9161237fd440..35a18bb08ba3 100644
 --- a/toolkit/xre/nsAppRunner.cpp
 +++ b/toolkit/xre/nsAppRunner.cpp
-@@ -428,7 +428,7 @@ void MozExpectedExit() { gIsExpectedExit = true; }
+@@ -431,7 +431,7 @@ void MozExpectedExit() { gIsExpectedExit = true; }
   */
  static void UnexpectedExit() {
    if (!gIsExpectedExit) {
@@ -728,7 +737,7 @@ index 2145fe39fd80..565cde35eec9 100644
      MOZ_CRASH("Exit called by third party code.");
    }
  }
-@@ -617,7 +617,7 @@ static nsIXULRuntime::ExperimentStatus gWin32kExperimentStatus =
+@@ -620,7 +620,7 @@ static nsIXULRuntime::ExperimentStatus gWin32kExperimentStatus =
  //  Enrolled
  //  - User does the default aka Default
  //
