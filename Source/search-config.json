@@ -1,25 +1,4 @@
 {
-	"data": [
-		{
-			"schema": 1619432100208,
-			"params": {
-				"searchUrlGetParams": [
-					{ "name": "k1", "value": "-1" },
-					{ "name": "kaj", "value": "m" },
-					{ "name": "kak", "value": "-1" },
-					{ "name": "kao", "value": "-1" },
-					{ "name": "kaq", "value": "-1" },
-					{ "name": "kau", "value": "-1" },
-					{ "name": "kn", "value": "1" },
-					{ "name": "kp", "value": "-2" },
-					{ "name": "q", "value": "{searchTerms}" }
-				]
-			},
-			"appliesTo": [{ "included": { "everywhere": true }, "default": "yes" }],
-			"webExtension": { "id": "ddg@search.mozilla.org" },
-			"id": "c0b26c0e-63e6-4235-b2ce-5f16b6a8bf87",
-			"last_modified": 1654094046000
-		}
-	],
-	"timestamp": 1654094046000
+	"data": [],
+	"timestamp": "${timestamp}"
 }

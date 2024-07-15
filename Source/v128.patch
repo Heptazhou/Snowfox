@@ -10,9 +10,9 @@
  browser/base/content/overrides/app-license.html    |   6 +-
  browser/branding/branding-common.mozbuild          |   2 +-
  .../modules/FeatureCalloutMessages.sys.mjs         |   1 +
- .../enterprisepolicies/content/aboutPolicies.css   |   2 +
- .../enterprisepolicies/content/aboutPolicies.js    |  21 +-
- .../schemas/policies-schema.json                   |   2 +-
+ .../enterprisepolicies/content/aboutPolicies.css   |   8 +
+ .../enterprisepolicies/content/aboutPolicies.js    |  24 +-
+ .../schemas/policies-schema.json                   |   2 -
  .../installerprefs/InstallerPrefs.sys.mjs          |   2 +-
  .../content-src/components/Search/Search.jsx       |   2 +-
  .../newtab/data/content/activity-stream.bundle.js  |   1 +
@@ -22,8 +22,6 @@
  browser/components/preferences/privacy.inc.xhtml   |  12 +-
  browser/components/preferences/privacy.js          |   4 +-
  browser/components/screenshots/fileHelpers.mjs     |   8 +-
- .../components/search/extensions/ddg/manifest.json |  10 +-
- browser/components/search/jar.mn                   |   2 +-
  browser/components/shell/ShellService.sys.mjs      |  10 +-
  browser/components/shell/nsWindowsShellService.cpp |   6 +-
  .../urlbar/QuickActionsLoaderDefault.sys.mjs       |   2 +-
@@ -90,7 +88,7 @@
  toolkit/components/pdfjs/content/web/viewer.mjs    |  12 +-
  toolkit/components/printing/content/print.js       |   2 +-
  toolkit/components/remote/nsDBusRemoteClient.cpp   |   8 +-
- toolkit/components/remote/nsDBusRemoteServer.cpp   |  10 +-
+ toolkit/components/remote/nsDBusRemoteServer.cpp   |  12 +-
  .../resistfingerprinting/RFPHelper.sys.mjs         |  20 ++
  .../components/resistfingerprinting/nsRFPService.h |   8 +-
  toolkit/components/search/OpenSearchEngine.sys.mjs |   2 +-
@@ -104,6 +102,7 @@
  toolkit/content/aboutUrlClassifier.js              |  10 +-
  toolkit/content/aboutwebrtc/aboutWebrtc.mjs        |   2 +-
  toolkit/content/widgets/datekeeper.js              |   4 +-
+ toolkit/content/widgets/datepicker.js              |   8 +-
  toolkit/content/widgets/datetimebox.js             |   4 +-
  .../locales/en-US/toolkit/branding/brandings.ftl   |   8 +-
  toolkit/modules/DateTimePickerPanel.sys.mjs        |   4 +-
@@ -112,7 +111,7 @@
  .../extensions/internal/AddonSettings.sys.mjs      |   2 +-
  toolkit/themes/shared/aboutServiceWorkers.css      |   5 +
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
- 114 files changed, 817 insertions(+), 536 deletions(-)
+ 113 files changed, 824 insertions(+), 536 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 66fc21f9be2e..9a7d104cacd7 100644
@@ -695,7 +694,7 @@ index 4fda4355bf25..5a4293ec6c6e 100644
  };
  
 diff --git a/browser/components/enterprisepolicies/content/aboutPolicies.css b/browser/components/enterprisepolicies/content/aboutPolicies.css
-index e84ae785ee6d..9c09e05ac621 100644
+index e84ae785ee6d..eb8d5678f2f5 100644
 --- a/browser/components/enterprisepolicies/content/aboutPolicies.css
 +++ b/browser/components/enterprisepolicies/content/aboutPolicies.css
 @@ -58,6 +58,7 @@ body {
@@ -706,19 +705,35 @@ index e84ae785ee6d..9c09e05ac621 100644
  }
  
  tbody tr {
-@@ -82,6 +83,7 @@ th {
+@@ -82,6 +83,13 @@ th {
  
  td {
    padding: 1rem;
 +  word-break: break-all;
++
++  &.data_urls {
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++  }
  }
  
  /*
 diff --git a/browser/components/enterprisepolicies/content/aboutPolicies.js b/browser/components/enterprisepolicies/content/aboutPolicies.js
-index 2de9be09826c..da16a6b00586 100644
+index 2de9be09826c..65e5a2f6857d 100644
 --- a/browser/components/enterprisepolicies/content/aboutPolicies.js
 +++ b/browser/components/enterprisepolicies/content/aboutPolicies.js
-@@ -43,18 +43,16 @@ function addMissingColumns() {
+@@ -17,6 +17,9 @@ function col(text, className) {
+   if (className) {
+     column.classList.add(className);
+   }
++  if (/^"data:[^,]*,.+"$/.test(text)) {
++    column.classList.add("data_urls");
++  }
+   let content = document.createTextNode(text);
+   column.appendChild(content);
+   return column;
+@@ -43,18 +46,16 @@ function addMissingColumns() {
        maxColumns = table.rows[i].cells.length;
      }
    }
@@ -742,7 +757,7 @@ index 2de9be09826c..da16a6b00586 100644
      }
    }
  }
-@@ -138,6 +136,9 @@ function generatePolicy(data, row, depth, new_cont, islast, arr_sep = false) {
+@@ -138,6 +139,9 @@ function generatePolicy(data, row, depth, new_cont, islast, arr_sep = false) {
    const color_class = row.classList.contains("odd") ? "odd" : "even";
  
    if (Array.isArray(data)) {
@@ -752,7 +767,7 @@ index 2de9be09826c..da16a6b00586 100644
      for (let count in data) {
        if (count == 0) {
          if (count == data.length - 1) {
-@@ -154,7 +155,9 @@ function generatePolicy(data, row, depth, new_cont, islast, arr_sep = false) {
+@@ -154,7 +158,9 @@ function generatePolicy(data, row, depth, new_cont, islast, arr_sep = false) {
          }
        } else if (count == data.length - 1) {
          let last_row = document.createElement("tr");
@@ -763,7 +778,7 @@ index 2de9be09826c..da16a6b00586 100644
  
          for (let i = 0; i < depth; i++) {
            last_row.appendChild(col(""));
-@@ -231,7 +234,7 @@ function generatePolicy(data, row, depth, new_cont, islast, arr_sep = false) {
+@@ -231,7 +237,7 @@ function generatePolicy(data, row, depth, new_cont, islast, arr_sep = false) {
        count++;
      }
    } else {
@@ -773,18 +788,18 @@ index 2de9be09826c..da16a6b00586 100644
      if (arr_sep) {
        row.classList.add("arr_sep");
 diff --git a/browser/components/enterprisepolicies/schemas/policies-schema.json b/browser/components/enterprisepolicies/schemas/policies-schema.json
-index 7058efb69872..50663e77d678 100644
+index 7058efb69872..853af07cc0a7 100644
 --- a/browser/components/enterprisepolicies/schemas/policies-schema.json
 +++ b/browser/components/enterprisepolicies/schemas/policies-schema.json
-@@ -1339,7 +1339,7 @@
+@@ -1339,8 +1339,6 @@
      },
  
      "SearchEngines": {
 -      "enterprise_only": true,
-+      "enterprise_only": false,
- 
+-
        "type": "object",
        "properties": {
+         "Add": {
 diff --git a/browser/components/installerprefs/InstallerPrefs.sys.mjs b/browser/components/installerprefs/InstallerPrefs.sys.mjs
 index 2eb9d42fdcb3..3627387c12a8 100644
 --- a/browser/components/installerprefs/InstallerPrefs.sys.mjs
@@ -964,7 +979,7 @@ index 577f2950cd5f..e06139147cf7 100644
    },
  
 diff --git a/browser/components/screenshots/fileHelpers.mjs b/browser/components/screenshots/fileHelpers.mjs
-index 63ffed9e5890..b0461d548442 100644
+index 63ffed9e5890..cd2f134407f2 100644
 --- a/browser/components/screenshots/fileHelpers.mjs
 +++ b/browser/components/screenshots/fileHelpers.mjs
 @@ -70,9 +70,13 @@ function checkFilenameLength(filename, maxFilenameLength) {
@@ -988,50 +1003,10 @@ index 63ffed9e5890..b0461d548442 100644
 -  const filenameTime = currentDateTime.substring(11, 19).replace(/:/g, "-");
 -  let clipFilename = `Screenshot ${filenameDate} at ${filenameTime} ${filenameTitle}`;
 +  const filenameTime = currentDateTime.substring(11, 19).replace(/:/g, ".");
-+  let clipFilename = `${filenameDate} ${filenameTime} ${filenameTitle}`;
++  let clipFilename = `${filenameDate} ${filenameTime} ${filenameTitle.trim()}`;
  
    // allow space for a potential ellipsis and the extension
    let maxNameStemLength = maxFilenameLength - "[...].png".length;
-diff --git a/browser/components/search/extensions/ddg/manifest.json b/browser/components/search/extensions/ddg/manifest.json
-index 1e1bffed475b..142494109402 100644
---- a/browser/components/search/extensions/ddg/manifest.json
-+++ b/browser/components/search/extensions/ddg/manifest.json
-@@ -1,6 +1,6 @@
- {
--  "name": "DuckDuckGo",
--  "description": "Search DuckDuckGo",
-+  "name": "Duckduckgo",
-+  "description": "Search Duckduckgo",
-   "manifest_version": 2,
-   "version": "1.4",
-   "browser_specific_settings": {
-@@ -15,11 +15,11 @@
-   "web_accessible_resources": ["favicon.ico"],
-   "chrome_settings_overrides": {
-     "search_provider": {
--      "keyword": ["@duckduckgo", "@ddg"],
--      "name": "DuckDuckGo",
-+      "keyword": "@ddg",
-+      "name": "Duckduckgo",
-       "search_url": "https://duckduckgo.com/",
-       "search_form": "https://duckduckgo.com/",
--      "search_url_get_params": "t=ffab&q={searchTerms}",
-+      "search_url_get_params": "k1=-1&kaj=m&kak=-1&kao=-1&kaq=-1&kau=-1&kn=1&kp=-2&q={searchTerms}",
-       "suggest_url": "https://ac.duckduckgo.com/ac/",
-       "suggest_url_get_params": "q={searchTerms}&type=list"
-     }
-diff --git a/browser/components/search/jar.mn b/browser/components/search/jar.mn
-index a9617478d203..c40f2c8a4e70 100644
---- a/browser/components/search/jar.mn
-+++ b/browser/components/search/jar.mn
-@@ -8,6 +8,6 @@ browser.jar:
-         content/browser/contentSearchUI.js                          (content/contentSearchUI.js)
-         content/browser/contentSearchHandoffUI.js                   (content/contentSearchHandoffUI.js)
-         content/browser/contentSearchUI.css                         (content/contentSearchUI.css)
--        search-extensions/                                          (extensions/**)
-+        search-extensions/ddg/                                      (extensions/ddg/**)
- 
- % resource search-extensions %search-extensions/ contentaccessible=yes
 diff --git a/browser/components/shell/ShellService.sys.mjs b/browser/components/shell/ShellService.sys.mjs
 index 923b2ad6b94d..969a526046b7 100644
 --- a/browser/components/shell/ShellService.sys.mjs
@@ -1151,19 +1126,18 @@ index 50ba924bed90..bed5b631fd53 100644
      }).format(outputDate);
  
 diff --git a/browser/extensions/screenshots/build/shot.js b/browser/extensions/screenshots/build/shot.js
-index 7153562de34f..8e533531b4e0 100644
+index 7153562de34f..dcbbfab6a68d 100644
 --- a/browser/extensions/screenshots/build/shot.js
 +++ b/browser/extensions/screenshots/build/shot.js
-@@ -374,7 +374,9 @@ this.shot = (function () {
+@@ -374,6 +374,8 @@ this.shot = (function () {
      get filename() {
        let filenameTitle = this.title;
        const date = new Date(this.createdDate);
 +      const host = location?.origin?.replace(/[:/]+|$/g, " ") || "";
-       /* eslint-disable no-control-regex */
 +      filenameTitle = host + filenameTitle;
+       /* eslint-disable no-control-regex */
        filenameTitle = filenameTitle
          .replace(/[\\/]/g, "_")
-         .replace(/[\u200e\u200f\u202a-\u202e]/g, "")
 @@ -386,8 +388,8 @@ this.shot = (function () {
          date.getTime() - date.getTimezoneOffset() * 60 * 1000
        ).toISOString();
@@ -1171,7 +1145,7 @@ index 7153562de34f..8e533531b4e0 100644
 -      const filenameTime = currentDateTime.substring(11, 19).replace(/:/g, "-");
 -      let clipFilename = `Screenshot ${filenameDate} at ${filenameTime} ${filenameTitle}`;
 +      const filenameTime = currentDateTime.substring(11, 19).replace(/:/g, ".");
-+      let clipFilename = `${filenameDate} ${filenameTime} ${filenameTitle}`;
++      let clipFilename = `${filenameDate} ${filenameTime} ${filenameTitle.trim()}`;
  
        // Crop the filename size at less than 246 bytes, so as to leave
        // room for the extension and an ellipsis [...]. Note that JS
@@ -2161,7 +2135,7 @@ index f291a0934ab2..d9cb0584619f 100644
               "Calling CloneAnimationDecoder for non-animating DecoderType");
  
 diff --git a/image/decoders/nsAVIFDecoder.cpp b/image/decoders/nsAVIFDecoder.cpp
-index b6f535eec435..e172d78c61d0 100644
+index b6f535eec435..9add54f2f015 100644
 --- a/image/decoders/nsAVIFDecoder.cpp
 +++ b/image/decoders/nsAVIFDecoder.cpp
 @@ -18,6 +18,7 @@
@@ -2177,7 +2151,7 @@ index b6f535eec435..e172d78c61d0 100644
  
      if (isDone) {
 +      if (MOZ_LIKELY(StaticPrefs::image_avif_force_loop()))
-+        goto CASE_MP4PARSE_AVIF_LOOP_MODE_LOOP_INFINITELY;
++        goto case_MP4PARSE_AVIF_LOOP_MODE_LOOP_INFINITELY;
 +
        switch (mParser->GetInfo().loop_mode) {
          case MP4PARSE_AVIF_LOOP_MODE_LOOP_BY_COUNT: {
@@ -2186,7 +2160,7 @@ index b6f535eec435..e172d78c61d0 100644
            break;
          }
          case MP4PARSE_AVIF_LOOP_MODE_LOOP_INFINITELY:
-+        CASE_MP4PARSE_AVIF_LOOP_MODE_LOOP_INFINITELY:
++        case_MP4PARSE_AVIF_LOOP_MODE_LOOP_INFINITELY:
          case MP4PARSE_AVIF_LOOP_MODE_NO_EDITS:
          default:
            PostDecodeDone(-1);
@@ -3743,7 +3717,7 @@ index 052b29bc61dc..8872163cc392 100644
    LOG("  DBus destination: %s\n", destinationName.get());
    LOG("  DBus path: %s\n", pathName.get());
 diff --git a/toolkit/components/remote/nsDBusRemoteServer.cpp b/toolkit/components/remote/nsDBusRemoteServer.cpp
-index 4ed053e3cc6c..e57a8351d65e 100644
+index 4ed053e3cc6c..08d74d397f8a 100644
 --- a/toolkit/components/remote/nsDBusRemoteServer.cpp
 +++ b/toolkit/components/remote/nsDBusRemoteServer.cpp
 @@ -29,7 +29,7 @@ static const char* introspect_template =
@@ -3773,6 +3747,15 @@ index 4ed053e3cc6c..e57a8351d65e 100644
    static auto sDBusValidatePathName = (bool (*)(const char*, DBusError*))dlsym(
        RTLD_DEFAULT, "dbus_validate_path");
    if (!sDBusValidatePathName ||
+@@ -192,7 +192,7 @@ nsresult nsDBusRemoteServer::Startup(const char* aAppName,
+   // Don't even try to start without any profile name
+   if (!aProfileName || aProfileName[0] == '\0') return NS_ERROR_INVALID_ARG;
+ 
+-  // aAppName is remoting name which can be something like org.mozilla.appname
++  // aAppName is remoting name which can be something like com.0h7z.appname
+   // or so.
+   // For DBus service we rather use general application DBus identifier
+   // which is shared by all DBus services.
 @@ -204,7 +204,7 @@ nsresult nsDBusRemoteServer::Startup(const char* aAppName,
  
    mozilla::XREAppData::SanitizeNameForDBus(profileName);
@@ -4061,6 +4044,36 @@ index d720491d4b0e..4eb48c21b1b3 100644
        calViewSize = 42,
      }) {
        const today = new Date();
+diff --git a/toolkit/content/widgets/datepicker.js b/toolkit/content/widgets/datepicker.js
+index f771add298ee..4601f13145f5 100644
+--- a/toolkit/content/widgets/datepicker.js
++++ b/toolkit/content/widgets/datepicker.js
+@@ -84,7 +84,7 @@ function DatePicker(context) {
+         dateKeeper,
+         locale,
+         isMonthPickerVisible: false,
+-        datetimeOrders: new Intl.DateTimeFormat(locale)
++        datetimeOrders: new Intl.DateTimeFormat("sv")
+           .formatToParts(new Date(0))
+           .map(part => part.type),
+         getDayString: day =>
+@@ -422,13 +422,13 @@ function DatePicker(context) {
+    */
+   function MonthYear(options, context) {
+     const spinnerSize = 5;
+-    const yearFormat = new Intl.DateTimeFormat(options.locale, {
++    const yearFormat = new Intl.DateTimeFormat("sv", {
+       year: "numeric",
+       timeZone: "UTC",
+     }).format;
+-    const dateFormat = new Intl.DateTimeFormat(options.locale, {
++    const dateFormat = new Intl.DateTimeFormat("sv", {
+       year: "numeric",
+-      month: "long",
++      month: "2-digit",
+       timeZone: "UTC",
+     }).format;
+     const spinnerOrder =
 diff --git a/toolkit/content/widgets/datetimebox.js b/toolkit/content/widgets/datetimebox.js
 index 248c05a0c298..d66f883f3a65 100644
 --- a/toolkit/content/widgets/datetimebox.js

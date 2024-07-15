@@ -1,0 +1,51 @@
+{
+	"data": [
+		{
+			"globalDefault": "google",
+			"globalDefaultPrivate": "google",
+			"id": "f3891684-2348-4e7a-9765-0c5d2d0ab1b9",
+			"last_modified": "${timestamp}",
+			"recordType": "defaultEngines",
+			"schema": "${timestamp}",
+			"specificDefaults": []
+		},
+		{
+			"base": {
+				"aliases": ["google"],
+				"classification": "general",
+				"name": "Google",
+				"urls": {
+					"search": {
+						"base": "https://www.google.com/search",
+						"params": [
+							{ "name": "hl", "value": "{language}" },
+							{ "name": "filter", "value": "0" },
+							{ "name": "newwindow", "value": "1" }
+						],
+						"searchTermParamName": "q"
+					},
+					"suggestions": {
+						"base": "https://www.google.com/complete/search?q={searchTerms}"
+					},
+					"trending": {
+						"base": "https://www.google.com/complete/search?q={searchTerms}"
+					}
+				}
+			},
+			"id": "7ace4aa1-e762-4f4b-87b9-b23b3c3a930b",
+			"identifier": "google",
+			"last_modified": "${timestamp}",
+			"recordType": "engine",
+			"schema": "${timestamp}",
+			"variants": [{ "environment": { "allRegionsAndLocales": true } }]
+		},
+		{
+			"id": "3e1fed64-5ec7-4b1c-bedc-741fe3c59bc3",
+			"last_modified": "${timestamp}",
+			"orders": [],
+			"recordType": "engineOrders",
+			"schema": "${timestamp}"
+		}
+	],
+	"timestamp": "${timestamp}"
+}

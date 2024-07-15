@@ -18,6 +18,8 @@
 
 include("base_func.jl")
 
+using Dates: Year, datetime2unix, now
+
 const zst_cmd = "zstdmt -17 -M1024M --long"
 const url_git = "https://github.com/0h7z/Snowfox"
 const url_doh = "https://cloudflare-dns.com/dns-query" # https://mozilla.cloudflare-dns.com/dns-query
@@ -79,6 +81,9 @@ const moz_tmk = "Firefox and the Firefox logos are trademarks of the Mozilla Fou
 
 function update(dir::String, recursive::Bool = SUBMODULES)
 	@info dir recursive
+	let d = "$dir/assets/"
+		isdir(d) && touch.(d .* ["search-config.json", "search-config-v2.json"])
+	end
 	for (prefix, ds, fs) ∈ walkdir(dir, topdown = false)
 		occursin(prefix)(r"\.git\b") && continue
 		occursin(prefix)(r"\bsubmodules\b") && !recursive && continue
@@ -163,6 +168,11 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					if endswith(".py")(f)
 						s = replace(s, r"[\t ]{1,}$"m => s"")
 						s = replace(s, r"^\t*\K {4}"m, s"\t")
+					end
+					if endswith(".sh")(f)
+						s = replace(s, r"[\t ]{1,}$"m => s"")
+						s = replace(s, r"^\t*\K {2}"m, s"\t")
+						s = replace(s, r"^\t+\K {1}"m => s"")
 					end
 					if startswith(r"mozconfig\b")(f)
 						p = "ac_add_options"
@@ -280,7 +290,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"MOZ_MACBUNDLE_NAME=Snowfox.app\n", "e")
 					end
 					if (f ≡ "generate-locales.sh")
-						p = "  " * "find browser/locales/l10n/\$1 -type f -exec sed -i"
+						p = "\t" * "find browser/locales/l10n/\$1 -type f -exec sed -i"
 						q = "{} \\;\n"
 						s = replace(s,
 							"$p -e 's/Mozilla Firefox/Snowfox/g' $q" *
@@ -320,6 +330,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"$p -e 's/Mozilla Snowfox/Snowfox/g' $q", "p")
 						s = replace(s, r"\"( en-US )[^\"]+ \"" => s"\"\1\"")
 						s = replace(s, r"\bwget \K-q" => "-T20 -t0 --retry-connrefused -q")
+						s = replace(s, r"^\t*sleep [01]\K\S*"m => s"5")
 						s = replace(s, r"^N=\K\d+$"m => max(Sys.CPU_THREADS, 8))
 					end
 					if (f ≡ "patches.txt")
@@ -334,6 +345,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					if (f ≡ "policies.json")
 						o = "https://addons.mozilla.org/firefox/downloads/latest"
 						p, q = "$url_git/issues", "q={searchTerms}"
+						q_duck = "k1=-1&kaj=m&kak=-1&kao=-1&kaq=-1&kau=-1&kn=1&kp=-2"
+						q_goog = "hl={language}&filter=0&newwindow=1"
 						p = replace(p, "0h7z" => "Heptazhou")
 						s = replace(s, "https://.+/librewolf.*/issues", p)
 						s = replace(s, "https://localhost/*" => "https://example.invalid/*")
@@ -389,7 +402,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""				"eBay",\n""" *
 							"""				"Twitter"\n""" *
 							"""			],\n""", # ~ do not sort this
-							"""			"Remove": [],\n""", "p")
+							"""			"Remove": ["Google"],\n""", "p")
 						s = replace(s, # SearchEngines
 							"""			"Default": "DuckDuckGo",\n""" *
 							"""			"Add": [\n""" * """[\\S\\s]+?\n""" *
@@ -399,33 +412,48 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, # SearchEngines
 							"""			"Default": "Duckduckgo",\n""" *
 							"""			"Add": []\n""",
-							"""			"Default": "Duckduckgo",\n""" *
+							"""			"Default": "Duckduckgo.com",\n""" *
 							"""			"Add": [\n""" *
 							"""				{\n""" *
-							"""					"Name": "Google",\n""" *
-							"""					"Description": "Search Google",\n""" *
+							"""					"Name": "Duckduckgo.com",\n""" *
+							"""					"Description": "Search Duckduckgo.com",\n""" *
+							"""					"Alias": "@ddg",\n""" *
+							"""					"Method": "GET",\n""" *
+							"""					"URLTemplate": "https://duckduckgo.com/?$q_duck&$q",\n""" *
+							"""					"SuggestURLTemplate": "https://ac.duckduckgo.com/ac/?$q",\n""" *
+							"""					"IconURL": "$icon_duck"\n""" *
+							"""				},\n""" *
+							"""				{\n""" *
+							"""					"Name": "Google.com",\n""" *
+							"""					"Description": "Search Google.com",\n""" *
 							"""					"Alias": "@goog",\n""" *
 							"""					"Method": "GET",\n""" *
-							"""					"URLTemplate": "https://www.google.com/search?hl=en&filter=0&newwindow=1&$q",\n""" *
+							"""					"URLTemplate": "https://www.google.com/search?$q_goog&$q",\n""" *
 							"""					"SuggestURLTemplate": "https://www.google.com/complete/search?$q",\n""" *
 							"""					"IconURL": "$icon_goog"\n""" *
 							"""				}\n""" *
 							"""			]\n""", "p") # ~ do not sort this
 						s = replace(s, r"\"DisableSetDesktopBackground\": \Kfalse(?=,)" => "true")
 					end
-					if (f ≡ "search-config.json")
+					if (f ≡ "search-config.json" || f ≡ "search-config-v2.json") && pwd() ≠ @__DIR__
+						t = round(Int64, datetime2unix(trunc(now(), Year)))
 						s = cd(@__DIR__) do
 							readstr(f)
 						end
+						s = replace(s, raw"\"${timestamp}\"" => "$(1000t)") # s -> ms
 					end
 					if (f ≡ "snowfox-patches.py")
 						s = replace(s, r"\bpatch -p1 \K-i\b" => "-li")
 						s = replace(s, r"^.*/category-snowfox\.svg\b.*\n"m => "")
 						s = replace(s, r"^.*/mozfetch\.sh\b.*\n"m => "")
 						s = replace(s, r"^.*/pack_vs\.py\b.*\n"m => "")
+						s = replace(s, r"^.*\bmozconfigs?.*\n"m => "")
 						s = replace(s,
 							r"^(\t+)\K# override the firefox version\n(\1.+\n)+"m,
 							"exec('echo $VER > browser/config/version_display.txt')" * "\n")
+						s = replace(s,
+							r"'cp -v (\.\./assets)/(search-config\.json) (services/settings/dumps/main)/\2'",
+							s"'cat \1/\2 | tee \3/search-*.json && cp -vf \1/search-*.json \3/'")
 						s = replace(s,
 							r"'wget -q https://[^/]+/[^/]+/settings/raw/branch/[^/]+/(.+?)'",
 							s"'cp -v ../../submodules/settings/\1 .'")
@@ -508,6 +536,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""clearPref("image.http.accept");\n""" *
 							"""clearPref("image.rgbx-mode");\n""" *
 							"""clearPref("layout.css.prefers-color-scheme.content-override");\n""" *
+							"""clearPref("network.http.accept");\n""" *
 							"""clearPref("network.http.referer.XOriginPolicy");\n""" *
 							"""clearPref("network.http.windows-sso.enabled");\n""" *
 							"""clearPref("privacy.donottrackheader.enabled");\n""" *
