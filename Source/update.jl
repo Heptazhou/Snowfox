@@ -68,6 +68,7 @@ const patch_b =
 		"patches/ui-patches/remove-branding-urlbar.patch"
 		"patches/ui-patches/remove-cfrprefs.patch"
 		"patches/ui-patches/remove-snippets-from-home.patch"
+		"patches/ui-patches/rename-firefox-labs.patch"
 		"patches/ui-patches/snowfox-logo-devtools.patch"
 		"patches/ui-patches/website-appearance-ui-rfp.patch"
 		"patches/unified-extensions-dont-show-recommendations.patch"
@@ -344,11 +345,11 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					end
 					if (f ≡ "policies.json")
 						o = "https://addons.mozilla.org/firefox/downloads/latest"
-						p, q = "$url_git/issues", "q={searchTerms}"
+						p = "https://github.com/Heptazhou"
+						q = "q={searchTerms}"
 						q_duck = "k1=-1&kaj=m&kak=-1&kao=-1&kaq=-1&kau=-1&kn=1&kp=-2"
 						q_goog = "hl={language}&filter=0&newwindow=1"
-						p = replace(p, "0h7z" => "Heptazhou")
-						s = replace(s, "https://.+/librewolf.*/issues", p)
+						s = replace(s, "https://.+/librewolf.*/issues", "$p/Snowfox/issues")
 						s = replace(s, "https://localhost/*" => "https://example.invalid/*")
 						s = replace(s, # Cookies
 							"""		"AppUpdateURL": "https://localhost",\n""" *
@@ -390,8 +391,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""				"twitter@search.mozilla.org"\n""" *
 							"""			]\n""",
 							"""			"Install": [\n""" *
-							"""				"$o/qr-code-address-bar/latest.xpi",\n""" *
-							"""				"$o/ublock-origin/latest.xpi"\n""" *
+							"""				"$o/ublock-origin/latest.xpi",\n""" *
+							"""				"$p/firefox-qr/releases/latest/download/latest.xpi"\n""" *
 							"""			],\n""" *
 							"""			"Uninstall": []\n""", "p") # ~ do not sort this
 						s = replace(s, # SearchEngines
@@ -485,7 +486,12 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, "\n //", "\n//") * ("\n")
 						s = replace(s, "what\"s", "what's", "w")
 						s = replace(s, ("\"none\""), ("'none'"))
-						s = replace(s, ("https://dns.quad9.net/dns-query"), ("https://cloudflare-dns.com/dns-query"), "w")
+						s = replace(s, ("https://dns.quad9.net/dns-query"), (url_doh), "w")
+						let p = "[^`]*?"
+							for m ∈ collect(eachmatch(Regex("^$p\\K`$p\\n$p`(?=$p\$)", "m"), s))
+								s = replace(s, m.match => replace(m.match, r"[\t\n]+"s => s" "))
+							end
+						end
 						for p ∈ [
 							"""("browser.download.alwaysOpenPanel", false)""" => """("browser.download.alwaysOpenPanel", true)""",
 							"""("browser.download.useDownloadDir", false)"""  => """("browser.download.useDownloadDir", true)""",
@@ -497,7 +503,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							r"""\(("privacy\.resistFingerprinting\.letterboxing"), *true\)""" => s"""(\1, false)""",
 							r"""\(("security\.ssl\.require_safe_negotiation"), *true\)""" => s"""(\1, false)""",
 							r"@@STRIP_LIST@@" => join(strip_list, " "),
-							r"^.*( brave |/brave/|#1569\b).*\n"m => "",
+							r"^.*( brave |/brave/|[/#](1569|1975|1275887)\b).*\n"m => "",
 						]
 							s = replace(s, p)
 						end
@@ -515,15 +521,21 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						for p ∈ [
 							"app.feedback.baseURL"                # https://ideas.mozilla.org/
 							"app.support.baseURL"                 # https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/
+							"browser.download.start_downloads_in_tmp_dir"
 							"browser.geolocation.warning.infoURL" # https://www.mozilla.org/%LOCALE%/firefox/geolocation/
 							"browser.search.searchEnginesURL"     # https://addons.mozilla.org/%LOCALE%/firefox/search-engines/
 							"doh-rollout.provider-list"
 							"intl.accept_languages"
 							"javascript.use_us_english_locale"
+							"network.trr."                # network.trr.*
+							"privacy.clearOnShutdown_v2." # privacy.clearOnShutdown_v2.*
+							"privacy.clearOnShutdown."    # privacy.clearOnShutdown.*
+							"privacy.sanitize."           # privacy.sanitize.*
 							"security.family_safety.mode"
 						]
 							s = replace(s, (r"^.*\b"m * p * r"\b.*\n"m) => "")
 						end
+						s = replace(s, r"^\n{3,}\K\n+"m, s"") # (again)
 						s = replace(s, r"^\n*"s => "\n"^2)
 						s = replace(s, r"let profile_directory;.+;\n\}\K.*$"s,
 							"""\n"""^2 *
@@ -548,6 +560,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""clearPref("security.OCSP.enabled");\n""" *
 							"""clearPref("security.OCSP.require");\n""" *
 							"""clearPref("security.pki.crlite_mode");\n""" *
+							"""clearPref("xpinstall.signatures.required");\n""" *
 							"""defaultPref("devtools.performance.new-panel-onboarding", false);\n""" *
 							"""defaultPref("extensions.activeThemeID", "firefox-compact-dark@mozilla.org");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.connector_short", "{1} {0}");\n""" *
@@ -559,12 +572,14 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""defaultPref("intl.date_time.pattern_override.time_long", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_medium", "HH:mm:ss XXX");\n""" *
 							"""defaultPref("intl.date_time.pattern_override.time_short", "HH:mm:ss");\n""" *
-							"""defaultPref("media.cubeb.force_sample_rate", 192_000);\n""" *
+							"""defaultPref("media.cubeb.force_sample_rate", 0);\n""" *
 							"""defaultPref("media.eme.showBrowserMessage", false);\n""" *
 							"""defaultPref("network.trr.custom_uri", "$url_doh");\n""" *
 							"""defaultPref("network.trr.default_provider_uri", "$url_doh");\n""" *
+							"""defaultPref("pdfjs.externalLinkTarget", 2);\n""" * # 0 NONE 1 SELF 2 BLANK 3 PARENT 4 TOP
 							"""defaultPref("snowfox.app.checkVersion.enabled", true);\n""" *
 							"""defaultPref("snowfox.app.checkVersion.url", "$url_api/releases");\n""" *
+							"""defaultPref("xpinstall.signatures.required", false);\n""" *
 							"""lockPref("browser.dataFeatureRecommendations.enabled", false);\n""" *
 							"""lockPref("browser.firefox-view.view-count", 0);\n""" *
 							"""lockPref("browser.privacySegmentation.preferences.show", false);\n""" *

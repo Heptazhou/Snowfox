@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2021-2024 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -13,28 +13,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# [compat]
-# julia = "≥ 1.5"
-
 include("base_func.jl")
 
-const CLN = "https://github.com/Heptazhou/Snowfox.git"
-const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-
-# https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html#schedule
-# https://releases.rs
-const VRS, _ = "1.80", "win-make.dockerfile"
-
 try
-	cd(@__DIR__)
-	v1, v2, v3 = VER |> v_read
-	v = "$v1-$v2"
-	write("version", v)
-	something(tryparse(Bool, get(ENV, "JULIA_SYS_ISDOCKER", "")), false) ?
-	for f in "$REL/v$v/snowfox-v$v.source.tar.zst" .* [".sha256", ".sha3-512", ""]
-		f |> basename |> ispath || curl("-LO", f)
-	end :
-	@warn "Not allowed."
+	cd(@__DIR__) do
+		diff = "git diff --patch-with-stat --minimal"
+		v = "v$(VER.major)"
+		cd("../../Firefox")
+		sh("$diff $(v)   HEAD~4 > $(v).patch")
+		sh("$diff HEAD~4 HEAD~3 > font.patch")
+		sh("$diff HEAD~3 HEAD~2 > crlf.patch")
+		sh("$diff HEAD~1 HEAD~0 > typo.patch")
+		for f ∈ readdir()
+			g = "$(@__DIR__)/" * f
+			endswith(f, ".patch") && @info basename(mv(f, g, force = true))
+		end
+	end
 catch e
 	@info e
 end

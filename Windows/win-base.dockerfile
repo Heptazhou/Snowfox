@@ -40,10 +40,10 @@ RUN cd /Snowfox/Windows && mkdir -p $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
 	ln -s /src/browser/locales/l10n $MOZBUILD_STATE_PATH/l10n-central && \
 	ln -s /src/mach /bin/mach && mkdir /pkg && \
 	tar fx snowfox-v`cat version`.source.tar.zst && \
-	mv -fv snowfox-v`cat version` src && \
-	rm -fr snowfox-*.zst && mv src / && \
-	cp -t /src mozconfig && cp -t /pkg 7z.jl
+	mv -fv snowfox-v`cat version` src && cp -t /pkg 7z.jl && \
+	rm -fr snowfox-*.zst && mv src / && cp -t /src mozconfig
 
-RUN cd $MOZBUILD_STATE_PATH && curl -LO \
-	https://github.com/Heptazhou/Firefox/releases/latest/download/vs.tar.zst
+RUN cd /Snowfox/Windows && version=`cat version` && \
+	cd $MOZBUILD_STATE_PATH && curl -LO --fail-with-body \
+	https://github.com/Heptazhou/Firefox/releases/download/v${version%%.*}/vs.tar.zst
 
