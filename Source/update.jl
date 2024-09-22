@@ -291,48 +291,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"MOZ_MACBUNDLE_NAME=Snowfox.app\n", "e")
 					end
 					if (f ≡ "generate-locales.sh")
-						p = "\t" * "find browser/locales/l10n/\$1 -type f -exec sed -i"
-						q = "{} \\;\n"
-						s = replace(s,
-							"$p -e 's/Mozilla Firefox/Snowfox/g' $q" *
-							"$p -e 's/Mozilla/Snowfox/g' $q" *
-							"$p -e 's/Firefox/Snowfox/g' $q", # ~ do not sort this
-							"$p -e 's/Firefox/Snowfox/g' $q" *
-							"$p -e 's/Snowfox and Mozilla/Snowfox, Firefox, and Mozilla/g' $q" *
-							#
-							# "$p -e 's/Snowfox account/Firefox account/g' $q" * #
-							# "$p -e 's/Snowfox Account/Firefox Account/g' $q" * #
-							"$p -e 's/Snowfox Color/Firefox Color/g' $q" *
-							"$p -e 's/Snowfox Focus/Firefox Focus/g' $q" *
-							"$p -e 's/Snowfox Health Report/Firefox Health Report/g' $q" *
-							# "$p -e 's/Snowfox Home/Firefox Home/g' $q" * #
-							"$p -e 's/Snowfox Lockwise/Firefox Lockwise/g' $q" *
-							"$p -e 's/Snowfox Monitor/Firefox Monitor/g' $q" *
-							"$p -e 's/Snowfox Nightly/Firefox Nightly/g' $q" *
-							"$p -e 's/Snowfox Profiler/Firefox Profiler/g' $q" *
-							"$p -e 's/Snowfox Relay/Firefox Relay/g' $q" *
-							# "$p -e 's/Snowfox Screenshot/Firefox Screenshot/g' $q" * #
-							"$p -e 's/Snowfox Send/Firefox Send/g' $q" *
-							# "$p -e 's/Snowfox Suggest/Firefox Suggest/g' $q" * #
-							"$p -e 's/Snowfox Translation/Firefox Translation/g' $q" *
-							# "$p -e 's/Snowfox View/Firefox View/g' $q" * #
-							#
-							"$p -e 's/\"Fire\" in \"Snowfox\"/\"Fire\" in \"Firefox\"/g' $q" *
-							"$p -e 's/DisableSnowfox/DisableFirefox/g' $q" *
-							"$p -e 's/mozilla.org\\/Snowfox/mozilla.org\\/Firefox/g' $q" *
-							"$p -e 's/prefSnowfox/prefFirefox/g' $q" *
-							"$p -e 's/shareSnowfox/shareFirefox/g' $q" *
-							"$p -e 's/SnowfoxHome/FirefoxHome/g' $q" *
-							"$p -r 's/(MozillaMaintenanceDescription\\s*=.*)Mozilla Snowfox/\\1Mozilla Firefox/g' $q" *
-							"$p -r 's/(MozillaMaintenanceDescription\\s*=.*)Snowfox/\\1Firefox/g' $q" *
-							"$p -r 's/(trademarkInfo)\\s*=.*Snowfox.*/\\1 = $moz_tmk/g' $q" *
-							"$p -z -r 's/(import-from-firefox\\s*=\\s*\\.label\\s*=\\s*)Snowfox/\\1Firefox/g' $q" *
-							#
-							"$p -e 's/Mozilla Snowfox/Snowfox/g' $q", "p")
-						s = replace(s, r"\"( en-US )[^\"]+ \"" => s"\"\1\"")
-						s = replace(s, r"\bwget \K-q" => "-T20 -t0 --retry-connrefused -q")
-						s = replace(s, r"^\t*sleep [01]\K\S*"m => s"5")
-						s = replace(s, r"^N=\K\d+$"m => max(Sys.CPU_THREADS, 8))
+						p = "julia ../../locale.jl browser/locales/{en-US,l10n}"
+						s = "$s\necho '$p'\n$p\n"
 					end
 					if (f ≡ "patches.txt")
 						s = endswith(s, "\n") ? s : s * "\n"
@@ -539,6 +499,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"^\n*"s => "\n"^2)
 						s = replace(s, r"let profile_directory;.+;\n\}\K.*$"s,
 							"""\n"""^2 *
+							"""clearPref("browser.newtabpage.activity-stream.weather.temperatureUnits");\n""" *
 							"""clearPref("browser.safebrowsing.blockedURIs.enabled");\n""" *
 							"""clearPref("browser.safebrowsing.downloads.enabled");\n""" *
 							"""clearPref("browser.safebrowsing.malware.enabled");\n""" *

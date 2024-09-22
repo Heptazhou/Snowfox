@@ -23,7 +23,7 @@ const SRC = ("src/")
 # https://archive.mozilla.org/pub/firefox/
 # https://whattrainisitnow.com
 const ESR = v"128".major # 140
-const VER = v"129.0.2-1"
+const VER = v"130.0.1-1"
 
 const schemes =
 	[
@@ -66,6 +66,7 @@ const icon_goog = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAAB
 const strip_list_msc =
 	[
 		"__cft__[0]"
+		"__sale_info__"
 		"__tn__"
 		"_at_"
 		"_cldee"

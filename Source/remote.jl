@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2023 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -70,7 +70,7 @@ if isempty(ARGS)
 		cd(mktempdir()) do
 			@info replace(pwd(), "\\" => "/")
 			u = "https://hg.mozilla.org/mozilla-central/archive/tip.zip/browser/branding/aurora/"
-			curl("-LO", "-J", u)
+			curl("-LO", "-J", "--retry", "3", u)
 			f = something(filter!(x -> isfile(x) && startswith(x, "mozilla-cent"), readdir())...)
 			zip7("x", f), rm(f)
 			d = splitext(f)[1]
