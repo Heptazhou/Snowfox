@@ -2,8 +2,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# published by the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -37,13 +36,13 @@ RUN yes | pacman -Syu git grml-zsh-config julia sha3sum && \
 	cbindgen cross dump_syms unzip upx wget && yes | pacman -Scc && chsh -s /bin/zsh
 
 RUN  url=https://github.com/0h7z/aur/releases/download && yes | pacman -U \
-	$url/7-zip-full-v23.01-4/7-zip-full-23.01-4-x86_64.pkg.tar.zst \
-	$url/nsis-v3.09-1/nsis-3.09-1-x86_64.pkg.tar.zst \
-	$url/wine64-v9.6-1/wine64-9.6-1-x86_64.pkg.tar.zst && yes | pacman -Scc
+	$url/7-zip-full-v24.08-1/7-zip-full-24.08-1-x86_64.pkg.tar.zst \
+	$url/nsis-v3.10-1/nsis-3.10-1-x86_64.pkg.tar.zst \
+	$url/wine64-v9.21-1/wine64-9.21-1-x86_64.pkg.tar.zst && yes | pacman -Scc
 
 RUN cd /bin && ln -s clear cls && ln -s julia jl && ln -s nano nn && ln -s nano vi && \
-	git config --global pull.rebase true && \
-	git config --global safe.directory "*" && \
+	git config --global pull.rebase true && git config --global safe.directory "*" && \
 	git config --global user.email root@localhost && \
-	git config --global user.name root
+	git config --global user.name root && \
+	jl -ie 'using Pkg; pkg"registry add https://github.com/0h7z/0hjl.git"; exit()'
 

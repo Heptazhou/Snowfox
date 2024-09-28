@@ -2,8 +2,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# published by the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,7 +22,7 @@ const SRC = ("src/")
 # https://archive.mozilla.org/pub/firefox/
 # https://whattrainisitnow.com
 const ESR = v"128".major # 140
-const VER = v"130.0.1-1"
+const VER = v"131.0.3-1"
 
 const schemes =
 	[
@@ -70,6 +69,7 @@ const strip_list_msc =
 		"__tn__"
 		"_at_"
 		"_cldee"
+		"_f"
 		"_ff"
 		"_nc_sid"
 		"_rand"
@@ -350,9 +350,13 @@ const strip_list_ubo =
 		"ref_url"
 		"refd"
 		"s_cid"
+		"scm_id"
+		"scm-url"
+		"scm"
 		"spm"
 		"src_content"
 		"src_custom"
+		"srsltid"
 		"sudaref"
 		"twclid"
 		"vero_conv"

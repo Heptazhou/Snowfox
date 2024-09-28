@@ -2,8 +2,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# published by the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -90,7 +89,7 @@ function fetch()
 	@info "Fetching . . ."
 	cd((@__DIR__)) do
 		ispath(SRC) && throw(SystemError(SRC, 17)) # EEXIST 17 File exists
-		@exec [GIT, "clone", "--depth=1", CLN, SRC, "-b", "130.0.1-1"]
+		@exec [GIT, "clone", "--depth=1", CLN, SRC, "-b", "131.0.2-1"]
 		@exec [GIT, "clone", "--depth=1", CFG, SRC * "submodules/" * "settings"]
 		@exec [JLC..., "move.jl", SRC, "1"]
 		@exec [JLC..., "remote.jl"]

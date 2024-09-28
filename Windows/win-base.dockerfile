@@ -2,8 +2,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# published by the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -45,5 +44,5 @@ RUN cd /Snowfox/Windows && mkdir -p $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
 
 RUN cd /Snowfox/Windows && version=`cat version` && \
 	cd $MOZBUILD_STATE_PATH && curl -LO --fail-with-body \
-	https://github.com/Heptazhou/Firefox/releases/download/v${version%%.*}/vs.tar.zst
+	https://github.com/Heptazhou/Firefox/releases/download/v${version/.*/}/vs.tar.zst
 

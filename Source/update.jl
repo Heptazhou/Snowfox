@@ -2,8 +2,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# published by the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,10 +19,10 @@ include("base_func.jl")
 
 using Dates: Year, datetime2unix, now
 
-const zst_cmd = "zstdmt -17 -M1024M --long"
+const zst_cmd = "zstdmt -18 -M1024M --long"
 const url_git = "https://github.com/0h7z/Snowfox"
 const url_doh = "https://cloudflare-dns.com/dns-query" # https://mozilla.cloudflare-dns.com/dns-query
-const url_doc = "https://0h7z.com/snowfox/"
+const url_doc = "https://0h7z.com/en/snowfox/"
 const url_api = "https://api.github.com/repos/0h7z/Snowfox"
 const patch_g =
 	[
@@ -292,7 +291,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 					end
 					if (f ≡ "generate-locales.sh")
 						p = "julia ../../locale.jl browser/locales/{en-US,l10n}"
-						s = "$s\necho '$p'\n$p\n"
+						q = "\necho '$p'\n$p\n"
+						s = endswith(s, q) ? s : s * q
 					end
 					if (f ≡ "patches.txt")
 						s = endswith(s, "\n") ? s : s * "\n"
@@ -447,6 +447,7 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, "what\"s", "what's", "w")
 						s = replace(s, ("\"none\""), ("'none'"))
 						s = replace(s, ("https://dns.quad9.net/dns-query"), (url_doh), "w")
+						url_log = url_doc * "changelog/"
 						let p = "[^`]*?"
 							for m ∈ collect(eachmatch(Regex("^$p\\K`$p\\n$p`(?=$p\$)", "m"), s))
 								s = replace(s, m.match => replace(m.match, r"[\t\n]+"s => s" "))
@@ -468,8 +469,8 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							s = replace(s, p)
 						end
 						for p ∈ [
-							"app.releaseNotesURL.aboutDialog"       => "$url_doc#v%VERSION%",
-							"app.releaseNotesURL"                   => "$url_doc#v%VERSION%",
+							"app.releaseNotesURL.aboutDialog"       => "$url_log#v%VERSION%",
+							"app.releaseNotesURL"                   => "$url_log#v%VERSION%",
 							"app.update.url.details"                => "$url_git/releases",
 							"app.update.url.manual"                 => "$url_git/releases",
 							"browser.toolbars.bookmarks.visibility" => "newtab",

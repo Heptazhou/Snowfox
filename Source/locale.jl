@@ -2,8 +2,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# published by the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -82,6 +81,8 @@ const rs =
 					v = readlines(f)
 					replace!(v) do s
 						any(occursin(s), rs) && return s
+						# = { DATETIME(\$dateObj, dateStyle: "short", timeStyle: "medium") }
+						s = replace(s, r"^[^#]*?=.*?\K\{.*?(\$dateObj)\b.*?\}" => s"{ \1 }")
 						s = replace(s, r"^[^#]*?=.*?\K\b(Mozilla +)?Firefox\b" => "Snowfox")
 						s = replace(s, r"^[^#]*?=.*?\K\bMozilla\b" => "Snowfox")
 						return s
