@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2025 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -31,10 +31,10 @@ RUN cd /src && rustup default 1.81 && rustup target add x86_64-pc-windows-msvc &
 	tar Ufx windows.gz && rm windows.gz && mv windows-{$ver,rs} && \
 	tar Ufx vs.tar.zst && rm vs.tar.zst && systemd-machine-id-setup
 
-RUN cd /src && mach configure
-RUN cd /src && mach build
-RUN cd /src && mach buildsymbols
-RUN cd /src && mach package-multi-locale \
+RUN cd /src && python3.11 mach configure
+RUN cd /src && python3.11 mach build
+RUN cd /src && python3.11 mach buildsymbols
+RUN cd /src && python3.11 mach package-multi-locale \
 	--locales `cat browser/locales/shipped-locales` > /dev/null
 
 RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt /pkg \

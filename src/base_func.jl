@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2025 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -12,51 +12,34 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# [compat]
-# julia = "≥ 1.5"
-
 include("const.jl")
 
-import Base.replace
+using Base: Filesystem
+using Exts
 
-const readstr(x)::String = read(x, String)
-const sh(c::String)      = run(`sh -c $c`)
+Base.:/(s1::String, ss::String...)::String = stdpath(s1, ss...)
 
-const Curl(x::String...; v::String)::Cmd =
-	Cmd(["curl", "--fail-with-body", "--http2-prior-knowledge", "--tls" * "v$v",
-		"-A\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:$ESR.0) Gecko/20100101 Firefox/$ESR.0\"", x...])
-const Zip7(x::String...)::Cmd =
-	Cmd(["7z", x...])
+const sh(c::String) = run(`sh -c $c`)
 
-const Curl(x::Vector{String}; kw...)::Cmd = Curl(x...; kw...)
-const Zip7(x::Vector{String}; kw...)::Cmd = Zip7(x...; kw...)
-
-const curl(x...) =
-	try
-		Curl(x...; v = "1.3") |> run
-	catch
-		Curl(x...; v = "1.2") |> run
-	end
-const zip7(x...) = Zip7(x...) |> run
-
-macro exec(vec)
+macro skip_ds(path)
 	quote
-		local x = @eval Cmd($vec)
-		x |> println
-		x |> run
+		contains($(esc(path)), ".git/") && continue
+		contains($(esc(path)), "/android/") && continue
+		contains($(esc(path)), "/gtest/") && continue
+		contains($(esc(path)), "/node_modules/") && continue
+		contains($(esc(path)), "/test/") && continue
+		contains($(esc(path)), "/testing/") && continue
+		contains($(esc(path)), "/tests/") && continue
 	end
 end
-macro exec(vec, ret)
-	quote
-		local x = @eval Cmd($vec)
-		x |> println
-		x = (readstr)(x)
-		x |> println
-		$(esc(ret)) = x
-	end
+
+function curl(url::String, f::String = basename(url))::String
+	isfile(f) || sh("$CURL $CURL_ARGS -Lo '$f' $url")
+	f
 end
 
 function expands(str::String)::String
+	f(t::NTuple{2, String}) = r"\b" * t[1] * r"\b" => t[2]
 	for pair ∈ (
 		"are"    => "are not",
 		"ca"     => "cannot",
@@ -76,155 +59,61 @@ function expands(str::String)::String
 		"wo"     => "will not",
 		"would"  => "would not",
 	)
-		vec = [pair...] .* ["n't", ""]
-		str = replace(str, lowercasefirst.(vec)..., "w")
-		str = replace(str, uppercasefirst.(vec)..., "w")
-		vec = [pair...] .* ["n’t", ""]
-		str = replace(str, lowercasefirst.(vec)..., "w")
-		str = replace(str, uppercasefirst.(vec)..., "w")
+		tup = (pair...,) .* ("n't", "")
+		str = replace(str, f(lowercasefirst.(tup)))
+		str = replace(str, f(uppercasefirst.(tup)))
+		tup = (pair...,) .* ("n’t", "")
+		str = replace(str, f(lowercasefirst.(tup)))
+		str = replace(str, f(uppercasefirst.(tup)))
 	end
 	str
 end
 
-function isbinary(f::String)::Bool
-	f ∈ (".DS_Store", "dsstore") ||
-		# See also
-		# Firefox/browser/installer/windows/nsis/shared.nsh
-		# > ${WriteApplicationsSupportedType} ${RegKey}
-		# Firefox/toolkit/components/reputationservice/ApplicationReputation.cpp
-		# > ApplicationReputationService::kBinaryFileExtensions[]
-		# Firefox/toolkit/content/filepicker.properties
-		endswith(r"\.(7z|br|bz2|gz|lz4|rar|tar|xz|zip|zlib|zstd?)")(f) ||                            # archive
-		endswith(r"\.(a?png|avif|bmp|gif|hei[cf]|jfif|jxl|m?jpe?g|pjp(eg)?|svgz?|tiff?|webp)")(f) || # image
-		endswith(r"\.(aac|ac3|flac|m4a|mp3|ogg|opus|wav|weba)")(f) ||                                # audio
-		endswith(r"\.(aps|bin|crx|db|der|dll|exe|hyf|jar|mar|pck|pdf|pyc|wasm|xcf|xpi)")(f) ||       # binary
-		endswith(r"\.(bf|otf|ttf|ttx|woff2?)")(f) ||                                                 # font
-		endswith(r"\.(cache|cer|dic|lock|map|pem|sig(nature)?)|-lock\.(json|yaml)")(f) ||            # other
-		endswith(r"\.(cur|icns|ico)")(f) ||                                                          # icon
-		endswith(r"\.(f[4l]v|mkv|mov|mp4|mpeg|ogv|webm)")(f) ||                                      # video
-		contains(r"^.+\.(bundle|min|sig(nature)?)\.[-\w]+$")(f) ||
-		contains(r"binary_data"i)(f) ||
-		!isvalid(f |> readstr)
-end
+"""
+	walkdir(path = pwd(); topdown = true)
 
-function pause(Msg = missing; up::Int = 0, down::Int = 0)
-	isinteractive() && return
-	print('\n'^up)
-	pause(stdin, stdout, Msg)
-	print('\n'^down)
-end
-function pause(In::IO, Out::IO, Msg = missing)
-	print(Out, Msg isa String ? Msg : "Press any key to continue . . . ")
-	ccall(:jl_tty_set_mode, Int32, (Ptr{Cvoid}, Int32), In.handle, 1)
-	read(In, Char)
-	ccall(:jl_tty_set_mode, Int32, (Ptr{Cvoid}, Int32), In.handle, 0)
-	println(Out)
-end
+Return an iterator that walks the directory tree of a directory.
 
-# e => regex, p => plain, w => whole
-function replace(
-	str::AbstractString,
-	old::NTuple{2, AbstractString},
-	new::AbstractString,
-	flag::String = "e"; n::Int = -1)::String
-	flag ≡ "e" && ((new, old) = (SubstitutionString(new), Regex(old...)))
-	flag ≡ "p" && ((new, old) = (String(new), Regex("\\Q$(old[1])\\E", old[2])))
-	flag ≡ "w" && ((new, old) = (String(new), Regex("\\b\\Q$(old[1])\\E\\b", old[2])))
-	replace(str, old, new; n)
-end
-function replace(
-	str::AbstractString,
-	old::AbstractString,
-	new::AbstractString,
-	flag::String = "e"; n::Int = -1)::String
-	flag ≡ "e" && ((new, old) = (SubstitutionString(new), Regex(old)))
-	flag ≡ "p" && ((new, old) = (String(new), Regex("\\Q$old\\E")))
-	flag ≡ "w" && ((new, old) = (String(new), Regex("\\b\\Q$old\\E\\b")))
-	replace(str, old, new; n)
-end
-function replace(
-	str::AbstractString,
-	old::AbstractPattern,
-	new::AbstractString,
-	flag::String = "e"; n::Int = -1)::String
-	while 0 ≠ n && occursin(old, str)
-		(str, n) = (replace(str, old => new), n - 1)
-		(-1 - n) > +100 && error(old => new)
+The iterator returns a tuple containing `(path, dirs, files)`. Each iteration
+`path` will change to the next directory in the tree; then `dirs` and `files`
+will be vectors containing the directories and files in the current `path`
+directory. The directory tree can be traversed top-down or bottom-up. The
+returned iterator is stateful so when accessed repeatedly each access will
+resume where the last left off, like [`Iterators.Stateful`](@ref).
+
+See also: [`readdir`](@ref).
+
+# Examples
+```julia
+for (path, ds, fs) ∈ walkdir(".")
+	println("Directories in \$path")
+	for d ∈ ds
+		println(path / d) # path to directories
 	end
-	str
+	println("Files in \$path")
+	for f ∈ fs
+		println(path / f) # path to files
+	end
 end
-
-function replace(
-	str::AbstractString,
-	old::AbstractVector{<:AbstractString},
-	new::AbstractVector{<:AbstractString},
-	delim::String = ","; n::Int = 1)::String
-	old = join("\"" .* old .* "\"", delim * " "^n)
-	new = join("\"" .* new .* "\"", delim * " "^n)
-	str = replace(str, old => new)
-end
-function replace(
-	str::AbstractString,
-	old::Any,
-	new::Any,
-	qtn::String = "\""; n::Int = -1)::String
-	old = old isa AbstractString ? qtn * old * qtn : string(old)
-	new = new isa AbstractString ? qtn * new * qtn : string(new)
-	str = replace(str, old => new)
-end
-
-function v_read(ver::VersionNumber)::NTuple{3, String}
-	vx = string(VersionNumber(ver.major, ver.minor, ver.patch))
-	vy = filter(!isempty, filter.(isdigit, string.([ver.prerelease..., 0])))[1]
-	vz = filter(!isempty, filter.(isdigit, string.([ver.build..., 0])))[1]
-	vx, vy, vz
-end
-
-# move(dir::String, recursive::Bool = false)
-function move(dir::String, recursive::Bool = SUBMODULES)
-	@info dir recursive
-	for (prefix, ds, fs) ∈ walkdir(dir, topdown = false)
-		occursin(prefix)(r"\.git\b") && continue
-		occursin(prefix)(r"\bsubmodules\b") && !recursive && continue
-		cd(prefix) do
-			for d ∈ ds
-				if (d) ∈ (".gitlab", "docs") || startswith(r"\.(forgejo|woodpecker)")(d)
-					rm(d, recursive = true)
-					continue
-				end
-				if (d) ∈ ("submodules",) && !recursive
-					rm(d, recursive = true)
-					continue
-				end
-				s = d = d * "/"
-				for p ∈ schemes
-					d = replace(d, p...)
-				end
-				s ≠ d && (@info "$prefix: $(s => d)";
-				(mkpath(d); foreach(p -> mv(s * p, d * p, force = true), readdir(s)); rm(s)))
-			end
-			for f ∈ fs
-				if (f) ∈ (".gitattributes", ".gitignore", ".gitlab-ci.yml", "pack_vs.py") ||
-				   endswith(r"\.(aps|cfg\.js|md|mk)")(f) || startswith(r"\.(forgejo|woodpecker)")(f) ||
-				   contains(r"(build|fail|fetch|linux|module|patch|tree)\.sh$|^(category|file).*\.svg$")(f)
-					rm(f)
-					continue
-				end
-				if (f) ∈ (".gitmodules",) && !recursive
-					rm(f)
-					continue
-				end
-				if (f) ∈ ("Dockerfile",) && !isempty(prefix)
-					rm(f)
-					continue
-				end
-				s = d = f
-				for p ∈ schemes
-					d = replace(d, p...)
-				end
-				s ≠ d && (@info "$prefix: $(s => d)"; mv(s, d, force = true))
-			end
+```
+"""
+function walkdir(path = pwd(); topdown::Bool = true)
+	function _walk(ch, pf)
+		ds = String[]
+		fs = String[]
+		xs = @static VERSION ≥ v"1.11" ? Filesystem._readdirx(pf) : readdir(pf)
+		for x ∈ xs
+			push!(isdir(x) ? ds : fs, @static VERSION ≥ v"1.11" ? x.name : x)
 		end
+		topdown && push!(ch, (pf, ds, fs))
+		for d ∈ ds
+			_walk(ch, stdpath(pf, d))
+		end
+		topdown || push!(ch, (pf, ds, fs))
+		nothing
+	end
+	Channel{Tuple{String, Vararg{Vector{String}, 2}}}() do chnl
+		_walk(chnl, stdpath(path))
 	end
 end
 

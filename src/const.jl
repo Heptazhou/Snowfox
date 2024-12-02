@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2025 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -12,49 +12,65 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-const DKR = "docker"
-const GIT = (("git") * (Sys.iswindows() ? ".exe" : ""))
-const GMK = ("make") * (Sys.iswindows() ? ".exe" : "")
-const JLC = ["julia" * (Sys.iswindows() ? ".exe" : ""), "--startup-file=no", "--compile=min", "--color=yes"]
-const PKG = ("pkg/")
-const SRC = ("src/")
+using Base: notnothing
+
+const SRC = "src/"
+const PKG = "pkg/"
 
 # https://archive.mozilla.org/pub/firefox/
 # https://whattrainisitnow.com
 const ESR = v"128".major # 140
-const VER = v"131.0.3-1"
+const VER = v"131.0.3-2"
 
-const schemes =
-	[
-		"librewolf" => "snowfox",
-		"libreWolf" => "snowfox",
-		"Librewolf" => "Snowfox",
-		"LibreWolf" => "Snowfox",
-		"LIBREWOLF" => "SNOWFOX",
-		r"\blw\_"   => "sf_",
-		r"\blw\b"   => "snowfox",
-		r"\bLW\b"   => "Snowfox",
-		#
-		"firefox\\.icns"                   => "snowfox.icns",
-		"firefox\\.ico"                    => "snowfox.ico",
-		"firefox\\.VisualElementsManifest" => "snowfox.VisualElementsManifest", # .xml
-		"firefox64\\.ico"                  => "snowfox64.ico",
-		"LICENSE\\.txt"                    => "LICENSE",
-		"snowfox\\.overrides\\.cfg"        => "snowfox.config.js",
-		r"\.en-US\.win64-portable\.zip\b"  => ".win64.zip",
-		r"\.en-US\.win64-setup\.exe\b"     => ".win64.exe",
-		r"\.sha\K256sum\b"                 => "256",
-		r"\.sha\K512sum\b"                 => "3-512",
-		r"\bsha\K512sum\b"                 => "3-512sum",
-	]
+const VER_REGEX = r"^v(?<ver>\d+\.\d+\.\d+)(?:-(?<rel>\d+))?(?:\+(?<pre>[a-z]+\d+))?$"
+const VER_MATCH = notnothing(match(VER_REGEX, "v$VER"))
+const VER_INFO  = let
+	ver = VER_MATCH["ver"]
+	rel = VER_MATCH["rel"]
+	pre = VER_MATCH["pre"]
+	alpha, beta, rc, moz_ver, moz_src, moz_tar, moz_url = let
+		s = @something pre ""
+		m = notnothing(match(r"^([a-z]+)?(\d+)?$", s))
+		a, b, c = ("a", "b", "rc") .== m[1]
+		u, v = m[2], replace(ver, r"(\.0)\K\1$" => "")
+		w = v * (a | b ? s : "")
+		x = "firefox-$v"
+		y = "firefox-$w.source.tar.xz"
+		z = "https://archive.mozilla.org/pub/firefox/" * (
+		c ? "candidates/$w-candidates/build$u/" : "releases/$w/") * "source/$y"
+		a, b, c, w, x, y, z
+	end
+	v = "$ver-$rel"
+	(; v, alpha, beta, rc, moz_ver, moz_src, moz_tar, moz_url)
+end
+
+const TAR_PREFIX = "snowfox-v"
+const TAR_SUFFIX = ".source.tar.zst"
+const TAR_ZST_18 = "zstdmt -18 -M1024M --long"
+
+const L10N_PKG_DIR = "l10n"
+const L10N_PKG_TAR = "l10n.tar.zst"
+const L10N_SRC_DIR = "firefox-l10n-main"
+const L10N_SRC_TAR = "firefox-l10n-main.tar.gz"
+const L10N_SRC_URL = "https://github.com/mozilla-l10n/firefox-l10n/archive/refs/heads/main.tar.gz"
+
+const CURL      = @static Sys.iswindows() ? "wsl -- curl" : "curl"
+const CURL_ARGS = let args = [
+	"--fail-with-body"
+	"--http2-prior-knowledge"
+	"--tls" * "v1.3"
+	"-A\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:$ESR.0) Gecko/20100101 Firefox/$ESR.0\""
+]
+	join(args, " ")
+end
 
 # https://duckduckgo.com/favicon.ico
 # https://github.com/Heptazhou/Firefox/blob/FIREFOX_NIGHTLY_128_END/browser/components/search/extensions/ddg/favicon.ico
-const icon_duck = "data:image/png;base64,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"
+# const icon_duck = "../Source/gecko/snowfox/policies.json"
 
 # https://www.google.com/favicon.ico
 # https://github.com/Heptazhou/Firefox/blob/FIREFOX_NIGHTLY_128_END/browser/components/search/extensions/google/favicon.ico
-const icon_goog = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAFZUlEQVRYR71XDUyUdRj/vXdyBwfHyYeKimlEIYSDpCI/ckxWWNmX9qG2liaZpUtNc7SGZk6TOTdZthXoXE601mZbLWe6cIvBMChkls0MkJwf+I1yx3Fw9/b7v7738r7HwR2M9b89d++9/+f5Pb//8zz/LwlhNlmWY6k61+fzzZYkKYvPKRS7an6bvy3UaTSZTD/z+UfqiHchmxRKg6BpdFpEwAWUyFD6op82nZSDJLONNmcHsumXAAFsdLyZAKso5nAcB+oQo4eyk0Q2EKMzGEZQAjR6gPIdjTKG4jgIkVPEmkf5J7CvDwE6nkr5icqJgcreSxfQdfwouhvq0dPaDF/7LRFvmGIdME9MgSVrKqz5c2AeP6EPb2JeJeaTlJP6TgMBdeTVgc69ly/CWfYZuqoqFYcDNkmCdUYeopevgjlpnEFVJTFdHwmNADujKb8Ght197DA6Sksgu4OmsF8uUpQN9rUfwZr3RCAJkY5cf01oBLxe7w4Wy/t6bdfXX8G5+/Mhl0FkwVzYP9jQx57Fvd1sNq8XHQoBMdUof+qrXYz8TsnHQZ2PSEmF5dHpMI8dTwQJ3osX4KmrQU9T74yLfOZF2FcXKf3BZgd9pYtUKL0c/V6OfrFfURTbzcKFkLvcBlvhMIaglpzcoMQ89bW4s2MLrDPzELNi7YCRYxT2MAqFEkfuoFzWLzLO0vfg+qHWABCRngnH1lJIdv/iFxxfdjkh2aJDpo0+XfSZJAgsonaF30LubIa3KgOuyrHoqh+lvDbFJyCu/ABMjriQwINUWCAx/LsZ/qV+Q9+5T+Fr2qj89fw1Eq7DExGzaiNEQQ13YxrKJH7VMRQPa/n/vQDyzeOaL9/tZFie/RsYMWK4/YviPyEIXCeBeD96TxVXMU+b5kwa8xLMmQf6dZ6/1Rk2seIXrMjL6B2IsjCRgIcEIjQCldzwZJ8GappUBNN9nwwLgaV5FiyarrkSEfD8rwRenxmBxbMs2mD8BK4xAgn9pmD0fJinHByWCCzPt+DlXEMElBQYi7BhDuQb3HTU1mZJx+gZvyHCNLgibLnqQ2G5cf/YOM+KWZMNNXAiyDQs4TQsVtwf6UpGyZ0srHtkJZ5PyQ+72ITiN7XdKKv0GGwqVtiQ5OhdmpVpyDwspJZW5nLnObhrMrCzIwOH3JMUgPhIBw4U7EBC5MiwSHS4ZSz5shM3nL1b9z2JJuxdFhVo/6ogEKsuxVrvztrNqGhtNChPjkvBrrxiOCwDL8XdXqD4Wzfqmvmga28z/68Y8y+W4jH+zWgPV8M3/fqXnFex4MgauHqMm1GSLRHrc97C4+Nygkbi7K1WlPxSi5Y/nmJ/7zEyPlrCvneiEGUxhL+cm9Ey/3Z8P6Nwmoy0CjnSWoXi2tKgjibFjse0pIcwISaJu62EK53X0XDlNBqvnYHMj9mdClvbSkg9d/eOTfMjMTOtlxB9davbcZP+QLKdUVin97j/zPcoPbkvrLwHKkleO6La3sWSnCzD3Bd6LL5tHP2H4ll/JLMpa7MkZerBjv5bjS11XzAdgzuSmXmSL0x/DYVTnjNwE5cX+niMouQ38FCaSoUadt7dh9V22XUNuxr349j5avhCHUppkzP6QazOfgOicPWN2G3EFofSZv/7YMfybCoeDSQhDERxChJ1bafQ1H4eN7valUOyw2rHRPs4ZI+ajPzkaUiLu7dP2lTnBcQ1TK/+LiYiEoeoPGVIBRBgpIZdXEy0kfcbAX8HjaJYLJtotEY/OwZDSFQ7RZy2BY5xTqtA4VxOU9XL6UKC2MIhIM57lAo6LqFN00A2IQnoIiKWwKcDrucOtb+dv80i1Or1/DAdd4RD9j/w5nJL3xmBhgAAAABJRU5ErkJggg=="
+# const icon_goog = "../Source/gecko/snowfox/policies.json"
 
 # https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/query-stripping/records
 # https://github.com/brave/brave-core/blob/74ad0c0a/browser/net/brave_site_hacks_network_delegate_helper.cc

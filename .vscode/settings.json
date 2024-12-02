@@ -1,4 +1,5 @@
 {
+	"[javascript]": { "prettier.semi": true },
 	"copyrightInserter.useLineComment": true,
 	"files.associations": { "mozconfig": "shellscript" }
 }

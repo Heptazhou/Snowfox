@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2025 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -19,7 +19,4 @@ for i in strip_list_msc
 	i in strip_list_xpt && @warn i
 end
 @info "Done."
-
-isempty(ARGS) || exit()
-pause(up = 1)
 

@@ -2,7 +2,7 @@
  1 file changed, 15 insertions(+), 15 deletions(-)
 
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index c0a4700dd00b..f3c6ca49529a 100644
+index 6c1da6fa130b..4214f5d76aff 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -2164,13 +2164,13 @@ pref("font.size.monospace.x-math", 13);

@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2025 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -36,13 +36,13 @@ RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
 	jl make.jl / && sha256sum -c *.sha256 && sha3-512sum -c *.sha3-512
 
 RUN cd /Snowfox/Windows && mkdir -p $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
-	ln -s /src/browser/locales/l10n $MOZBUILD_STATE_PATH/l10n-central && \
 	ln -s /src/mach /bin/mach && mkdir /pkg && \
 	tar fx snowfox-v`cat version`.source.tar.zst && \
 	mv -fv snowfox-v`cat version` src && cp -t /pkg 7z.jl && \
 	rm -fr snowfox-*.zst && mv src / && cp -t /src mozconfig
 
-RUN cd /Snowfox/Windows && version=`cat version` && \
-	cd $MOZBUILD_STATE_PATH && curl -LO --fail-with-body \
+RUN cd /Snowfox/Windows && version=`cat version` && l10n=`realpath l10n.tar.zst` && \
+	cd $MOZBUILD_STATE_PATH && tar Ufx $l10n && rm $l10n && \
+	mv -fv l10n l10n-central && curl -LO --fail-with-body \
 	https://github.com/Heptazhou/Firefox/releases/download/v${version/.*/}/vs.tar.zst
 

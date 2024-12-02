@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2024 Heptazhou <zhou@0h7z.com>
+# Copyright (C) 2022-2025 Heptazhou <zhou@0h7z.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -30,19 +30,19 @@ RUN sed -re 's/(SigLevel) .+/\1 = Optional/g' -e 's/NoProgressBar/Color/g' -i /e
 	echo -e 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' >> $MIRRORLIST      && \
 	tac $MIRRORLIST > $MIRRORLIST~ && mv $MIRRORLIST{~,} && pacman-key --init
 
-RUN yes | pacman -Syu git grml-zsh-config julia sha3sum && \
+RUN yes | pacman -Syu 7zip git grml-zsh-config julia sha3sum && \
 	yes | pacman -S --needed bash-completion fastfetch mc nano zsh-completions \
-	clang llvm msitools nasm nodejs-lts-iron python-pip wasi-{compiler-rt,libc++{,abi}} \
+	clang llvm msitools nasm nodejs-lts-jod python-pip wasi-{compiler-rt,libc++{,abi}} \
 	cbindgen cross dump_syms unzip upx wget && yes | pacman -Scc && chsh -s /bin/zsh
 
 RUN  url=https://github.com/0h7z/aur/releases/download && yes | pacman -U \
-	$url/7-zip-full-v24.08-1/7-zip-full-24.08-1-x86_64.pkg.tar.zst \
 	$url/nsis-v3.10-1/nsis-3.10-1-x86_64.pkg.tar.zst \
+	$url/python311-v3.11.11-1/python311-3.11.11-1-x86_64.pkg.tar.zst \
 	$url/wine64-v9.21-1/wine64-9.21-1-x86_64.pkg.tar.zst && yes | pacman -Scc
 
 RUN cd /bin && ln -s clear cls && ln -s julia jl && ln -s nano nn && ln -s nano vi && \
 	git config --global pull.rebase true && git config --global safe.directory "*" && \
-	git config --global user.email root@localhost && \
-	git config --global user.name root && \
-	jl -ie 'using Pkg; pkg"registry add https://github.com/0h7z/0hjl.git"; exit()'
+	git config --global user.name root && git config --global user.email root@localhost && \
+	jl -ie 'using Pkg; pkg"registry add General https://github.com/0h7z/0hjl.git"; exit()' && \
+	jl -ie 'using Pkg; pkg"registry status; add Exts"; exit()'
 

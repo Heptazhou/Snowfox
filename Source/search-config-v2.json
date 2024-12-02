@@ -4,9 +4,9 @@
 			"globalDefault": "google",
 			"globalDefaultPrivate": "google",
 			"id": "f3891684-2348-4e7a-9765-0c5d2d0ab1b9",
-			"last_modified": "${timestamp}",
+			"last_modified": "{{ $timestamp }}",
 			"recordType": "defaultEngines",
-			"schema": "${timestamp}",
+			"schema": "{{ $timestamp }}",
 			"specificDefaults": []
 		},
 		{
@@ -34,18 +34,18 @@
 			},
 			"id": "7ace4aa1-e762-4f4b-87b9-b23b3c3a930b",
 			"identifier": "google",
-			"last_modified": "${timestamp}",
+			"last_modified": "{{ $timestamp }}",
 			"recordType": "engine",
-			"schema": "${timestamp}",
+			"schema": "{{ $timestamp }}",
 			"variants": [{ "environment": { "allRegionsAndLocales": true } }]
 		},
 		{
 			"id": "3e1fed64-5ec7-4b1c-bedc-741fe3c59bc3",
-			"last_modified": "${timestamp}",
+			"last_modified": "{{ $timestamp }}",
 			"orders": [],
 			"recordType": "engineOrders",
-			"schema": "${timestamp}"
+			"schema": "{{ $timestamp }}"
 		}
 	],
-	"timestamp": "${timestamp}"
+	"timestamp": "{{ $timestamp }}"
 }

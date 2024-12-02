@@ -4,50 +4,69 @@
  browser/app/macbuild/Contents/Info.plist.in        |   2 +-
  browser/app/moz.build                              |   2 +-
  browser/app/nsBrowserApp.cpp                       |   2 +-
- browser/app/profile/firefox.js                     | 126 +++++------
+ browser/app/profile/firefox.js                     | 138 ++++++------
  .../{firefox.exe.manifest => snowfox.exe.manifest} |   4 +-
  browser/app/splash.rc                              |   4 +-
+ browser/base/content/aboutDialog.js                |   9 +-
+ browser/base/content/aboutDialog.xhtml             |   8 +-
  browser/base/content/overrides/app-license.html    |   6 +-
- browser/branding/branding-common.mozbuild          |   2 +-
+ browser/branding/branding-common.mozbuild          |   3 +-
  .../modules/FeatureCalloutMessages.sys.mjs         |   1 +
  .../enterprisepolicies/content/aboutPolicies.css   |   8 +
  .../enterprisepolicies/content/aboutPolicies.js    |  24 +-
  .../schemas/policies-schema.json                   |   2 -
  .../installerprefs/InstallerPrefs.sys.mjs          |   2 +-
  .../newtab/content-src/components/Logo/Logo.jsx    |   2 +-
+ .../newtab/data/content/activity-stream.bundle.js  |   1 +
  .../components/newtab/lib/ActivityStream.sys.mjs   |   2 +-
  browser/components/newtab/lib/cache.worker.js      |   2 +-
  browser/components/preferences/main.inc.xhtml      |   8 +-
  browser/components/preferences/main.js             |   2 +-
+ browser/components/preferences/preferences.js      |   3 +
+ browser/components/preferences/preferences.xhtml   |   2 +-
  browser/components/preferences/privacy.inc.xhtml   |  12 +-
  browser/components/preferences/privacy.js          |   4 +-
  browser/components/screenshots/fileHelpers.mjs     |   8 +-
- browser/components/shell/ShellService.sys.mjs      |  10 +-
+ browser/components/shell/ShellService.sys.mjs      |  13 +-
  browser/components/shell/nsWindowsShellService.cpp |   6 +-
  .../tabbrowser/content/tab-hover-preview.mjs       |  11 +
  .../urlbar/QuickActionsLoaderDefault.sys.mjs       |   2 +-
  .../urlbar/UrlbarProviderInterventions.sys.mjs     |   2 +
  .../unitconverters/UnitConverterTimezone.sys.mjs   |   8 +-
  browser/extensions/screenshots/build/shot.js       |   6 +-
- browser/installer/package-manifest.in              |   4 +-
+ browser/installer/package-manifest.in              |   7 +-
  browser/installer/windows/Makefile.in              |   2 +-
  browser/installer/windows/app.tag                  |   2 +-
  browser/installer/windows/nsis/defines.nsi.in      |  10 +-
  browser/installer/windows/nsis/installer.nsi       |  20 +-
- browser/installer/windows/nsis/shared.nsh          | 151 ++++++-------
+ browser/installer/windows/nsis/shared.nsh          | 153 +++++++------
  browser/installer/windows/nsis/uninstaller.nsi     |  57 ++---
+ .../locales/en-US/browser/appExtensionFields.ftl   |   2 +-
+ .../browser/policies/policies-descriptions.ftl     |   2 +-
+ .../en-US/browser/preferences/preferences.ftl      |   2 +-
+ .../en-US/browser/profile/default-bookmarks.ftl    |   4 +-
+ .../en-US/chrome/overrides/appstrings.properties   |  28 +--
  browser/locales/shipped-locales                    |  35 ---
+ browser/moz.configure                              |   8 +-
  .../privatebrowsing/aboutPrivateBrowsing.css       |   3 +-
  .../themes/shared/tabbrowser/tab-hover-preview.css |   2 +-
  build/variables.py                                 |   2 +-
  .../client/aboutdebugging/src/actions/runtimes.js  |   1 +
+ devtools/client/locales/en-US/aboutdebugging.ftl   |   2 +-
+ devtools/client/locales/en-US/application.ftl      |   2 +-
+ devtools/client/locales/en-US/memory.properties    |   2 +-
+ .../client/locales/en-US/responsive.properties     |   2 +-
  devtools/client/memory/utils.js                    |   4 +-
  .../src/components/request-details/CachePanel.js   |   2 +-
  devtools/client/storage/ui.js                      |   6 +-
+ devtools/server/actors/thread.js                   |   3 +
  devtools/server/actors/utils/capture-screenshot.js |   7 +-
+ .../actors/webconsole/listeners/console-api.js     |   3 +
  devtools/shared/loader/Loader.sys.mjs              |   2 +-
  dom/base/Document.cpp                              |   2 +-
  dom/base/nsScreen.cpp                              |   4 +-
+ dom/locales/en-US/chrome/appstrings.properties     |   2 +-
+ dom/locales/en-US/chrome/dom/dom.properties        |  12 +-
  dom/media/CubebUtils.cpp                           |   4 +-
  dom/media/MediaDevices.cpp                         |   2 +-
  dom/media/MediaInfo.h                              |   2 +-
@@ -68,18 +87,21 @@
  js/src/octane/mandreel.js                          |   2 +-
  layout/style/Loader.cpp                            |  24 +-
  layout/style/TopLevelImageDocument.css             |   9 +-
- layout/style/res/ua.css                            |  16 ++
+ layout/style/res/ua.css                            |  17 ++
  media/libcubeb/src/cubeb_alsa.c                    |   4 +-
  media/libcubeb/src/cubeb_winmm.c                   |  14 +-
+ media/libjxl/moz.build                             |   6 -
  media/libsoundtouch/src/TDStretch.cpp              |   2 +-
  media/libvorbis/lib/vorbis_envelope.c              |   4 +-
  modules/libjar/nsJARChannel.cpp                    |  14 +-
  modules/libjar/nsJARChannel.h                      |  19 +-
- modules/libpref/init/StaticPrefList.yaml           | 121 ++++++-----
- modules/libpref/init/all.js                        |  50 ++---
+ modules/libpref/init/StaticPrefList.yaml           | 129 ++++++-----
+ modules/libpref/init/all.js                        |  44 ++--
+ moz.build                                          |   1 +
  netwerk/base/nsBaseChannel.cpp                     |   4 +
  netwerk/protocol/file/nsFileChannel.h              |   6 +-
  netwerk/protocol/http/nsHttpHandler.cpp            |  18 +-
+ python/mach/mach/telemetry.py                      |   5 +-
  python/mozbuild/mozbuild/action/exe_7z_archive.py  |   1 +
  .../html-build-viewer/build_resources.html         |   4 +-
  .../manager/pki/resources/content/clientauthask.js |   4 +-
@@ -89,6 +111,7 @@
  .../taskcluster_taskgraph/taskgraph/util/hash.py   |   2 +-
  toolkit/actors/PictureInPictureChild.sys.mjs       |   6 +-
  .../components/certviewer/content/certDecoder.mjs  |  12 +-
+ toolkit/components/extensions/Extension.sys.mjs    |   6 +-
  toolkit/components/pdfjs/content/build/pdf.mjs     |   2 +-
  toolkit/components/pdfjs/content/web/viewer.css    |   4 +-
  toolkit/components/pdfjs/content/web/viewer.mjs    |  10 +-
@@ -110,15 +133,16 @@
  toolkit/content/widgets/datekeeper.js              |   4 +-
  toolkit/content/widgets/datepicker.js              |   8 +-
  toolkit/content/widgets/datetimebox.js             |   4 +-
+ .../locales/en-US/toolkit/branding/brandings.ftl   |  10 +-
  toolkit/locales/en-US/toolkit/pdfviewer/viewer.ftl |   4 +-
  toolkit/modules/DateTimePickerPanel.sys.mjs        |   4 +-
- toolkit/moz.configure                              |  12 +-
+ toolkit/moz.configure                              |  14 +-
  toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp |   4 +-
  .../extensions/internal/AddonSettings.sys.mjs      |   2 +-
  toolkit/themes/shared/aboutServiceWorkers.css      |   5 +
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
- 120 files changed, 868 insertions(+), 582 deletions(-)
+ 144 files changed, 951 insertions(+), 650 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 66fc21f9be2e..9a7d104cacd7 100644
@@ -226,7 +250,7 @@ index 4957b4244ebd..96f99a848a2c 100644
      }
      FreeLibrary(user32);
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 525d31c9c8e7..b1f1678f1ebc 100644
+index 525d31c9c8e7..2d8b01872733 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -48,7 +48,7 @@ pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/pri
@@ -238,6 +262,19 @@ index 525d31c9c8e7..b1f1678f1ebc 100644
  
  // Check AUS for system add-on updates.
  pref("extensions.systemAddon.update.url", "https://aus5.mozilla.org/update/3/SystemAddons/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml");
+@@ -65,9 +65,9 @@ pref("extensions.geckoProfiler.acceptedExtensionIds", "geckoprofiler@mozilla.com
+ 
+ pref("extensions.webextensions.remote", true);
+ 
+-// Require signed add-ons by default
+-pref("extensions.langpacks.signatures.required", true);
+-pref("xpinstall.signatures.required", true);
++// Require signed add-ons if enabled
++pref("extensions.langpacks.signatures.required", false);
++pref("xpinstall.signatures.required", false);
+ 
+ // Dictionary download preference
+ pref("browser.dictionaries.download.url", "https://addons.mozilla.org/%LOCALE%/firefox/language-tools/");
 @@ -143,7 +143,7 @@ pref("app.update.notifyDuringDownload", false);
  
  // If set to true, the Update Service will apply updates in the background
@@ -485,6 +522,23 @@ index 525d31c9c8e7..b1f1678f1ebc 100644
  pref("browser.newtabpage.activity-stream.discoverystream.hardcoded-basic-layout", false);
  pref("browser.newtabpage.activity-stream.discoverystream.hybridLayout.enabled", false);
  pref("browser.newtabpage.activity-stream.discoverystream.hideCardBackground.enabled", false);
+@@ -1983,14 +1983,14 @@ pref("browser.ml.chat.prompts.1", '{"id":"simplify","l10nId":"genai-prompts-simp
+ pref("browser.ml.chat.prompts.2", '{"id":"quiz","l10nId":"genai-prompts-quiz","targeting":"!provider|regExpMatch(\'gemini\')"}');
+ pref("browser.ml.chat.prompts.3", '{"id":"explain","l10nId":"genai-prompts-explain","targeting":"channel==\'nightly\'"}');
+ pref("browser.ml.chat.provider", "");
+-pref("browser.ml.chat.shortcuts", true);
++pref("browser.ml.chat.shortcuts", false);
+ #ifdef NIGHTLY_BUILD
+ pref("browser.ml.chat.shortcuts.custom", true);
+ #else
+ pref("browser.ml.chat.shortcuts.custom", false);
+ #endif
+ pref("browser.ml.chat.shortcuts.longPress", 60000);
+-pref("browser.ml.chat.sidebar", true);
++pref("browser.ml.chat.sidebar", false);
+ 
+ pref("security.protectionspopup.recordEventTelemetry", true);
+ pref("security.app_menu.recordEventTelemetry", true);
 @@ -2120,7 +2120,7 @@ pref("browser.translation.neverForLanguages", "");
  
  // Enable Firefox translations powered by the Bergamot translations
@@ -512,6 +566,15 @@ index 525d31c9c8e7..b1f1678f1ebc 100644
  
  // Always enable newtab segregation using containers
  pref("privacy.usercontext.about_newtab_segregation.enabled", true);
+@@ -2479,7 +2479,7 @@ pref("browser.migrate.preferences-entrypoint.enabled", true);
+ pref("extensions.pocket.api", "api.getpocket.com");
+ pref("extensions.pocket.bffApi", "firefox-api-proxy.cdn.mozilla.net");
+ pref("extensions.pocket.bffRecentSaves", true);
+-pref("extensions.pocket.enabled", true);
++pref("extensions.pocket.enabled", false);
+ pref("extensions.pocket.oAuthConsumerKey", "40249-e88c401e1b1f2242d9e441c4");
+ pref("extensions.pocket.oAuthConsumerKeyBff", "94110-6d5ff7a89d72c869766af0e0");
+ pref("extensions.pocket.site", "getpocket.com");
 @@ -2502,7 +2502,7 @@ pref("signon.management.page.fileImport.enabled", true);
  // "offered"        - we have offered feature to user and they have not yet made a decision.
  // "enabled"        - user opted in to the feature.
@@ -684,6 +747,77 @@ index 259a8068c3aa..217d8ff8c9f2 100644
  IDI_NEWWINDOW ICON NEWWINDOW_ICO
  IDI_NEWTAB ICON NEWTAB_ICO
  IDI_PBMODE ICON PBMODE_ICO
+diff --git a/browser/base/content/aboutDialog.js b/browser/base/content/aboutDialog.js
+index 8c5c7768e0e7..7388f66d3bca 100644
+--- a/browser/base/content/aboutDialog.js
++++ b/browser/base/content/aboutDialog.js
+@@ -51,28 +51,27 @@ function init() {
+   ]);
+   let versionIdKey = "base";
+   let versionAttributes = {
+-    version: AppConstants.MOZ_APP_VERSION_DISPLAY,
++    version: "v" + AppConstants.MOZ_APP_VERSION_DISPLAY,
+   };
+ 
+   let arch = Services.sysinfo.get("arch");
+   if (["x86", "x86-64"].includes(arch)) {
+     versionAttributes.bits = Services.appinfo.is64Bit ? 64 : 32;
+   } else {
+-    versionIdKey += "-arch";
+     versionAttributes.arch = arch;
+   }
+ 
+   let version = Services.appinfo.version;
+-  if (/a\d+$/.test(version)) {
+-    versionIdKey += "-nightly";
++  if (version) {
+     let buildID = Services.appinfo.appBuildID;
+     let year = buildID.slice(0, 4);
+     let month = buildID.slice(4, 6);
+     let day = buildID.slice(6, 8);
+     versionAttributes.isodate = `${year}-${month}-${day}`;
+ 
+-    document.getElementById("experimental").hidden = false;
++    document.getElementById("experimental").hidden = true;
+     document.getElementById("communityDesc").hidden = true;
++    document.getElementById("contributeDesc").hidden = true;
+   }
+ 
+   // Use Fluent arguments for append version and the architecture of the build
+diff --git a/browser/base/content/aboutDialog.xhtml b/browser/base/content/aboutDialog.xhtml
+index 1e5c0f1c5917..5da342a692c7 100644
+--- a/browser/base/content/aboutDialog.xhtml
++++ b/browser/base/content/aboutDialog.xhtml
+@@ -125,17 +125,17 @@
+           <vbox id="experimental" hidden="true">
+             <description class="text-blurb" id="warningDesc" data-l10n-id="warningDesc-version"></description>
+             <description class="text-blurb" id="communityExperimentalDesc" data-l10n-id="community-exp">
+-              <label is="text-link" href="https://www.mozilla.org/?utm_source=firefox-browser&#38;utm_medium=firefox-desktop&#38;utm_campaign=about-dialog" data-l10n-name="community-exp-mozillaLink"/>
++              <label is="text-link" href="https://www.mozilla.org/" data-l10n-name="community-exp-mozillaLink"/>
+               <label is="text-link" useoriginprincipal="true" href="about:credits" data-l10n-name="community-exp-creditsLink"/>
+             </description>
+           </vbox>
+           <description class="text-blurb" id="communityDesc" data-l10n-id="community-2">
+-            <label is="text-link" href="https://www.mozilla.org/?utm_source=firefox-browser&#38;utm_medium=firefox-desktop&#38;utm_campaign=about-dialog" data-l10n-name="community-mozillaLink"/>
++            <label is="text-link" href="https://www.mozilla.org/" data-l10n-name="community-mozillaLink"/>
+             <label is="text-link" useoriginprincipal="true" href="about:credits" data-l10n-name="community-creditsLink"/>
+           </description>
+           <description class="text-blurb" id="contributeDesc" data-l10n-id="helpus">
+             <label is="text-link" href="https://foundation.mozilla.org/?form=firefox-about" data-l10n-name="helpus-donateLink"/>
+-            <label is="text-link" href="https://www.mozilla.org/contribute/?utm_source=firefox-browser&#38;utm_medium=firefox-desktop&#38;utm_campaign=about-dialog" data-l10n-name="helpus-getInvolvedLink"/>
++            <label is="text-link" href="https://www.mozilla.org/contribute/" data-l10n-name="helpus-getInvolvedLink"/>
+           </description>
+         </vbox>
+       </vbox>
+@@ -144,7 +144,7 @@
+       <hbox pack="center">
+         <label is="text-link" class="bottom-link" useoriginprincipal="true" href="about:license" data-l10n-id="bottomLinks-license"/>
+         <label is="text-link" class="bottom-link" useoriginprincipal="true" href="about:rights" data-l10n-id="bottomLinks-rights"/>
+-        <label is="text-link" class="bottom-link" href="https://www.mozilla.org/privacy/?utm_source=firefox-browser&#38;utm_medium=firefox-desktop&#38;utm_campaign=about-dialog" data-l10n-id="bottomLinks-privacy"/>
++        <label is="text-link" class="bottom-link" href="https://www.mozilla.org/privacy/" hidden="true" data-l10n-id="bottomLinks-privacy"/>
+       </hbox>
+       <description id="trademark" data-l10n-id="trademarkInfo"></description>
+     </vbox>
 diff --git a/browser/base/content/overrides/app-license.html b/browser/base/content/overrides/app-license.html
 index eafe95498af2..cb02ce718b43 100644
 --- a/browser/base/content/overrides/app-license.html
@@ -701,12 +835,14 @@ index eafe95498af2..cb02ce718b43 100644
    License 2.0 (MPL). <a href="about:rights">Know your rights</a>.
  </p>
 diff --git a/browser/branding/branding-common.mozbuild b/browser/branding/branding-common.mozbuild
-index a38663a3dc1e..6ddd5b806ed3 100644
+index a38663a3dc1e..e92e6acc2f0f 100644
 --- a/browser/branding/branding-common.mozbuild
 +++ b/browser/branding/branding-common.mozbuild
-@@ -18,8 +18,8 @@ def FirefoxBranding():
+@@ -17,9 +17,10 @@ def FirefoxBranding():
+         ]
  
      if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
++        # must be sorted
          FINAL_TARGET_FILES[".."] += [
 -            "firefox.VisualElementsManifest.xml",
              "private_browsing.VisualElementsManifest.xml",
@@ -859,6 +995,18 @@ index dc81324475d1..561226836bbc 100644
        <div className="logo" />
        <div className="wordmark" />
      </div>
+diff --git a/browser/components/newtab/data/content/activity-stream.bundle.js b/browser/components/newtab/data/content/activity-stream.bundle.js
+index d1c3aaa531b2..9d89d36cde0d 100644
+--- a/browser/components/newtab/data/content/activity-stream.bundle.js
++++ b/browser/components/newtab/data/content/activity-stream.bundle.js
+@@ -10026,6 +10026,7 @@ const NEWTAB_DARK_THEME = {
+ 
+ function Logo() {
+   return /*#__PURE__*/external_React_default().createElement("div", {
++    style: { display: "none" },
+     className: "logo-and-wordmark"
+   }, /*#__PURE__*/external_React_default().createElement("div", {
+     className: "logo"
 diff --git a/browser/components/newtab/lib/ActivityStream.sys.mjs b/browser/components/newtab/lib/ActivityStream.sys.mjs
 index 893ab2a7d2b5..191dc04f8445 100644
 --- a/browser/components/newtab/lib/ActivityStream.sys.mjs
@@ -938,6 +1086,33 @@ index 2f7d5d7c8922..c4eaa6301a32 100644
      }
    },
  
+diff --git a/browser/components/preferences/preferences.js b/browser/components/preferences/preferences.js
+index 7e21bab426b6..87357948b0f8 100644
+--- a/browser/components/preferences/preferences.js
++++ b/browser/components/preferences/preferences.js
+@@ -634,6 +634,9 @@ async function ensureScrollPadding() {
+ }
+ 
+ function maybeDisplayPoliciesNotice() {
++  if (Services.prefs.getBoolPref("browser.preferences.policiesNotice", false)) {
++    return;
++  }
+   if (Services.policies.status == Services.policies.ACTIVE) {
+     document.getElementById("policies-container").removeAttribute("hidden");
+     ensureScrollPadding();
+diff --git a/browser/components/preferences/preferences.xhtml b/browser/components/preferences/preferences.xhtml
+index 53bdc9c912a6..8db487995fba 100644
+--- a/browser/components/preferences/preferences.xhtml
++++ b/browser/components/preferences/preferences.xhtml
+@@ -225,7 +225,7 @@
+                 <html:img class="info-icon" data-l10n-attrs="alt" data-l10n-id="managed-notice-info-icon"></html:img>
+               </hbox>
+               <hbox align="center" flex="1">
+-                <html:a href="about:policies" target="_blank" data-l10n-id="managed-notice"/>
++                <html:a href="about:policies" target="_blank" data-l10n-id="about-policies-title"/>
+               </hbox>
+             </hbox>
+             <search-textbox
 diff --git a/browser/components/preferences/privacy.inc.xhtml b/browser/components/preferences/privacy.inc.xhtml
 index de72b7827f60..34a7cc8430cf 100644
 --- a/browser/components/preferences/privacy.inc.xhtml
@@ -1042,21 +1217,36 @@ index 8bc872639bfa..bad87ff18f55 100644
    // allow space for a potential ellipsis and the extension
    let maxNameStemLength = maxFilenameLength - "[...].png".length;
 diff --git a/browser/components/shell/ShellService.sys.mjs b/browser/components/shell/ShellService.sys.mjs
-index 3adf3460f45d..e4436a4eeaee 100644
+index 3adf3460f45d..fae956ff18b5 100644
 --- a/browser/components/shell/ShellService.sys.mjs
 +++ b/browser/components/shell/ShellService.sys.mjs
-@@ -185,9 +185,9 @@ let ShellServiceInternal = {
-       "Brave", // For "BraveFile".
-       "Chrome", // For "ChromeHTML".
-       "Firefox", // For "FirefoxHTML-*" or "FirefoxPDF-*".  Need to take from other installations of Firefox!
--      "IE", // Best guess.
+@@ -149,7 +149,7 @@ let ShellServiceInternal = {
+       // We only get an exception when something went really wrong.  Fail
+       // safely: don't set Firefox as default PDF handler.
+       lazy.log.warn(
+-        "Could not determine default PDF handler: not setting Firefox as " +
++        "Could not determine default PDF handler: not setting Snowfox as " +
+           "default PDF handler!"
+       );
+       return false;
+@@ -188,6 +188,7 @@ let ShellServiceInternal = {
+       "IE", // Best guess.
        "MSEdge", // For "MSEdgePDF".  Edgium.
        "Opera", // For "OperaStable", presumably varying with channel.
 +      "Snowfox", // For "SnowfoxHTML-*" or "SnowfoxPDF-*".
        "Yandex", // For "YandexPDF.IHKFKZEIOKEMR6BGF62QXCRIKM", presumably varying with installation.
      ];
  
-@@ -258,10 +258,10 @@ let ShellServiceInternal = {
+@@ -236,7 +237,7 @@ let ShellServiceInternal = {
+       throw new Error("Windows-only");
+     }
+ 
+-    lazy.log.info("Setting Firefox as default using UserChoice");
++    lazy.log.info("Setting Snowfox as default using UserChoice");
+ 
+     let telemetryResult = "ErrOther";
+ 
+@@ -258,10 +259,10 @@ let ShellServiceInternal = {
          lazy.NimbusFeatures.shellService.getVariable("setDefaultPDFHandler")
        ) {
          if (this._shouldSetDefaultPDFHandler()) {
@@ -1070,7 +1260,7 @@ index 3adf3460f45d..e4436a4eeaee 100644
          }
        }
        try {
-@@ -302,7 +302,7 @@ let ShellServiceInternal = {
+@@ -302,7 +303,7 @@ let ShellServiceInternal = {
        try {
          this.defaultAgent.setDefaultExtensionHandlersUserChoice(aumi, [
            ".pdf",
@@ -1213,7 +1403,7 @@ index 7153562de34f..dcbbfab6a68d 100644
        // Crop the filename size at less than 246 bytes, so as to leave
        // room for the extension and an ellipsis [...]. Note that JS
 diff --git a/browser/installer/package-manifest.in b/browser/installer/package-manifest.in
-index da760e143740..be0512995000 100644
+index da760e143740..9d3d767611b9 100644
 --- a/browser/installer/package-manifest.in
 +++ b/browser/installer/package-manifest.in
 @@ -40,7 +40,7 @@
@@ -1234,6 +1424,16 @@ index da760e143740..be0512995000 100644
  @BINPATH@/browser/VisualElements/VisualElements_150.png
  @BINPATH@/browser/VisualElements/VisualElements_70.png
  @BINPATH@/private_browsing.exe
+@@ -253,6 +253,9 @@
+ @RESPATH@/browser/defaults/permissions
+ ; Remote Settings JSON dumps
+ @RESPATH@/browser/defaults/settings
++; Snowfox pref files
++@RESPATH@/distribution/policies.json
++@RESPATH@/snowfox.cfg
+ 
+ # channel-prefs.js has been removed on macOS.
+ #ifndef XP_MACOSX
 diff --git a/browser/installer/windows/Makefile.in b/browser/installer/windows/Makefile.in
 index 279e25158ff2..ac5043ec316f 100644
 --- a/browser/installer/windows/Makefile.in
@@ -1340,7 +1540,7 @@ index e9f9d323c4cb..c18e135e21d0 100755
  
    ; The keys below can be set in HKCU if needed.
 diff --git a/browser/installer/windows/nsis/shared.nsh b/browser/installer/windows/nsis/shared.nsh
-index 35e83936e827..2b8f8f552e00 100755
+index 35e83936e827..56f798f4be5a 100755
 --- a/browser/installer/windows/nsis/shared.nsh
 +++ b/browser/installer/windows/nsis/shared.nsh
 @@ -461,35 +461,35 @@ ${RemoveDefaultBrowserAgentShortcut}
@@ -1523,25 +1723,22 @@ index 35e83936e827..2b8f8f552e00 100755
    ${If} "$3" == ""
      DeleteRegValue SHCTX "$0" "ESR"
    ${Else}
-@@ -803,7 +806,6 @@ ${RemoveDefaultBrowserAgentShortcut}
+@@ -816,9 +819,13 @@ ${RemoveDefaultBrowserAgentShortcut}
+     ${WriteRegDWORD2} $RegHive "$0" "ESR" 1 0
+   ${EndIf}
  
-   StrCpy $0 "Software\Mozilla\${BrandFullNameInternal} ${AppVersion}$3\bin"
-   ${WriteRegStr2} $RegHive "$0" "PathToExe" "$8\${FileMainEXE}" 0
--
-   StrCpy $0 "Software\Mozilla\${BrandFullNameInternal} ${AppVersion}$3\extensions"
-   ${WriteRegStr2} $RegHive "$0" "Components" "$8\components" 0
-   ${WriteRegStr2} $RegHive "$0" "Plugins" "$8\plugins" 0
-@@ -818,7 +820,8 @@ ${RemoveDefaultBrowserAgentShortcut}
- 
++  StrCpy $0 "Software\Mozilla\Firefox"
++  ${WriteRegStr2} $RegHive "$0" "" "${GREVersion}" 0
++  ${WriteRegStr2} $RegHive "$0" "CurrentVersion" "${AppVersion}$3" 0
++
    StrCpy $0 "Software\Mozilla\${BrandFullNameInternal}$3"
    ${WriteRegStr2} $RegHive "$0" "" "${GREVersion}" 0
 -  ${WriteRegStr2} $RegHive "$0" "CurrentVersion" "${AppVersion}$3 (${ARCH} ${AB_CD})" 0
 +  ${WriteRegStr2} $RegHive "$0" "CurrentVersion" "${AppVersion}$3" 0
-+  ${WriteRegStr2} $RegHive "Software\Mozilla\Firefox" "" "${GREVersion}" 0
  !macroend
  !define SetAppKeys "!insertmacro SetAppKeys"
  
-@@ -836,7 +839,7 @@ ${RemoveDefaultBrowserAgentShortcut}
+@@ -836,7 +843,7 @@ ${RemoveDefaultBrowserAgentShortcut}
      StrCpy $3 " ESR"
    ${EndIf}
  
@@ -1550,7 +1747,7 @@ index 35e83936e827..2b8f8f552e00 100755
  
    StrCpy $2 ""
    ClearErrors
-@@ -863,13 +866,13 @@ ${RemoveDefaultBrowserAgentShortcut}
+@@ -863,13 +870,13 @@ ${RemoveDefaultBrowserAgentShortcut}
      ${GetLongPath} "$INSTDIR" $8
  
      ; Write the uninstall registry keys
@@ -1567,7 +1764,7 @@ index 35e83936e827..2b8f8f552e00 100755
      ${WriteRegStr2} $1 "$0" "UninstallString" "$\"$8\uninstall\helper.exe$\"" 0
      DeleteRegValue SHCTX "$0" "URLInfoAbout"
  ; Don't add URLUpdateInfo which is the release notes url except for the release
-@@ -903,7 +906,7 @@ ${RemoveDefaultBrowserAgentShortcut}
+@@ -903,7 +910,7 @@ ${RemoveDefaultBrowserAgentShortcut}
  ; HKCU Software\Classes keys when associating handlers. The fix uses the merged
  ; view in HKCR to check for existance of an existing association. This macro
  ; cleans affected installations by removing the HKLM and HKCU value if it is set
@@ -1576,7 +1773,7 @@ index 35e83936e827..2b8f8f552e00 100755
  ; HKCU value when the HKLM value has a value other than an empty string.
  !macro FixBadFileAssociation FILE_TYPE
    ; Only delete the default value in case the key has values for OpenWithList,
-@@ -914,16 +917,16 @@ ${RemoveDefaultBrowserAgentShortcut}
+@@ -914,16 +921,16 @@ ${RemoveDefaultBrowserAgentShortcut}
    ${WordFind} "$1" "-" "+1{" $1
    ReadRegStr $2 HKCR "${FILE_TYPE}\PersistentHandler" ""
    ${If} "$2" != ""
@@ -1599,7 +1796,7 @@ index 35e83936e827..2b8f8f552e00 100755
      ; from HKCU if HKLM is set to a value other than an empty string.
      ${If} "$1" != ""
        DeleteRegValue HKCU "Software\Classes\${FILE_TYPE}" ""
-@@ -980,36 +983,36 @@ ${RemoveDefaultBrowserAgentShortcut}
+@@ -980,36 +987,36 @@ ${RemoveDefaultBrowserAgentShortcut}
    ; Only set the file and protocol handlers if the existing one under HKCR is
    ; for this install location.
  
@@ -1648,7 +1845,7 @@ index 35e83936e827..2b8f8f552e00 100755
                                       "${AppRegName} URL" "true"
      ${EndIf}
    ${EndIf}
-@@ -1720,6 +1723,8 @@ Function SetAsDefaultAppUserHKCU
+@@ -1720,6 +1727,8 @@ Function SetAsDefaultAppUserHKCU
      Pop $0
      AppAssocReg::SetAppAsDefault "$R9" ".avif" "file"
      Pop $0
@@ -1657,7 +1854,7 @@ index 35e83936e827..2b8f8f552e00 100755
      AppAssocReg::SetAppAsDefault "$R9" ".xht" "file"
      Pop $0
      AppAssocReg::SetAppAsDefault "$R9" ".xhtml" "file"
-@@ -1849,7 +1854,7 @@ FunctionEnd
+@@ -1849,7 +1858,7 @@ FunctionEnd
    ; uninstalled.
  
    ; Do all of that twice, once for the local machine and once for the current user
@@ -1760,6 +1957,124 @@ index 559c8b46ee06..6fb81dfd570a 100755
      ${StrFilter} "${FileMainEXE}" "+" "" "" $R9
      DeleteRegKey HKCU "Software\Clients\StartMenuInternet\$R9"
      DeleteRegValue HKCU "Software\RegisteredApplications" "$R9"
+diff --git a/browser/locales/en-US/browser/appExtensionFields.ftl b/browser/locales/en-US/browser/appExtensionFields.ftl
+index 09d7a076eccd..fb4b6bf43525 100644
+--- a/browser/locales/en-US/browser/appExtensionFields.ftl
++++ b/browser/locales/en-US/browser/appExtensionFields.ftl
+@@ -14,7 +14,7 @@ extension-firefox-compact-light-description=A theme with a light color scheme.
+ extension-firefox-compact-dark-name=Dark
+ extension-firefox-compact-dark-description=A theme with a dark color scheme.
+ 
+-extension-firefox-alpenglow-name=Firefox Alpenglow
++extension-firefox-alpenglow-name=Snowfox Alpenglow
+ extension-firefox-alpenglow-description=Use a colorful appearance for buttons, menus, and windows.
+ 
+ ## Colorway Themes
+diff --git a/browser/locales/en-US/browser/policies/policies-descriptions.ftl b/browser/locales/en-US/browser/policies/policies-descriptions.ftl
+index d35b9032132d..b4ec83048355 100644
+--- a/browser/locales/en-US/browser/policies/policies-descriptions.ftl
++++ b/browser/locales/en-US/browser/policies/policies-descriptions.ftl
+@@ -74,7 +74,7 @@ policy-DisableFeedbackCommands = Disable commands to send feedback from the Help
+ policy-DisableFirefoxAccounts1 = Disable account-based services, including sync.
+ 
+ # Firefox Screenshots is the name of the feature, and should not be translated.
+-policy-DisableFirefoxScreenshots = Disable the Firefox Screenshots feature.
++policy-DisableFirefoxScreenshots = Disable the Snowfox Screenshots feature.
+ 
+ policy-DisableFirefoxStudies = Prevent { -brand-short-name } from running studies.
+ 
+diff --git a/browser/locales/en-US/browser/preferences/preferences.ftl b/browser/locales/en-US/browser/preferences/preferences.ftl
+index d197d876dac5..458e36f3e457 100644
+--- a/browser/locales/en-US/browser/preferences/preferences.ftl
++++ b/browser/locales/en-US/browser/preferences/preferences.ftl
+@@ -972,7 +972,7 @@ sync-engine-payment-methods2 =
+ 
+ sync-engine-addons =
+     .label = Add-ons
+-    .tooltiptext = Extensions and themes for Firefox desktop
++    .tooltiptext = Extensions and themes for Snowfox desktop
+     .accesskey = A
+ 
+ sync-engine-settings =
+diff --git a/browser/locales/en-US/browser/profile/default-bookmarks.ftl b/browser/locales/en-US/browser/profile/default-bookmarks.ftl
+index 5523466f30f0..fd9b613b44da 100644
+--- a/browser/locales/en-US/browser/profile/default-bookmarks.ftl
++++ b/browser/locales/en-US/browser/profile/default-bookmarks.ftl
+@@ -10,13 +10,13 @@ default-bookmarks-title = Bookmarks
+ default-bookmarks-heading = Bookmarks
+ 
+ # Firefox links folder name
+-default-bookmarks-firefox-heading = Mozilla Firefox
++default-bookmarks-firefox-heading = Snowfox
+ 
+ # link title for https://www.mozilla.org/firefox/help/
+ default-bookmarks-firefox-get-help = Get Help
+ 
+ # link title for https://www.mozilla.org/firefox/customize/
+-default-bookmarks-firefox-customize = Customize Firefox
++default-bookmarks-firefox-customize = Customize Snowfox
+ 
+ # link title for https://www.mozilla.org/contribute/
+ default-bookmarks-firefox-community = Get Involved
+diff --git a/browser/locales/en-US/chrome/overrides/appstrings.properties b/browser/locales/en-US/chrome/overrides/appstrings.properties
+index d572ac39c657..ffb7bfc33361 100644
+--- a/browser/locales/en-US/chrome/overrides/appstrings.properties
++++ b/browser/locales/en-US/chrome/overrides/appstrings.properties
+@@ -3,32 +3,32 @@
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ 
+ malformedURI2=Please check that the URL is correct and try again.
+-fileNotFound=Firefox can’t find the file at %S.
++fileNotFound=Snowfox cannot find the file at %S.
+ fileAccessDenied=The file at %S is not readable.
+ # %S is replaced by the uri host
+ serverError=%S might have a temporary problem or it could have moved.
+-dnsNotFound2=We can’t connect to the server at %S.
+-unknownProtocolFound=Firefox doesn’t know how to open this address, because one of the following protocols (%S) isn’t associated with any program or is not allowed in this context.
+-connectionFailure=Firefox can’t establish a connection to the server at %S.
++dnsNotFound2=We cannot connect to the server at %S.
++unknownProtocolFound=Snowfox does not know how to open this address, because one of the following protocols (%S) is not associated with any program or is not allowed in this context.
++connectionFailure=Snowfox cannot establish a connection to the server at %S.
+ netInterrupt=The connection to %S was interrupted while the page was loading.
+ netTimeout=The server at %S is taking too long to respond.
+-redirectLoop=Firefox has detected that the server is redirecting the request for this address in a way that will never complete.
+-## LOCALIZATION NOTE (confirmRepostPrompt): In this item, don’t translate "%S"
++redirectLoop=Snowfox has detected that the server is redirecting the request for this address in a way that will never complete.
++## LOCALIZATION NOTE (confirmRepostPrompt): In this item, do not translate "%S"
+ confirmRepostPrompt=To display this page, %S must send information that will repeat any action (such as a search or order confirmation) that was performed earlier.
+ resendButton.label=Resend
+-unknownSocketType=Firefox doesn’t know how to communicate with the server.
++unknownSocketType=Snowfox does not know how to communicate with the server.
+ netReset=The connection to the server was reset while the page was loading.
+ notCached=This document is no longer available.
+-netOffline=Firefox is currently in offline mode and can’t browse the Web.
++netOffline=Snowfox is currently in offline mode and cannot browse the Web.
+ isprinting=The document cannot change while Printing or in Print Preview.
+-deniedPortAccess=This address uses a network port which is normally used for purposes other than Web browsing. Firefox has canceled the request for your protection.
+-proxyResolveFailure=Firefox is configured to use a proxy server that can’t be found.
+-proxyConnectFailure=Firefox is configured to use a proxy server that is refusing connections.
++deniedPortAccess=This address uses a network port which is normally used for purposes other than Web browsing. Snowfox has canceled the request for your protection.
++proxyResolveFailure=Snowfox is configured to use a proxy server that cannot be found.
++proxyConnectFailure=Snowfox is configured to use a proxy server that is refusing connections.
+ contentEncodingError=The page you are trying to view cannot be shown because it uses an invalid or unsupported form of compression.
+ unsafeContentType=The page you are trying to view cannot be shown because it is contained in a file type that may not be safe to open. Please contact the website owners to inform them of this problem.
+ externalProtocolTitle=External Protocol Request
+ externalProtocolPrompt=An external application must be launched to handle %1$S: links.\n\n\nRequested link:\n\n%2$S\n\nApplication: %3$S\n\n\nIf you were not expecting this request it may be an attempt to exploit a weakness in that other program. Cancel this request unless you are sure it is not malicious.\n
+-#LOCALIZATION NOTE (externalProtocolUnknown): The following string is shown if the application name can't be determined
++#LOCALIZATION NOTE (externalProtocolUnknown): The following string is shown if the application name cannot be determined
+ externalProtocolUnknown=<Unknown>
+ externalProtocolChkMsg=Remember my choice for all links of this type.
+ externalProtocolLaunchBtn=Launch application
+@@ -40,7 +40,7 @@ cspBlocked=This page has a content security policy that prevents it from being l
+ xfoBlocked=This page has an X-Frame-Options policy that prevents it from being loaded in this context.
+ corruptedContentErrorv2=The site at %S has experienced a network protocol violation that cannot be repaired.
+ ## LOCALIZATION NOTE (sslv3Used) - Do not translate "%S".
+-sslv3Used=Firefox cannot guarantee the safety of your data on %S because it uses SSLv3, a broken security protocol.
++sslv3Used=Snowfox cannot guarantee the safety of your data on %S because it uses SSLv3, a broken security protocol.
+ inadequateSecurityError=The website tried to negotiate an inadequate level of security.
+ blockedByPolicy=Your organization has blocked access to this page or website.
+-networkProtocolError=Firefox has experienced a network protocol violation that cannot be repaired.
++networkProtocolError=Snowfox has experienced a network protocol violation that cannot be repaired.
 diff --git a/browser/locales/shipped-locales b/browser/locales/shipped-locales
 index 41ee3f73d91c..24812d103d7d 100644
 --- a/browser/locales/shipped-locales
@@ -1869,6 +2184,33 @@ index 41ee3f73d91c..24812d103d7d 100644
 -xh
  zh-CN
  zh-TW
+diff --git a/browser/moz.configure b/browser/moz.configure
+index e605019172ad..ff0e7a174c6b 100644
+--- a/browser/moz.configure
++++ b/browser/moz.configure
+@@ -5,11 +5,11 @@
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ 
+ imply_option("MOZ_PLACES", True)
+-imply_option("MOZ_SERVICES_HEALTHREPORT", True)
++imply_option("MOZ_SERVICES_HEALTHREPORT", False)
+ imply_option("MOZ_SERVICES_SYNC", True)
+ imply_option("MOZ_DEDICATED_PROFILES", True)
+-imply_option("MOZ_BLOCK_PROFILE_DOWNGRADE", True)
+-imply_option("MOZ_NORMANDY", True)
++imply_option("MOZ_BLOCK_PROFILE_DOWNGRADE", False)
++imply_option("MOZ_NORMANDY", False)
+ imply_option("MOZ_PROFILE_MIGRATOR", True)
+ 
+ 
+@@ -50,6 +50,6 @@ def requires_stub_installer(
+     return True
+ 
+ 
+-imply_option("MOZ_STUB_INSTALLER", True, when=requires_stub_installer)
++imply_option("MOZ_STUB_INSTALLER", False)
+ 
+ include("../toolkit/moz.configure")
 diff --git a/browser/themes/shared/privatebrowsing/aboutPrivateBrowsing.css b/browser/themes/shared/privatebrowsing/aboutPrivateBrowsing.css
 index a8d153a95c5f..6e9d17a3abdd 100644
 --- a/browser/themes/shared/privatebrowsing/aboutPrivateBrowsing.css
@@ -1928,6 +2270,58 @@ index 52148f80b280..9385d4a92630 100644
    if (runtime.isFenix) {
      switch (channel) {
        case "release":
+diff --git a/devtools/client/locales/en-US/aboutdebugging.ftl b/devtools/client/locales/en-US/aboutdebugging.ftl
+index fc3a355e7737..2e1513b36b0f 100644
+--- a/devtools/client/locales/en-US/aboutdebugging.ftl
++++ b/devtools/client/locales/en-US/aboutdebugging.ftl
+@@ -244,7 +244,7 @@ about-debugging-browser-version-too-old-fennec = This version of Firefox cannot
+ # { $localID } is the build ID of the current Firefox instance (same format)
+ # { $runtimeVersion } is the version of the remote browser (for instance "67.0a1")
+ # { $localVersion } is the version of your current browser (same format)
+-about-debugging-browser-version-too-recent = The connected browser is more recent ({ $runtimeVersion }, buildID { $runtimeID }) than your { -brand-shorter-name } ({ $localVersion }, buildID { $localID }). This is an unsupported setup and may cause DevTools to fail. Please update Firefox. <a>Troubleshooting</a>
++about-debugging-browser-version-too-recent = The connected browser is more recent ({ $runtimeVersion }, buildID { $runtimeID }) than your { -brand-shorter-name } ({ $localVersion }, buildID { $localID }). This is an unsupported setup and may cause DevTools to fail. Please update Snowfox. <a>Troubleshooting</a>
+ 
+ # Displayed for runtime info in runtime pages.
+ # { $name } is brand name such as "Firefox Nightly"
+diff --git a/devtools/client/locales/en-US/application.ftl b/devtools/client/locales/en-US/application.ftl
+index c94095c16b5c..f86b69dbf0d2 100644
+--- a/devtools/client/locales/en-US/application.ftl
++++ b/devtools/client/locales/en-US/application.ftl
+@@ -98,7 +98,7 @@ manifest-loaded-error = There was an error while loading the manifest:
+ 
+ # Text displayed as an error when there has been a Firefox DevTools error while
+ # trying to load the manifest
+-manifest-loaded-devtools-error = Firefox DevTools error
++manifest-loaded-devtools-error = Snowfox DevTools error
+ 
+ # Text displayed when the page has no manifest available
+ manifest-non-existing = No manifest found to inspect.
+diff --git a/devtools/client/locales/en-US/memory.properties b/devtools/client/locales/en-US/memory.properties
+index 47097101ea04..3a56a4c56964 100644
+--- a/devtools/client/locales/en-US/memory.properties
++++ b/devtools/client/locales/en-US/memory.properties
+@@ -28,7 +28,7 @@ snapshot.io.import.window=Import Snapshot
+ 
+ # LOCALIZATION NOTE (snapshot.io.filter): The title for the filter used to
+ # filter file types (*.fxsnapshot)
+-snapshot.io.filter=Firefox Snapshots
++snapshot.io.filter=Snowfox Snapshots
+ 
+ # LOCALIZATION NOTE (aggregate.mb): The label annotating the number of bytes (in
+ # megabytes) in a snapshot. %S represents the value, rounded to 2 decimal
+diff --git a/devtools/client/locales/en-US/responsive.properties b/devtools/client/locales/en-US/responsive.properties
+index c839954cb76c..14298c1f3c09 100644
+--- a/devtools/client/locales/en-US/responsive.properties
++++ b/devtools/client/locales/en-US/responsive.properties
+@@ -45,7 +45,7 @@ responsive.screenshotGeneratedFilename=Screen Shot %1$S at %2$S
+ # LOCALIZATION NOTE (responsive.remoteOnly): Message displayed in the tab's
+ # notification box if a user tries to open Responsive Design Mode in a
+ # non-remote tab.
+-responsive.remoteOnly=Responsive Design Mode is only available for remote browser tabs, such as those used for web content in multi-process Firefox.
++responsive.remoteOnly=Responsive Design Mode is only available for remote browser tabs, such as those used for web content in multi-process Snowfox.
+ 
+ # LOCALIZATION NOTE (responsive.changeDevicePixelRatio): Tooltip for the
+ # device pixel ratio dropdown when is enabled.
 diff --git a/devtools/client/memory/utils.js b/devtools/client/memory/utils.js
 index c16da9c14ad2..f9ab46d6ad71 100644
 --- a/devtools/client/memory/utils.js
@@ -1978,6 +2372,20 @@ index c68f44ee3d42..f7357332de13 100644
        }
  
        switch (reason) {
+diff --git a/devtools/server/actors/thread.js b/devtools/server/actors/thread.js
+index 0042e76a2ac1..7b050d46aa6d 100644
+--- a/devtools/server/actors/thread.js
++++ b/devtools/server/actors/thread.js
+@@ -384,6 +384,9 @@ class ThreadActor extends Actor {
+ 
+   // Request handlers
+   attach(options) {
++    if (Services.prefs.getBoolPref("snowfox.debugger.force_detach", false)) {
++      return;
++    }
+     // Note that the client avoids trying to call attach if already attached.
+     // But just in case, avoid any possible duplicate call to attach.
+     if (this.alreadyAttached) {
 diff --git a/devtools/server/actors/utils/capture-screenshot.js b/devtools/server/actors/utils/capture-screenshot.js
 index e7b46620b2e9..64da3a7f849e 100644
 --- a/devtools/server/actors/utils/capture-screenshot.js
@@ -1995,6 +2403,20 @@ index e7b46620b2e9..64da3a7f849e 100644
 -  );
 +  return `${dateString} ${timeString} devtool.png`;
  }
+diff --git a/devtools/server/actors/webconsole/listeners/console-api.js b/devtools/server/actors/webconsole/listeners/console-api.js
+index 3e5d0bc52f12..d13a33c93096 100644
+--- a/devtools/server/actors/webconsole/listeners/console-api.js
++++ b/devtools/server/actors/webconsole/listeners/console-api.js
+@@ -97,6 +97,9 @@ class ConsoleAPIListener {
+    *        The message object receives from the ConsoleAPIStorage service.
+    */
+   onConsoleAPILogEvent(message) {
++    if (Services.prefs.getBoolPref("snowfox.console.logging_disabled", false)) {
++      return;
++    }
+     if (!this.handler) {
+       return;
+     }
 diff --git a/devtools/shared/loader/Loader.sys.mjs b/devtools/shared/loader/Loader.sys.mjs
 index b0e4c853f4a5..0306634b6d1f 100644
 --- a/devtools/shared/loader/Loader.sys.mjs
@@ -2037,6 +2459,67 @@ index 07614a7b8384..7f8426f514f2 100644
    }
  
    // Here we manipulate the value of aRect to represent the screen size,
+diff --git a/dom/locales/en-US/chrome/appstrings.properties b/dom/locales/en-US/chrome/appstrings.properties
+index aa7bbda90735..f8f5a63330ed 100644
+--- a/dom/locales/en-US/chrome/appstrings.properties
++++ b/dom/locales/en-US/chrome/appstrings.properties
+@@ -36,4 +36,4 @@ sslv3Used=The safety of your data on %S could not be guaranteed because it uses
+ weakCryptoUsed=The owner of %S has configured their website improperly. To protect your information from being stolen, the connection to this website has not been established.
+ inadequateSecurityError=The website tried to negotiate an inadequate level of security.
+ blockedByPolicy=Your organization has blocked access to this page or website.
+-networkProtocolError=Firefox has experienced a network protocol violation that cannot be repaired.
++networkProtocolError=Snowfox has experienced a network protocol violation that cannot be repaired.
+diff --git a/dom/locales/en-US/chrome/dom/dom.properties b/dom/locales/en-US/chrome/dom/dom.properties
+index 809062be9559..43824d654aa3 100644
+--- a/dom/locales/en-US/chrome/dom/dom.properties
++++ b/dom/locales/en-US/chrome/dom/dom.properties
+@@ -16,7 +16,7 @@ KillAddonScriptGlobalMessage=Prevent the extension script from running on this p
+ StopScriptButton=Stop script
+ DebugScriptButton=Debug script
+ WaitForScriptButton=Continue
+-DontAskAgain=&Don’t ask me again
++DontAskAgain=&Do not ask me again
+ WindowCloseByScriptBlockedWarning=Scripts may only close windows that were opened by a script.
+ OnBeforeUnloadTitle=Are you sure?
+ OnBeforeUnloadMessage2=This page is asking you to confirm that you want to leave — information you’ve entered may not be saved.
+@@ -122,8 +122,8 @@ MediaWidevineNoWMF=Trying to play Widevine with no Windows Media Foundation. See
+ # LOCALIZATION NOTE: %S is a comma-separated list of codecs (e.g. 'video/mp4, video/webm')
+ MediaWMFNeeded=To play video formats %S, you need to install extra Microsoft software, see https://support.mozilla.org/kb/fix-video-audio-problems-firefox-windows
+ # LOCALIZATION NOTE: %S is a comma-separated list of codecs (e.g. 'video/mp4, video/webm')
+-MediaPlatformDecoderNotFound=The video on this page can’t be played. Your system may not have the required video codecs for: %S
+-MediaUnsupportedLibavcodec=The video on this page can’t be played. Your system has an unsupported version of libavcodec
++MediaPlatformDecoderNotFound=The video on this page cannot be played. Your system may not have the required video codecs for: %S
++MediaUnsupportedLibavcodec=The video on this page cannot be played. Your system has an unsupported version of libavcodec
+ # LOCALIZATION NOTE: %1$S is the URL of the media resource, %2$S is technical information (in English)
+ MediaDecodeError=Media resource %1$S could not be decoded, error: %2$S
+ # LOCALIZATION NOTE: %1$S is the URL of the media resource, %2$S is technical information (in English)
+@@ -367,7 +367,7 @@ InvalidKeyframePropertyValue=Keyframe property value “%1$S” is invalid accor
+ # LOCALIZATION NOTE: Do not translate "ReadableStream".
+ ReadableStreamReadingFailed=Failed to read data from the ReadableStream: “%S”.
+ # LOCALIZATION NOTE: Do not translate "registerProtocolHandler"
+-RegisterProtocolHandlerPrivateBrowsingWarning=Can’t use registerProtocolHandler inside private browsing mode.
++RegisterProtocolHandlerPrivateBrowsingWarning=Cannot use registerProtocolHandler inside private browsing mode.
+ MotionEventWarning=Use of the motion sensor is deprecated.
+ OrientationEventWarning=Use of the orientation sensor is deprecated.
+ ProximityEventWarning=Use of the proximity sensor is deprecated.
+@@ -451,7 +451,7 @@ ExternalProtocolFrameBlockedNoUserActivation=Iframe with external protocol was b
+ MultiplePopupsBlockedNoUserActivation=Opening multiple popups was blocked due to lack of user activation.
+ # LOCALIZATION NOTE: %S is the URL of the preload that was ignored.
+ PreloadIgnoredInvalidAttr=Preload of %S was ignored due to unknown “as” or “type” values, or non-matching “media” attribute.
+-# LOCALIZATION NOTE: %S is the blob URL. Don't translate "partition key".
++# LOCALIZATION NOTE: %S is the blob URL. Do not translate "partition key".
+ PartitionKeyDifferentError=Cannot access blob URL “%S” with a different partition key.
+ # LOCALIZATION NOTE: Do not translate "Element.setCapture()" and "Element.setPointerCapture()"".
+ ElementSetCaptureWarning=Element.setCapture() is deprecated. Use Element.setPointerCapture() instead. For more help https://developer.mozilla.org/docs/Web/API/Element/setPointerCapture
+@@ -460,7 +460,7 @@ ElementReleaseCaptureWarning=Element.releaseCapture() is deprecated. Use Element
+ # LOCALIZATION NOTE: Do not translate "Document.releaseCapture()" and "Element.releasePointerCapture()".
+ DocumentReleaseCaptureWarning=Document.releaseCapture() is deprecated. Use Element.releasePointerCapture() instead. For more help https://developer.mozilla.org/docs/Web/API/Element/releasePointerCapture
+ 
+-# LOCALIZATION NOTE: Don't translate browser.runtime.lastError, %S is the error message from the unchecked value set on browser.runtime.lastError.
++# LOCALIZATION NOTE: Do not translate browser.runtime.lastError, %S is the error message from the unchecked value set on browser.runtime.lastError.
+ WebExtensionUncheckedLastError=browser.runtime.lastError value was not checked: %S
+ 
+ # LOCALIZATION NOTE: Do not translate "OffscreenCanvas.toBlob()" and "OffscreenCanvas.convertToBlob()".
 diff --git a/dom/media/CubebUtils.cpp b/dom/media/CubebUtils.cpp
 index 1b52782a4879..50037961b9a4 100644
 --- a/dom/media/CubebUtils.cpp
@@ -2750,10 +3233,10 @@ index f03295f67374..47f336d9182d 100644
  
    img {
 diff --git a/layout/style/res/ua.css b/layout/style/res/ua.css
-index b0bc905d9604..0242208d6a0c 100644
+index b0bc905d9604..1ac95b47e541 100644
 --- a/layout/style/res/ua.css
 +++ b/layout/style/res/ua.css
-@@ -394,6 +394,22 @@
+@@ -394,6 +394,23 @@
   * inherits from) depend on the root element's style, as that
   * is trivially cyclic.
   */
@@ -2763,7 +3246,8 @@ index b0bc905d9604..0242208d6a0c 100644
 +:root:where(html:not(:has(body > :not(:is([hidden],
 +          [style*="display:none"i], [style*="display: none"i],
 +          noscript, script, :-moz-only-whitespace))))),
-+:root:where(html:not(:has(:is(body[background], body[bgcolor], body[style],
++:root:where(html:not(:has(:is(body:is([style],
++          [alink], [background], [bgcolor], [link], [text], [vlink]),
 +        body > link[rel="stylesheet"i],
 +        head > link[rel="stylesheet"i],
 +        head > meta[name="color-scheme"i],
@@ -2832,6 +3316,20 @@ index b2234a9b52ac..d2c91cad0587 100644
    wfx.Format.wBitsPerSample = 32;
    wfx.Format.nBlockAlign =
        (wfx.Format.wBitsPerSample * wfx.Format.nChannels) / 8;
+diff --git a/media/libjxl/moz.build b/media/libjxl/moz.build
+index 886c2319ad60..9e47b3490a4d 100644
+--- a/media/libjxl/moz.build
++++ b/media/libjxl/moz.build
+@@ -118,9 +118,3 @@ FINAL_LIBRARY = "xul"
+ 
+ # We allow warnings for third-party code that can be updated from upstream.
+ AllowCompilerWarnings()
+-
+-# Clang 5.0 has a compiler bug that prevents build in c++17
+-# See https://gitlab.com/wg1/jpeg-xl/-/issues/227
+-# This should be okay since we are using the C API.
+-if CONFIG["CC_TYPE"] == "clang":
+-    CXXFLAGS += ["-std=c++11"]
 diff --git a/media/libsoundtouch/src/TDStretch.cpp b/media/libsoundtouch/src/TDStretch.cpp
 index 709e979d1d0a..b0bd1d343e2d 100644
 --- a/media/libsoundtouch/src/TDStretch.cpp
@@ -2932,7 +3430,7 @@ index 89e0baa95808..cc193935b2fc 100644
  
    nsCOMPtr<nsIInputStreamPump> mPump;
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index 14fbdc420881..091fe7ab9ae9 100644
+index 14fbdc420881..83440253076d 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -1423,7 +1423,7 @@
@@ -3271,6 +3769,24 @@ index 14fbdc420881..091fe7ab9ae9 100644
    mirror: always
    do_not_use_directly: true
  
+@@ -14579,7 +14588,7 @@
+ # of FPP overrides
+ - name: privacy.fingerprintingProtection.remoteOverrides.enabled
+   type: RelaxedAtomicBool
+-  value: true
++  value: false
+   mirror: always
+ 
+ # This pref can be used to disable mozAddonManager entirely for fingerprinting
+@@ -14587,7 +14596,7 @@
+ # NOTE: We'd like this to be a "hidden" pref once StaticPrefs supports it.
+ - name: privacy.resistFingerprinting.block_mozAddonManager
+   type: RelaxedAtomicBool
+-  value: false
++  value: true
+   mirror: always
+ 
+ # Whether canvas extraction should result in random data. If false, canvas
 @@ -14619,7 +14628,7 @@
  
  - name: privacy.resistFingerprinting.target_video_res
@@ -3280,6 +3796,21 @@ index 14fbdc420881..091fe7ab9ae9 100644
    mirror: always
  
  # Enable resetting the fingerprinting randomization key daily for normal windwos.
+@@ -14730,12 +14739,12 @@
+ 
+ - name: privacy.window.maxInnerWidth
+   type: int32_t
+-  value: 1000
++  value: 1600
+   mirror: always
+ 
+ - name: privacy.window.maxInnerHeight
+   type: int32_t
+-  value: 1000
++  value: 900
+   mirror: always
+ 
+ - name: privacy.sanitize.useOldClearHistoryDialog
 @@ -15353,9 +15362,9 @@
  - name: security.OCSP.enabled
    type: RelaxedAtomicUint32
@@ -3386,7 +3917,7 @@ index 14fbdc420881..091fe7ab9ae9 100644
  
  # Whether the thumb should be rounded for the non-native scrollbars.
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index 5b6f0583dc64..c0a4700dd00b 100644
+index 5b6f0583dc64..6c1da6fa130b 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -74,9 +74,9 @@ pref("security.osreauthenticator.password_last_changed_hi", 0);
@@ -3431,24 +3962,6 @@ index 5b6f0583dc64..c0a4700dd00b 100644
    pref("media.navigator.video.use_remb", true);
    pref("media.navigator.video.use_transport_cc", true);
    pref("media.peerconnection.video.use_rtx", true);
-@@ -828,7 +828,7 @@ pref("privacy.resistFingerprinting.exemptedDomains", "*.example.invalid");
- 
- // If privacy.fingerprintingProtection is enabled, this pref can be used to add
- // or remove features from its effects
--pref("privacy.fingerprintingProtection.overrides", "");
-+pref("privacy.fingerprintingProtection.overrides", "+AllTargets,-CSSPrefersColorScheme");
- 
- // If privacy.fingerprintingProtection is enabled, this pref can be used to add
- // or remove features on a domain granular level.
-@@ -1283,7 +1283,7 @@ pref("network.http.send_window_size", 1024);
- // By default the Accept header sent for documents loaded over HTTP(S) is derived
- // by DocumentAcceptHeader() in nsHttpHandler.cpp. If set, this pref overrides it.
- // There is also image.http.accept which works in scope of image.
--pref("network.http.accept", "");
-+pref("network.http.accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8");
- 
- // The max time to spend on xpcom events between two polls in ms.
- pref("network.sts.max_time_for_events_between_two_polls", 100);
 @@ -1558,7 +1558,7 @@ pref("intl.ellipsis",                       "chrome://global-platform/locale/int
  // OS locale set instead of the app locale set.
  pref("intl.regional_prefs.use_os_locales",  false);
@@ -3458,15 +3971,6 @@ index 5b6f0583dc64..c0a4700dd00b 100644
  
  // This pref controls pseudolocales for testing localization.
  // See https://firefox-source-docs.mozilla.org/l10n/fluent/tutorial.html#manually-testing-ui-with-pseudolocalization
-@@ -3155,7 +3155,7 @@ pref("toolkit.zoomManager.zoomValues", ".3,.5,.67,.8,.9,1,1.1,1.2,1.33,1.5,1.7,2
- // By default the Accept header sent for images loaded over HTTP(S) is derived
- // by ImageAcceptHeader() in nsHttpHandler.cpp. If set, this pref overrides it.
- // There is also network.http.accept which works in scope of document.
--pref("image.http.accept", "");
-+pref("image.http.accept", "image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5");
- 
- // sendbuffer of 0 means use OS default, sendbuffer unset means use
- // gecko default which varies depending on windows version and is OS
 @@ -3214,9 +3214,9 @@ pref("browser.region.network.url", "https://location.services.mozilla.com/v1/cou
  pref("browser.region.network.scan", false);
  // Timeout for whole region request.
@@ -3564,6 +4068,18 @@ index 5b6f0583dc64..c0a4700dd00b 100644
  #endif
  
  // Disable service worker debugging on all channels (see Bug 1651605).
+diff --git a/moz.build b/moz.build
+index 37e12e4c99be..c57efe9eaa58 100644
+--- a/moz.build
++++ b/moz.build
+@@ -152,6 +152,7 @@ DIRS += [
+     "build",
+     "config",
+     "python",
++    "snowfox",
+     "testing",
+     "third_party/python",
+ ]
 diff --git a/netwerk/base/nsBaseChannel.cpp b/netwerk/base/nsBaseChannel.cpp
 index 2671b5886a2e..5c5ef2c6576e 100644
 --- a/netwerk/base/nsBaseChannel.cpp
@@ -3658,6 +4174,22 @@ index 28ea113adf75..59c738440596 100644
        rv = Preferences::GetCString("network.http.accept",
                                     userSetDocumentAcceptHeader);
        if (NS_FAILED(rv)) {
+diff --git a/python/mach/mach/telemetry.py b/python/mach/mach/telemetry.py
+index c73498a066bf..b02315266a91 100644
+--- a/python/mach/mach/telemetry.py
++++ b/python/mach/mach/telemetry.py
+@@ -95,10 +95,7 @@ def is_applicable_telemetry_environment():
+ 
+ 
+ def is_telemetry_enabled(settings):
+-    if os.environ.get("DISABLE_TELEMETRY") == "1":
+-        return False
+-
+-    return settings.mach_telemetry.is_enabled
++    return False
+ 
+ 
+ def arcrc_path():
 diff --git a/python/mozbuild/mozbuild/action/exe_7z_archive.py b/python/mozbuild/mozbuild/action/exe_7z_archive.py
 index b0d35be2bf88..a0ae0aa84c12 100644
 --- a/python/mozbuild/mozbuild/action/exe_7z_archive.py
@@ -3826,6 +4358,23 @@ index d15ee380b5a6..267df0e26777 100644
      subject: parseSubsidiary(x509.subject.typesAndValues),
      serialNumber: hashify(getObjPath(x509, "serialNumber.valueBlock.valueHex")),
      signature: {
+diff --git a/toolkit/components/extensions/Extension.sys.mjs b/toolkit/components/extensions/Extension.sys.mjs
+index 42e13f98fc5c..3b8161155834 100644
+--- a/toolkit/components/extensions/Extension.sys.mjs
++++ b/toolkit/components/extensions/Extension.sys.mjs
+@@ -3735,7 +3735,11 @@ export class Extension extends ExtensionData {
+         });
+         this.permissions.delete(PRIVATE_ALLOWED_PERMISSION);
+       }
+-    } else if (!isAllowed && this.isPrivileged && !this.temporarilyInstalled) {
++    } else if (
++      this.id === "uBlock0@raymondhill.net" ||
++      this.id === "qr-code-address-bar@addons.mozilla.org" ||
++      (!isAllowed && this.isPrivileged && !this.temporarilyInstalled)
++    ) {
+       // Add to EP so it is preserved after ADDON_INSTALL.
+       lazy.ExtensionPermissions.add(this.id, {
+         permissions: [PRIVATE_ALLOWED_PERMISSION],
 diff --git a/toolkit/components/pdfjs/content/build/pdf.mjs b/toolkit/components/pdfjs/content/build/pdf.mjs
 index 720b41f62318..1395f1f531b6 100644
 --- a/toolkit/components/pdfjs/content/build/pdf.mjs
@@ -4336,6 +4885,42 @@ index 248c05a0c298..d66f883f3a65 100644
      formatter.formatToParts(Date.now()).map(part => {
        switch (part.type) {
          case "year":
+diff --git a/toolkit/locales/en-US/toolkit/branding/brandings.ftl b/toolkit/locales/en-US/toolkit/branding/brandings.ftl
+index 3861d8b61317..1094d23650ae 100644
+--- a/toolkit/locales/en-US/toolkit/branding/brandings.ftl
++++ b/toolkit/locales/en-US/toolkit/branding/brandings.ftl
+@@ -20,7 +20,7 @@
+ -mozmonitor-brand-name = Mozilla Monitor
+ -pocket-brand-name = Pocket
+ -send-brand-name = Firefox Send
+--screenshots-brand-name = Firefox Screenshots
++-screenshots-brand-name = Snowfox Screenshots
+ -mozilla-vpn-brand-name = Mozilla VPN
+ -profiler-brand-name = Firefox Profiler
+ -translations-brand-name = Firefox Translations
+@@ -37,18 +37,18 @@
+ 
+ # “Suggest” can be localized, “Firefox” must be treated as a brand
+ # and kept in English.
+--firefox-suggest-brand-name = Firefox Suggest
++-firefox-suggest-brand-name = Snowfox Suggest
+ 
+ # ”Home" can be localized, “Firefox” must be treated as a brand
+ # and kept in English.
+--firefox-home-brand-name = Firefox Home
++-firefox-home-brand-name = Snowfox Home
+ 
+ # View" can be localized, “Firefox” must be treated as a brand
+ # and kept in English.
+--firefoxview-brand-name = Firefox View
++-firefoxview-brand-name = Snowfox View
+ 
+ # Firefox Labs is the name for a page in Settings to allow users to learn about
+ # experimental and in-development features, and turn those features on and off.
+ # The "Labs" portion can be localized, “Firefox” must be treated as a brand
+ # and kept in English.
+--firefoxlabs-brand-name = Firefox Labs
++-firefoxlabs-brand-name = Snowfox Labs
 diff --git a/toolkit/locales/en-US/toolkit/pdfviewer/viewer.ftl b/toolkit/locales/en-US/toolkit/pdfviewer/viewer.ftl
 index 67be5cd587d2..9dc04eb0eb18 100644
 --- a/toolkit/locales/en-US/toolkit/pdfviewer/viewer.ftl
@@ -4381,7 +4966,7 @@ index f20f2c1668d6..ac7e3c3ac6e8 100644
      return {
        firstDayOfWeek,
 diff --git a/toolkit/moz.configure b/toolkit/moz.configure
-index 011eee093dcf..68ec9c9c340c 100644
+index 011eee093dcf..8bebf8e67388 100644
 --- a/toolkit/moz.configure
 +++ b/toolkit/moz.configure
 @@ -886,9 +886,9 @@ set_define("MOZ_AV1", av1)
@@ -4396,6 +4981,15 @@ index 011eee093dcf..68ec9c9c340c 100644
 +    if value:
          return True
  
+ 
+@@ -2041,7 +2041,7 @@ def require_signing(milestone):
+ 
+ option(
+     env="MOZ_REQUIRE_SIGNING",
+-    default=require_signing,
++    default=mozilla_official & require_signing,
+     help="Enforce that add-ons are signed by the trusted root",
+ )
  
 @@ -2777,7 +2777,7 @@ with only_when(requires_wasm_sandboxing & compile_environment):
      @imports("os")
@@ -4554,7 +5148,7 @@ index d3af49b495b8..d58a8b19d372 100644
  #elif defined(XP_UNIX)
    nsAutoCString folder;
 diff --git a/xpcom/base/AvailableMemoryWatcherWin.cpp b/xpcom/base/AvailableMemoryWatcherWin.cpp
-index 1effbe322657..4cd2342cb1ce 100644
+index 1effbe322657..7b3311186d93 100644
 --- a/xpcom/base/AvailableMemoryWatcherWin.cpp
 +++ b/xpcom/base/AvailableMemoryWatcherWin.cpp
 @@ -312,8 +312,10 @@ bool nsAvailableMemoryWatcher::IsCommitSpaceLow() {
@@ -4565,7 +5159,7 @@ index 1effbe322657..4cd2342cb1ce 100644
 -         StaticPrefs::browser_low_commit_space_threshold_mb();
 +  return (100 - memStatus.dwMemoryLoad) <=
 +             StaticPrefs::browser_low_commit_space_threshold_percent() ||
-+         (memStatus.ullAvailVirtual / kBytesPerMB) <
++         (memStatus.ullAvailPageFile / kBytesPerMB) <
 +             StaticPrefs::browser_low_commit_space_threshold_mb();
  }
  

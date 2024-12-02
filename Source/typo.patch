@@ -12,6 +12,7 @@
  dom/media/MediaDevices.cpp                         |  2 +-
  dom/media/MediaInfo.h                              |  2 +-
  dom/serviceworkers/ServiceWorkerManager.cpp        |  2 +-
+ extensions/pref/autoconfig/src/nsReadConfig.cpp    |  2 +-
  gfx/webrender_bindings/DCLayerTree.cpp             |  2 +-
  media/libsoundtouch/src/TDStretch.cpp              |  2 +-
  media/libvorbis/lib/vorbis_envelope.c              |  2 +-
@@ -29,11 +30,13 @@
  toolkit/content/widgets/datepicker.js              |  2 +-
  toolkit/content/widgets/datetimebox.js             |  4 +--
  toolkit/modules/AppConstants.sys.mjs               |  2 +-
+ .../mozapps/extensions/internal/XPIInstall.sys.mjs |  4 +--
  toolkit/xre/nsAppRunner.cpp                        |  4 +--
- 32 files changed, 92 insertions(+), 92 deletions(-)
+ uriloader/exthandler/ExtHandlerService.sys.mjs     |  2 +-
+ 35 files changed, 96 insertions(+), 96 deletions(-)
 
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index b1f1678f1ebc..6eab6f14047e 100644
+index 2d8b01872733..3b9c0a9a1f57 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -349,7 +349,7 @@ pref("browser.warnOnQuit", true);
@@ -157,7 +160,7 @@ index 80f690c709a6..8f73eb0b0b5a 100644
      this.init();
  
 diff --git a/browser/components/preferences/preferences.js b/browser/components/preferences/preferences.js
-index 7e21bab426b6..87478e0f1a08 100644
+index 87357948b0f8..3133e4f2dd24 100644
 --- a/browser/components/preferences/preferences.js
 +++ b/browser/components/preferences/preferences.js
 @@ -224,7 +224,7 @@ function init_all() {
@@ -382,6 +385,19 @@ index 269786080d65..c8c9635b1d20 100644
    // 2. Maybe schedule a soft update
    if (!registration->GetActive()->HandlesFetch()) {
      // Checkin if the channel is not allowed for the service worker.
+diff --git a/extensions/pref/autoconfig/src/nsReadConfig.cpp b/extensions/pref/autoconfig/src/nsReadConfig.cpp
+index 3da68faac600..1d359abf211e 100644
+--- a/extensions/pref/autoconfig/src/nsReadConfig.cpp
++++ b/extensions/pref/autoconfig/src/nsReadConfig.cpp
+@@ -212,7 +212,7 @@ nsresult nsReadConfig::readConfigFile() {
+   if (NS_SUCCEEDED(rv)) {
+     fileNameLen = strlen(lockFileName.get());
+ 
+-    // lockVendor and lockFileName should be the same with the addtion of
++    // lockVendor and lockFileName should be the same with the addition of
+     // .cfg to the filename by checking this post reading of the cfg file
+     // this value can be set within the cfg file adding a level of security.
+ 
 diff --git a/gfx/webrender_bindings/DCLayerTree.cpp b/gfx/webrender_bindings/DCLayerTree.cpp
 index 021d8a8e2a61..75e0b263d319 100644
 --- a/gfx/webrender_bindings/DCLayerTree.cpp
@@ -422,7 +438,7 @@ index 6d2a7a58bda0..bb7a492c3a7c 100644
    float penalty=gi->stretch_penalty-(ve->stretch/2-VE_MINSTRETCH);
    if(penalty<0.f)penalty=0.f;
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index 091fe7ab9ae9..88578dc7f447 100644
+index 83440253076d..917c6a056e8c 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -66,7 +66,7 @@
@@ -568,7 +584,7 @@ index 091fe7ab9ae9..88578dc7f447 100644
    type: RelaxedAtomicBool
    value: false
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index f3c6ca49529a..2f17b70c3d89 100644
+index 4214f5d76aff..df162d8db8cb 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -648,7 +648,7 @@ pref("devtools.performance.recording.ui-base-url", "https://profiler.firefox.com
@@ -580,7 +596,7 @@ index f3c6ca49529a..2f17b70c3d89 100644
  // it's a developer focused item. It can still be enabled by going to profiler.firefox.com,
  // but by default it is off on Release and Beta. Note that this only adds it to the
  // the customization palette, not to the navbar.
-@@ -834,7 +834,7 @@ pref("privacy.fingerprintingProtection.overrides", "+AllTargets,-CSSPrefersColor
+@@ -834,7 +834,7 @@ pref("privacy.fingerprintingProtection.overrides", "");
  // or remove features on a domain granular level.
  pref("privacy.fingerprintingProtection.granularOverrides", "");
  
@@ -874,6 +890,28 @@ index a20e45c6135d..88f8dea81a76 100644
    isChinaRepack() {
      return (
        Services.prefs
+diff --git a/toolkit/mozapps/extensions/internal/XPIInstall.sys.mjs b/toolkit/mozapps/extensions/internal/XPIInstall.sys.mjs
+index 2b6f4cca81be..5a80f096ffdd 100644
+--- a/toolkit/mozapps/extensions/internal/XPIInstall.sys.mjs
++++ b/toolkit/mozapps/extensions/internal/XPIInstall.sys.mjs
+@@ -1375,7 +1375,7 @@ class AddonInstall {
+    * if possible.
+    *
+    * Note this method is overridden to handle additional state in
+-   * the subclassses below.
++   * the subclasses below.
+    *
+    * @returns {Promise<Addon>}
+    * @throws if installation cannot proceed from the current state
+@@ -2184,7 +2184,7 @@ class AddonInstall {
+ 
+ var LocalAddonInstall = class extends AddonInstall {
+   /**
+-   * Initialises this install to be an install from a local file.
++   * Initializes this install to be an install from a local file.
+    */
+   async init() {
+     this.file = this.sourceURI.QueryInterface(Ci.nsIFileURL).file;
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
 index c31fa2b41004..3b5c6b995857 100644
 --- a/toolkit/xre/nsAppRunner.cpp
@@ -896,3 +934,16 @@ index c31fa2b41004..3b5c6b995857 100644
  //     behaviors (e.g. [A]) but not always.
  //
  // [A] Becoming enrolled in the experiment while NonDefaultPref disqualifies
+diff --git a/uriloader/exthandler/ExtHandlerService.sys.mjs b/uriloader/exthandler/ExtHandlerService.sys.mjs
+index e40e659e13a7..8ab7e7f9a897 100644
+--- a/uriloader/exthandler/ExtHandlerService.sys.mjs
++++ b/uriloader/exthandler/ExtHandlerService.sys.mjs
+@@ -127,7 +127,7 @@ HandlerService.prototype = {
+       }
+     }
+ 
+-    // Now, we're going to cheat. Terribly. The idiologically correct way
++    // Now, we're going to cheat. Terribly. The ideologically correct way
+     // of implementing the following bit of code would be to fetch the
+     // handler info objects from the protocol service, manipulate those,
+     // and then store each of them.

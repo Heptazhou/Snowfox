@@ -1,4 +1,5 @@
 ac_add_options --allow-addon-sideload
+ac_add_options --disable-bits-download
 ac_add_options --disable-crashreporter
 ac_add_options --disable-debug
 ac_add_options --disable-default-browser-agent
@@ -19,14 +20,3 @@ ac_add_options --with-app-basename=Snowfox
 ac_add_options --with-branding=browser/branding/snowfox
 ac_add_options --with-distribution-id=com.0h7z
 ac_add_options --with-unsigned-addon-scopes=app,system
-
-export MOZ_REQUIRE_SIGNING=
-export MOZ_STUB_INSTALLER=
-
-mk_add_options MOZ_BITS_DOWNLOAD=0
-mk_add_options MOZ_BLOCK_PROFILE_DOWNGRADE=0
-mk_add_options MOZ_CRASHREPORTER=0
-mk_add_options MOZ_DATA_REPORTING=0
-mk_add_options MOZ_NORMANDY=0
-mk_add_options MOZ_SERVICES_HEALTHREPORT=0
-mk_add_options MOZ_TELEMETRY_REPORTING=0

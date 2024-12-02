@@ -15,8 +15,8 @@
 include("base_func.jl")
 
 function build()
-	dir = TAR_PREFIX * VER_INFO.v
-	tar = TAR_PREFIX * VER_INFO.v * TAR_SUFFIX
+	dir = L10N_PKG_DIR
+	tar = L10N_PKG_TAR
 	@time cd(SRC) do
 		sh("tar Ifc \"$TAR_ZST_18\" $tar $dir")
 		for h ∈ ("sha256", "sha3-512")
@@ -31,7 +31,7 @@ end
 function clean()
 	@time cd(SRC) do
 		for d ∈ filter!(isdir, readdir())
-			contains(d, "l10n") && continue
+			contains(d, "l10n") || continue
 			@info d
 			rm(d, recursive = true)
 		end
@@ -40,20 +40,20 @@ end
 
 function fetch()
 	@time cd(SRC) do
-		curl(VER_INFO.moz_url)
+		curl(L10N_SRC_URL, L10N_SRC_TAR)
 	end
 end
 
 function patch()
-	dir = SRC / TAR_PREFIX * VER_INFO.v
-	sh("julia patch.jl $dir")
+	dir = SRC / L10N_PKG_DIR
+	sh("julia locale.jl $dir")
 end
 
 function unpack()
-	tar = VER_INFO.moz_tar
-	src = VER_INFO.moz_src
+	tar = L10N_SRC_TAR
+	src = L10N_SRC_DIR
 	@time cd(SRC) do
-		dst = TAR_PREFIX * VER_INFO.v
+		dst = L10N_PKG_DIR
 		isdir(dst) && return dst
 		isdir(src) || sh("tar fx $tar")
 		mv(src, dst, force = true)
@@ -77,5 +77,5 @@ if abspath(PROGRAM_FILE) == @__FILE__
 	end
 end
 
-# time julia make.jl fetch unpack patch build clean
+# time julia l10n.jl fetch unpack patch build clean
 
