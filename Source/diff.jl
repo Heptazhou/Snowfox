@@ -31,6 +31,5 @@ try
 catch e
 	@info e
 end
-isempty(ARGS) || exit()
-pause(up = 1)
+isempty(ARGS) && pause(ante = 1)
 

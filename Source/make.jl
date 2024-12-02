@@ -12,9 +12,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# [compat]
-# julia = "≥ 1.5"
-
 include("base_func.jl")
 
 const CFG = "https://codeberg.org/librewolf/settings.git"
@@ -89,7 +86,7 @@ function fetch()
 	@info "Fetching . . ."
 	cd((@__DIR__)) do
 		ispath(SRC) && throw(SystemError(SRC, 17)) # EEXIST 17 File exists
-		@exec [GIT, "clone", "--depth=1", CLN, SRC, "-b", "131.0.2-1"]
+		@exec [GIT, "clone", "--depth=1", CLN, SRC, "-b", "131.0.3-1"]
 		@exec [GIT, "clone", "--depth=1", CFG, SRC * "submodules/" * "settings"]
 		@exec [JLC..., "move.jl", SRC, "1"]
 		@exec [JLC..., "remote.jl"]
@@ -137,7 +134,7 @@ while !isempty(ARGS)
 	elseif op ≡ "patch"
 		patch()
 	else
-		@warn "Invalid target: " * op
+		@warn "Invalid target: $op"
 	end
 end
 

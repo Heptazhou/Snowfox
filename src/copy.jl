@@ -12,6 +12,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Exts
+
 const fs = [
 	"../Snowfox/src/base_func.jl"
 	"../Snowfox/src/const.jl"
@@ -20,7 +22,6 @@ const fs = [
 
 try
 	basename(@__DIR__) ≠ "src" || error("Not allowed.")
-	@isdefined(pause) || include(fs[1])
 	cd(@__DIR__) do
 		for f in fs
 			cp(f, f |> basename, force = true)
@@ -29,6 +30,5 @@ try
 catch e
 	@info e
 end
-isempty(ARGS) || exit()
-pause(up = 1)
+isempty(ARGS) && pause(ante = 1)
 

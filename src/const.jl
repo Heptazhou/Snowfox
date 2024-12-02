@@ -22,7 +22,7 @@ const SRC = ("src/")
 # https://archive.mozilla.org/pub/firefox/
 # https://whattrainisitnow.com
 const ESR = v"128".major # 140
-const VER = v"131.0.3-1"
+const VER = v"131.0.3-2"
 
 const schemes =
 	[

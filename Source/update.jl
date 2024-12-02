@@ -12,9 +12,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# [compat]
-# julia = "≥ 1.6"
-
 include("base_func.jl")
 
 using Dates: Year, datetime2unix, now
@@ -173,6 +170,10 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 						s = replace(s, r"[\t ]{1,}$"m => s"")
 						s = replace(s, r"^\t*\K {2}"m, s"\t")
 						s = replace(s, r"^\t+\K {1}"m => s"")
+					end
+					if endswith(".xhtml")(f)
+						s = replace(s, r"[\t ]{1,}$"m => s"")
+						s = replace(s, r"^\t*\K {2}"m, s"\t")
 					end
 					if startswith(r"mozconfig\b")(f)
 						p = "ac_add_options"
@@ -546,6 +547,12 @@ function update(dir::String, recursive::Bool = SUBMODULES)
 							"""lockPref("browser.firefox-view.view-count", 0);\n""" *
 							"""lockPref("browser.privacySegmentation.preferences.show", false);\n""" *
 							"""\n"""^2, "p", n = 1)
+					end
+					if (f ≡ "snowfox.inc.xhtml")
+						o = "privacy.resistFingerprinting.autoDeclineNoUserInputCanvasPrompts"
+						p = "(?:\\t+.+\\Q\"$o\"\\E.+\\n)+"
+						q = "(?:\\t+.+\\n)+"
+						s = replace(s, Regex("^\\n$q$p$q", "m") => "")
 					end
 					if (f ≡ "snowfox.js")
 						s = replace(s, "[2], [0]" => "[1], [0]")

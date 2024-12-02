@@ -12,9 +12,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# [compat]
-# julia = "≥ 1.6"
-
 include("base_func.jl")
 
 const SUBMODULES = something(tryparse.(Bool, [ARGS; "0"])...)

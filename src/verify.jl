@@ -20,6 +20,5 @@ for i in strip_list_msc
 end
 @info "Done."
 
-isempty(ARGS) || exit()
-pause(up = 1)
+isempty(ARGS) && pause(ante = 1)
 
