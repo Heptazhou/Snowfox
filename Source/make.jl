@@ -12,9 +12,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# [compat]
-# julia = "≥ 1.5"
-
 include("base_func.jl")
 
 const CFG = "https://codeberg.org/librewolf/settings.git"
@@ -137,7 +134,7 @@ while !isempty(ARGS)
 	elseif op ≡ "patch"
 		patch()
 	else
-		@warn "Invalid target: " * op
+		@warn "Invalid target: $op"
 	end
 end
 

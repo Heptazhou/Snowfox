@@ -19,9 +19,9 @@ try
 		diff = "git diff --patch-with-stat --minimal"
 		v = "v$(VER.major)"
 		cd("../../Firefox")
-		sh("$diff $(v)   HEAD~4 > $(v).patch")
-		sh("$diff HEAD~4 HEAD~3 > font.patch")
-		sh("$diff HEAD~3 HEAD~2 > crlf.patch")
+		sh("$diff $(v)~0 HEAD~5 > $(v).patch")
+		sh("$diff HEAD~5 HEAD~4 > font.patch")
+		sh("$diff HEAD~4 HEAD~3 > crlf.patch")
 		sh("$diff HEAD~1 HEAD~0 > typo.patch")
 		for f ∈ readdir()
 			g = "$(@__DIR__)/" * f
@@ -31,6 +31,5 @@ try
 catch e
 	@info e
 end
-isempty(ARGS) || exit()
-pause(up = 1)
+isempty(ARGS) && pause(ante = 1)
 

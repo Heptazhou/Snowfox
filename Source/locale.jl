@@ -12,8 +12,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# [compat]
-# julia = "≥ 1.6"
+include("base_func.jl")
 
 const lc = cd(@__DIR__) do
 	readlines("shipped-locales")
@@ -35,6 +34,8 @@ const rs =
 			"^default-bookmarks-nightly-"
 			"^DrawWindowCanvasRenderingContext2DWarning"
 			"^e10s\\.accessibilityNotice\\.jawsMessage"
+			"^ion-enroll-"
+			"^ion-summary"
 			"^ManufacturerID"
 			"^migration-wizard-migrator-display-name-"
 			"^MozillaMaintenanceDescription"
@@ -56,6 +57,7 @@ const rs =
 			"^-mozmonitor"
 			"^-profiler"
 			"^-relay"
+			"^-secure-proxy"
 			"^-send"
 			"^-translations"
 		] .* "-brand-"

@@ -29,8 +29,10 @@
  toolkit/content/widgets/datepicker.js              |  2 +-
  toolkit/content/widgets/datetimebox.js             |  4 +--
  toolkit/modules/AppConstants.sys.mjs               |  2 +-
+ .../mozapps/extensions/internal/XPIInstall.sys.mjs |  4 +--
  toolkit/xre/nsAppRunner.cpp                        |  4 +--
- 32 files changed, 92 insertions(+), 92 deletions(-)
+ uriloader/exthandler/ExtHandlerService.sys.mjs     |  2 +-
+ 34 files changed, 95 insertions(+), 95 deletions(-)
 
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
 index b1f1678f1ebc..6eab6f14047e 100644
@@ -157,7 +159,7 @@ index 80f690c709a6..8f73eb0b0b5a 100644
      this.init();
  
 diff --git a/browser/components/preferences/preferences.js b/browser/components/preferences/preferences.js
-index 7e21bab426b6..87478e0f1a08 100644
+index 87357948b0f8..3133e4f2dd24 100644
 --- a/browser/components/preferences/preferences.js
 +++ b/browser/components/preferences/preferences.js
 @@ -224,7 +224,7 @@ function init_all() {
@@ -874,6 +876,28 @@ index a20e45c6135d..88f8dea81a76 100644
    isChinaRepack() {
      return (
        Services.prefs
+diff --git a/toolkit/mozapps/extensions/internal/XPIInstall.sys.mjs b/toolkit/mozapps/extensions/internal/XPIInstall.sys.mjs
+index 2b6f4cca81be..5a80f096ffdd 100644
+--- a/toolkit/mozapps/extensions/internal/XPIInstall.sys.mjs
++++ b/toolkit/mozapps/extensions/internal/XPIInstall.sys.mjs
+@@ -1375,7 +1375,7 @@ class AddonInstall {
+    * if possible.
+    *
+    * Note this method is overridden to handle additional state in
+-   * the subclassses below.
++   * the subclasses below.
+    *
+    * @returns {Promise<Addon>}
+    * @throws if installation cannot proceed from the current state
+@@ -2184,7 +2184,7 @@ class AddonInstall {
+ 
+ var LocalAddonInstall = class extends AddonInstall {
+   /**
+-   * Initialises this install to be an install from a local file.
++   * Initializes this install to be an install from a local file.
+    */
+   async init() {
+     this.file = this.sourceURI.QueryInterface(Ci.nsIFileURL).file;
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
 index c31fa2b41004..3b5c6b995857 100644
 --- a/toolkit/xre/nsAppRunner.cpp
@@ -896,3 +920,16 @@ index c31fa2b41004..3b5c6b995857 100644
  //     behaviors (e.g. [A]) but not always.
  //
  // [A] Becoming enrolled in the experiment while NonDefaultPref disqualifies
+diff --git a/uriloader/exthandler/ExtHandlerService.sys.mjs b/uriloader/exthandler/ExtHandlerService.sys.mjs
+index e40e659e13a7..8ab7e7f9a897 100644
+--- a/uriloader/exthandler/ExtHandlerService.sys.mjs
++++ b/uriloader/exthandler/ExtHandlerService.sys.mjs
+@@ -127,7 +127,7 @@ HandlerService.prototype = {
+       }
+     }
+ 
+-    // Now, we're going to cheat. Terribly. The idiologically correct way
++    // Now, we're going to cheat. Terribly. The ideologically correct way
+     // of implementing the following bit of code would be to fetch the
+     // handler info objects from the protocol service, manipulate those,
+     // and then store each of them.

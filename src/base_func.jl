@@ -12,15 +12,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# [compat]
-# julia = "≥ 1.5"
-
 include("const.jl")
+
+using Exts
 
 import Base.replace
 
-const readstr(x)::String = read(x, String)
-const sh(c::String)      = run(`sh -c $c`)
+const sh(c::String) = run(`sh -c $c`)
 
 const Curl(x::String...; v::String)::Cmd =
 	Cmd(["curl", "--fail-with-body", "--http2-prior-knowledge", "--tls" * "v$v",
@@ -105,20 +103,6 @@ function isbinary(f::String)::Bool
 		contains(r"^.+\.(bundle|min|sig(nature)?)\.[-\w]+$")(f) ||
 		contains(r"binary_data"i)(f) ||
 		!isvalid(f |> readstr)
-end
-
-function pause(Msg = missing; up::Int = 0, down::Int = 0)
-	isinteractive() && return
-	print('\n'^up)
-	pause(stdin, stdout, Msg)
-	print('\n'^down)
-end
-function pause(In::IO, Out::IO, Msg = missing)
-	print(Out, Msg isa String ? Msg : "Press any key to continue . . . ")
-	ccall(:jl_tty_set_mode, Int32, (Ptr{Cvoid}, Int32), In.handle, 1)
-	read(In, Char)
-	ccall(:jl_tty_set_mode, Int32, (Ptr{Cvoid}, Int32), In.handle, 0)
-	println(Out)
 end
 
 # e => regex, p => plain, w => whole

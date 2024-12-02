@@ -15,6 +15,7 @@
  .../schemas/policies-schema.json                   |   2 -
  .../installerprefs/InstallerPrefs.sys.mjs          |   2 +-
  .../newtab/content-src/components/Logo/Logo.jsx    |   2 +-
+ .../newtab/data/content/activity-stream.bundle.js  |   1 +
  .../components/newtab/lib/ActivityStream.sys.mjs   |   2 +-
  browser/components/newtab/lib/cache.worker.js      |   2 +-
  browser/components/preferences/main.inc.xhtml      |   8 +-
@@ -118,7 +119,7 @@
  toolkit/themes/shared/aboutServiceWorkers.css      |   5 +
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
- 120 files changed, 868 insertions(+), 582 deletions(-)
+ 121 files changed, 869 insertions(+), 582 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 66fc21f9be2e..9a7d104cacd7 100644
@@ -859,6 +860,18 @@ index dc81324475d1..561226836bbc 100644
        <div className="logo" />
        <div className="wordmark" />
      </div>
+diff --git a/browser/components/newtab/data/content/activity-stream.bundle.js b/browser/components/newtab/data/content/activity-stream.bundle.js
+index d1c3aaa531b2..9d89d36cde0d 100644
+--- a/browser/components/newtab/data/content/activity-stream.bundle.js
++++ b/browser/components/newtab/data/content/activity-stream.bundle.js
+@@ -10026,6 +10026,7 @@ const NEWTAB_DARK_THEME = {
+ 
+ function Logo() {
+   return /*#__PURE__*/external_React_default().createElement("div", {
++    style: { display: "none" },
+     className: "logo-and-wordmark"
+   }, /*#__PURE__*/external_React_default().createElement("div", {
+     className: "logo"
 diff --git a/browser/components/newtab/lib/ActivityStream.sys.mjs b/browser/components/newtab/lib/ActivityStream.sys.mjs
 index 893ab2a7d2b5..191dc04f8445 100644
 --- a/browser/components/newtab/lib/ActivityStream.sys.mjs
