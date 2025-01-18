@@ -39,10 +39,10 @@ RUN cd /src && python3.11 mach package-multi-locale \
 
 RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt /pkg \
 	install/sea/* snowfox-* && rm /pkg/*.xpt_artifacts.* || true
-RUN cd /pkg && jl 7z.jl / && rm 7z.jl
+RUN cd /pkg && julia 7z.jl && rm 7z.jl
 
 FROM scratch
 COPY --from=0 /pkg /pkg
 
-# % id=`docker create snowfox:win-make -q` && docker cp $id:pkg . -q && docker rm $id && julia move.jl /
+# % id=`docker create snowfox:win-make -q` && docker cp $id:pkg . -q && docker rm $id && julia move.jl
 

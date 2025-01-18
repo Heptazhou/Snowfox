@@ -27,13 +27,13 @@ ENV JULIA_NUM_THREADS=auto \
 
 RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
 	git clone https://github.com/Heptazhou/Snowfox.git && cd /Snowfox/Windows && \
-	jl make.jl / && sha256sum -c *.sha256 && sha3-512sum -c *.sha3-512
+	julia make.jl && sha256sum -c *.sha256 && sha3-512sum -c *.sha3-512
 
 ADD https://api.github.com/repos/Heptazhou/Snowfox/git/refs/heads/master version.json
 
 RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
 	cd /Snowfox/Windows && git pull -ftp && \
-	jl make.jl / && sha256sum -c *.sha256 && sha3-512sum -c *.sha3-512
+	julia make.jl && sha256sum -c *.sha256 && sha3-512sum -c *.sha3-512
 
 RUN cd /Snowfox/Windows && mkdir -p $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
 	ln -s /src/mach /bin/mach && mkdir /pkg && \

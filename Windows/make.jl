@@ -14,24 +14,26 @@
 
 include("base_func.jl")
 
-const CLN = "https://github.com/Heptazhou/Snowfox.git"
-const REL = "https://github.com/Heptazhou/Snowfox/releases/download"
-
+# https://devguide.python.org/versions/
 # https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html#schedule
 # https://releases.rs
+const VPY, _ = "3.11", "../../Firefox/mach"
 const VRS, _ = "1.81", "win-make.dockerfile"
 
-cd(@__DIR__) do
+if abspath(PROGRAM_FILE) == @__FILE__
 	if !@try parse(Bool, ENV["JULIA_SYS_ISDOCKER"]) false
 		@warn "Not allowed."
 		return
 	end
-	write("version", VER_INFO.v, "\n")
-	for f ∈ [
-		L10N_PKG_TAR
-		TAR_PREFIX * VER_INFO.v * TAR_SUFFIX
-	]' .* [".sha256", ".sha3-512", ""]
-		curl("$REL/v$(VER_INFO.v)/$f")
+	url = "https://github.com/Heptazhou/Snowfox/releases/download"
+	ver = VER_INFO.v
+	write("version", ver, "\n")
+	for f ∈ filter!(isfile, readdir())
+		endswith(f, r"\.sha[-\d]+") && rm(f)
+	end
+	for f ∈ [L10N_PKG_TAR, TAR_PREFIX * ver * TAR_SUFFIX]' .*
+			[".sha256", ".sha3-512", ""]
+		curl("$url/v$ver/$f")
 	end
 end
 

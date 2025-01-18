@@ -50,7 +50,7 @@ function patch(x; keep = false, text = false)
 		end
 		for (prefix, ds, fs) ∈ walkdir(d_o)
 			for f ∈ fs
-				if (f) ∈ ("jar.mn", "moz.build")
+				if (f) ∈ ("aboutDialog.css", "jar.mn", "moz.build")
 					p  = prefix / f
 					p′ = replace(p, r"^" * d_o => d_s)
 					cp(p, p′, force = true)

@@ -14,14 +14,14 @@
 
 include("base_func.jl")
 
-cd(@__DIR__) do
-	diff = "git diff --patch-with-stat --minimal"
+if abspath(PROGRAM_FILE) == @__FILE__
+	cmd = "git diff --patch-with-stat --minimal"
 	ver = "v$(VER.major)"
 	cd("../../Firefox")
-	sh("$diff $ver~0 HEAD~5 > $ver.patch")
-	sh("$diff HEAD~5 HEAD~4 > font.patch")
-	sh("$diff HEAD~4 HEAD~3 > crlf.patch")
-	sh("$diff HEAD~1 HEAD~0 > typo.patch")
+	sh("$cmd $ver~0 HEAD~5 > $ver.patch")
+	sh("$cmd HEAD~5 HEAD~4 > font.patch")
+	sh("$cmd HEAD~4 HEAD~3 > crlf.patch")
+	sh("$cmd HEAD~1 HEAD~0 > typo.patch")
 	for f ∈ readdir()
 		g = stdpath(@__DIR__, f)
 		endswith(f, ".patch") && @info basename(mv(f, g, force = true))

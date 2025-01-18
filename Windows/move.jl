@@ -14,9 +14,13 @@
 
 include("base_func.jl")
 
-cd(PKG) do
-	for f in readdir()
-		f |> contains(r"\.xpt_artifacts\b"i) && (rm(f); continue)
+if abspath(PROGRAM_FILE) == @__FILE__
+	cd(PKG)
+	for f ∈ readdir()
+		if contains(f, r"\.xpt_artifacts\b"i)
+			rm(f)
+			continue
+		end
 		g = replace(f, r"\.en-US\b"i => "")
 		g = replace(g, r"\.installer\.exe\b"i => ".exe")
 		g = replace(g, r"^snowfox-\K(\d+\.)"i => s"v\1")

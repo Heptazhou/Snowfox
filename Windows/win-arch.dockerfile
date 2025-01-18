@@ -40,9 +40,9 @@ RUN  url=https://github.com/0h7z/aur/releases/download && yes | pacman -U \
 	$url/python311-v3.11.11-1/python311-3.11.11-1-x86_64.pkg.tar.zst \
 	$url/wine64-v9.21-1/wine64-9.21-1-x86_64.pkg.tar.zst && yes | pacman -Scc
 
-RUN cd /bin && ln -s clear cls && ln -s julia jl && ln -s nano nn && ln -s nano vi && \
+RUN cd /bin && ln -s clear cls && ln -s nano nn && ln -s nano vi && \
 	git config --global pull.rebase true && git config --global safe.directory "*" && \
 	git config --global user.name root && git config --global user.email root@localhost && \
-	jl -ie 'using Pkg; pkg"registry add General https://github.com/0h7z/0hjl.git"; exit()' && \
-	jl -ie 'using Pkg; pkg"registry status; add Exts"; exit()'
+	julia -ie 'using Pkg; pkg"registry add General https://github.com/0h7z/0hjl.git"; exit()' && \
+	julia -ie 'using Pkg; pkg"registry status; add Exts"; exit()'
 

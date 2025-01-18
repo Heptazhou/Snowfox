@@ -7,8 +7,9 @@
  browser/app/profile/firefox.js                     | 138 ++++++------
  .../{firefox.exe.manifest => snowfox.exe.manifest} |   4 +-
  browser/app/splash.rc                              |   4 +-
+ browser/base/content/aboutDialog.css               |  17 +-
  browser/base/content/aboutDialog.js                |   9 +-
- browser/base/content/aboutDialog.xhtml             |   8 +-
+ browser/base/content/aboutDialog.xhtml             |   9 +-
  browser/base/content/overrides/app-license.html    |   6 +-
  browser/branding/branding-common.mozbuild          |   3 +-
  .../modules/FeatureCalloutMessages.sys.mjs         |   1 +
@@ -23,7 +24,7 @@
  browser/components/preferences/main.inc.xhtml      |   8 +-
  browser/components/preferences/main.js             |   2 +-
  browser/components/preferences/preferences.js      |   3 +
- browser/components/preferences/preferences.xhtml   |   2 +-
+ browser/components/preferences/preferences.xhtml   |   3 +-
  browser/components/preferences/privacy.inc.xhtml   |  12 +-
  browser/components/preferences/privacy.js          |   4 +-
  browser/components/screenshots/fileHelpers.mjs     |   8 +-
@@ -48,7 +49,7 @@
  .../en-US/chrome/overrides/appstrings.properties   |  28 +--
  browser/locales/shipped-locales                    |  35 ---
  browser/moz.configure                              |   8 +-
- .../privatebrowsing/aboutPrivateBrowsing.css       |   3 +-
+ .../privatebrowsing/aboutPrivateBrowsing.css       |   3 +
  .../themes/shared/tabbrowser/tab-hover-preview.css |   2 +-
  build/variables.py                                 |   2 +-
  .../client/aboutdebugging/src/actions/runtimes.js  |   1 +
@@ -142,7 +143,7 @@
  toolkit/themes/shared/aboutServiceWorkers.css      |   5 +
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
- 144 files changed, 951 insertions(+), 650 deletions(-)
+ 145 files changed, 966 insertions(+), 654 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 66fc21f9be2e..9a7d104cacd7 100644
@@ -747,6 +748,54 @@ index 259a8068c3aa..217d8ff8c9f2 100644
  IDI_NEWWINDOW ICON NEWWINDOW_ICO
  IDI_NEWTAB ICON NEWTAB_ICO
  IDI_PBMODE ICON PBMODE_ICO
+diff --git a/browser/base/content/aboutDialog.css b/browser/base/content/aboutDialog.css
+index e1e95883da9e..c1090a51fb53 100644
+--- a/browser/base/content/aboutDialog.css
++++ b/browser/base/content/aboutDialog.css
+@@ -30,16 +30,16 @@
+ }
+ 
+ #rightBox {
+-  background-image: url("chrome://branding/content/about-wordmark.svg");
++  /* background-image: url("chrome://branding/content/about-wordmark.svg"); */
+   background-repeat: no-repeat;
+-  background-size: 288px auto;
++  background-size: 200px auto;
+   /* padding-top creates room for the wordmark */
+-  padding-top: 38px;
++  padding-top: 20px;
+   margin-top: 20px;
+   /* We don't want this box to contribute arbitrarily to the intrinsic size of
+    * the dialog, so set the width to a reasonable size, but let it flex to take
+    * all available space. */
+-  width: 430px;
++  width: 200px;
+   flex: 1 auto;
+ 
+   &:-moz-locale-dir(rtl) {
+@@ -49,7 +49,7 @@
+ 
+ #clientBox {
+   flex: 1 0 auto;
+-  padding: 10px 0 15px;
++  /* padding: 10px 0 15px; */
+ }
+ 
+ #bottomBox {
+@@ -64,6 +64,13 @@
+   margin-inline-start: 0;
+ }
+ 
++#snowfox {
++  font-weight: bold;
++  font-size: 300%;
++  margin-top: 10px;
++  margin-inline-start: 0;
++}
++
+ #version {
+   font-weight: bold;
+   margin-inline-start: 0;
 diff --git a/browser/base/content/aboutDialog.js b/browser/base/content/aboutDialog.js
 index 8c5c7768e0e7..7388f66d3bca 100644
 --- a/browser/base/content/aboutDialog.js
@@ -785,10 +834,18 @@ index 8c5c7768e0e7..7388f66d3bca 100644
  
    // Use Fluent arguments for append version and the architecture of the build
 diff --git a/browser/base/content/aboutDialog.xhtml b/browser/base/content/aboutDialog.xhtml
-index 1e5c0f1c5917..5da342a692c7 100644
+index 1e5c0f1c5917..6b1b30b059bb 100644
 --- a/browser/base/content/aboutDialog.xhtml
 +++ b/browser/base/content/aboutDialog.xhtml
-@@ -125,17 +125,17 @@
+@@ -42,6 +42,7 @@
+     <hbox id="clientBox">
+       <vbox id="leftBox" flex="1"/>
+       <vbox id="rightBox">
++        <label id="snowfox">Snowfox</label>
+         <label id="release" hidden="true">
+         <!-- This string is explicitly not translated -->
+           Extended Support Release
+@@ -125,17 +126,17 @@
            <vbox id="experimental" hidden="true">
              <description class="text-blurb" id="warningDesc" data-l10n-id="warningDesc-version"></description>
              <description class="text-blurb" id="communityExperimentalDesc" data-l10n-id="community-exp">
@@ -809,7 +866,7 @@ index 1e5c0f1c5917..5da342a692c7 100644
            </description>
          </vbox>
        </vbox>
-@@ -144,7 +144,7 @@
+@@ -144,7 +145,7 @@
        <hbox pack="center">
          <label is="text-link" class="bottom-link" useoriginprincipal="true" href="about:license" data-l10n-id="bottomLinks-license"/>
          <label is="text-link" class="bottom-link" useoriginprincipal="true" href="about:rights" data-l10n-id="bottomLinks-rights"/>
@@ -1087,24 +1144,32 @@ index 2f7d5d7c8922..c4eaa6301a32 100644
    },
  
 diff --git a/browser/components/preferences/preferences.js b/browser/components/preferences/preferences.js
-index 7e21bab426b6..87357948b0f8 100644
+index 7e21bab426b6..1ca7bd8ef1bf 100644
 --- a/browser/components/preferences/preferences.js
 +++ b/browser/components/preferences/preferences.js
 @@ -634,6 +634,9 @@ async function ensureScrollPadding() {
  }
  
  function maybeDisplayPoliciesNotice() {
-+  if (Services.prefs.getBoolPref("browser.preferences.policiesNotice", false)) {
++  if (!Services.prefs.getBoolPref("browser.preferences.policiesNotice", false))
 +    return;
-+  }
++
    if (Services.policies.status == Services.policies.ACTIVE) {
      document.getElementById("policies-container").removeAttribute("hidden");
      ensureScrollPadding();
 diff --git a/browser/components/preferences/preferences.xhtml b/browser/components/preferences/preferences.xhtml
-index 53bdc9c912a6..8db487995fba 100644
+index 53bdc9c912a6..bbaf6d0f12e8 100644
 --- a/browser/components/preferences/preferences.xhtml
 +++ b/browser/components/preferences/preferences.xhtml
-@@ -225,7 +225,7 @@
+@@ -45,6 +45,7 @@
+ 
+   <link rel="localization" href="branding/brand.ftl"/>
+   <link rel="localization" href="browser/browser.ftl"/>
++  <link rel="localization" href="browser/aboutPolicies.ftl"/>
+     <!-- Used by fontbuilder.js -->
+   <link rel="localization" href="browser/preferences/fonts.ftl"/>
+   <link rel="localization" href="browser/preferences/moreFromMozilla.ftl"/>
+@@ -225,7 +226,7 @@
                  <html:img class="info-icon" data-l10n-attrs="alt" data-l10n-id="managed-notice-info-icon"></html:img>
                </hbox>
                <hbox align="center" flex="1">
@@ -2212,7 +2277,7 @@ index e605019172ad..ff0e7a174c6b 100644
  
  include("../toolkit/moz.configure")
 diff --git a/browser/themes/shared/privatebrowsing/aboutPrivateBrowsing.css b/browser/themes/shared/privatebrowsing/aboutPrivateBrowsing.css
-index a8d153a95c5f..6e9d17a3abdd 100644
+index a8d153a95c5f..3c9502a5f3c7 100644
 --- a/browser/themes/shared/privatebrowsing/aboutPrivateBrowsing.css
 +++ b/browser/themes/shared/privatebrowsing/aboutPrivateBrowsing.css
 @@ -58,6 +58,7 @@ p {
@@ -2223,11 +2288,18 @@ index a8d153a95c5f..6e9d17a3abdd 100644
    justify-content: center;
    margin-bottom: 50px;
  }
-@@ -352,7 +353,7 @@ p {
- .info {
+@@ -72,6 +73,7 @@ p {
+ 
+ .wordmark {
+   display: inline-block;
++  display: none !important;
+   background: url("chrome://branding/content/firefox-wordmark.svg") no-repeat center center;
+   background-size: 172px;
+   margin-inline-start: 15px;
+@@ -353,6 +355,7 @@ p {
    margin-top: 64px;
    background-color: rgba(0, 0, 0, 0.2);
--  background-image: url("chrome://global/skin/icons/indicator-private-browsing.svg");
+   background-image: url("chrome://global/skin/icons/indicator-private-browsing.svg");
 +  background-image: url("chrome://branding/content/about-logo-private.png") !important;
    background-position: left 32px top 20px;
    background-repeat: no-repeat;

@@ -160,7 +160,7 @@ index 80f690c709a6..8f73eb0b0b5a 100644
      this.init();
  
 diff --git a/browser/components/preferences/preferences.js b/browser/components/preferences/preferences.js
-index 87357948b0f8..3133e4f2dd24 100644
+index 1ca7bd8ef1bf..7cdab470227d 100644
 --- a/browser/components/preferences/preferences.js
 +++ b/browser/components/preferences/preferences.js
 @@ -224,7 +224,7 @@ function init_all() {

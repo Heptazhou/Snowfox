@@ -67,7 +67,7 @@ const rs =
 
 function patch(x; keep = false)
 	dir = mkpath(x) / ""
-	keep || endswith(r"\bl10n(-\w+)?/")(dir) && cd(dir) do
+	keep || endswith(dir, r"\bl10n/") && cd(dir) do
 		for x ∈ readdir()
 			x ∈ [lc; ".git"] || rm(x, recursive = true)
 		end

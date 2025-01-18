@@ -14,9 +14,11 @@
 
 include("base_func.jl")
 
-for i in strip_list_msc
-	i in strip_list_ubo && @warn i
-	i in strip_list_xpt && @warn i
+if abspath(PROGRAM_FILE) == @__FILE__
+	for x ∈ strip_list_msc
+		x ∈ strip_list_ubo && @warn x
+		x ∈ strip_list_xpt && @warn x
+	end
+	@info "Done."
 end
-@info "Done."
 
