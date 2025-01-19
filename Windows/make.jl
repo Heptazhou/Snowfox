@@ -18,7 +18,7 @@ include("base_func.jl")
 # https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html#schedule
 # https://releases.rs
 const VPY, _ = "3.11", "../../Firefox/mach"
-const VRS, _ = "1.81", "win-make.dockerfile"
+const VRS, _ = "1.82", "win-make.dockerfile"
 
 if abspath(PROGRAM_FILE) == @__FILE__
 	if !@try parse(Bool, ENV["JULIA_SYS_ISDOCKER"]) false

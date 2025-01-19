@@ -25,7 +25,7 @@ FROM snowfox:win-base
 ENV CARGO_BUILD_JOBS=1 \
 	CARGO_INCREMENTAL=0
 
-RUN cd /src && rustup default 1.81 && rustup target add x86_64-pc-windows-msvc && \
+RUN cd /src && rustup default 1.82 && rustup target add x86_64-pc-windows-msvc && \
 	ver=`cargo pkgid windows | grep -Po '#\K.+'` && cd $MOZBUILD_STATE_PATH && \
 	curl -LR https://crates.io/api/v1/crates/windows/$ver/download -o windows.gz && \
 	tar Ufx windows.gz && rm windows.gz && mv windows-{$ver,rs} && \
