@@ -22,8 +22,7 @@ const VRS, _ = "1.82", "win-make.dockerfile"
 
 if abspath(PROGRAM_FILE) == @__FILE__
 	if !@try parse(Bool, ENV["JULIA_SYS_ISDOCKER"]) false
-		@warn "Not allowed."
-		return
+		return @warn "Not allowed."
 	end
 	url = "https://github.com/Heptazhou/Snowfox/releases/download"
 	ver = VER_INFO.v
@@ -34,6 +33,10 @@ if abspath(PROGRAM_FILE) == @__FILE__
 	for f ∈ [L10N_PKG_TAR, TAR_PREFIX * ver * TAR_SUFFIX]' .*
 			[".sha256", ".sha3-512", ""]
 		curl("$url/v$ver/$f")
+	end
+	let f = "/version.json"
+		isfile(f) || return
+		sha = readchomp(`jq -r '.object.sha' $f`)
 	end
 end
 

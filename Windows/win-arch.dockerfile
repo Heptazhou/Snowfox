@@ -31,7 +31,7 @@ RUN sed -re 's/(SigLevel) .+/\1 = Optional/g' -e 's/NoProgressBar/Color/g' -i /e
 	tac $MIRRORLIST > $MIRRORLIST~ && mv $MIRRORLIST{~,} && pacman-key --init
 
 RUN yes | pacman -Syu 7zip git grml-zsh-config julia sha3sum && \
-	yes | pacman -S --needed bash-completion fastfetch mc nano zsh-completions \
+	yes | pacman -S --needed bash-completion fastfetch jq mc nano zsh-completions \
 	clang llvm msitools nasm nodejs-lts-jod python-pip wasi-{compiler-rt,libc++{,abi}} \
 	cbindgen cross dump_syms unzip upx wget && yes | pacman -Scc && chsh -s /bin/zsh
 

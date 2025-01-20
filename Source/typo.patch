@@ -275,7 +275,7 @@ index 2bd6097b5d1b..14c71e3c705e 100644
  const MIN_TABS_COUNT = 10;
  
 diff --git a/devtools/client/framework/browser-toolbox/window.js b/devtools/client/framework/browser-toolbox/window.js
-index 98dc8a5717f0..8a494907a812 100644
+index 7f251f3fd5b5..30ca768b8339 100644
 --- a/devtools/client/framework/browser-toolbox/window.js
 +++ b/devtools/client/framework/browser-toolbox/window.js
 @@ -142,7 +142,7 @@ function setPrefDefaults() {
