@@ -7,14 +7,14 @@
  browser/app/profile/firefox.js                     | 146 ++++++-------
  .../{firefox.exe.manifest => snowfox.exe.manifest} |   4 +-
  browser/app/splash.rc                              |   4 +-
- browser/base/content/aboutDialog.css               |  19 +-
+ browser/base/content/aboutDialog.css               |  21 +-
  browser/base/content/aboutDialog.js                |   9 +-
  browser/base/content/aboutDialog.xhtml             |   9 +-
  browser/base/content/overrides/app-license.html    |   6 +-
  browser/branding/branding-common.mozbuild          |   3 +-
  .../modules/FeatureCalloutMessages.sys.mjs         |   1 +
  .../enterprisepolicies/content/aboutPolicies.css   |   8 +
- .../enterprisepolicies/content/aboutPolicies.js    |  24 +-
+ .../enterprisepolicies/content/aboutPolicies.js    |  30 ++-
  .../schemas/policies-schema.json                   |   2 -
  .../installerprefs/InstallerPrefs.sys.mjs          |   2 +-
  .../newtab/content-src/components/Logo/Logo.jsx    |   2 +-
@@ -51,19 +51,27 @@
  browser/moz.configure                              |   8 +-
  .../privatebrowsing/aboutPrivateBrowsing.css       |   3 +
  .../themes/shared/tabbrowser/tab-hover-preview.css |   2 +-
- build/variables.py                                 |   2 +-
+ build/variables.py                                 |   7 +-
  .../client/aboutdebugging/src/actions/runtimes.js  |   1 +
+ .../client/framework/browser-toolbox/window.js     |   2 +-
+ devtools/client/jsonview/json-viewer.js            |   2 +-
  devtools/client/locales/en-US/aboutdebugging.ftl   |   2 +-
  devtools/client/locales/en-US/application.ftl      |   2 +-
  devtools/client/locales/en-US/memory.properties    |   2 +-
  .../client/locales/en-US/responsive.properties     |   2 +-
  devtools/client/memory/utils.js                    |   4 +-
  .../src/components/request-details/CachePanel.js   |   2 +-
+ devtools/client/netmonitor/src/har/har-exporter.js |   2 +-
+ .../src/widgets/RequestListContextMenu.js          |   2 +-
  devtools/client/storage/ui.js                      |   6 +-
+ .../client/webconsole/components/Output/Message.js |   2 +-
  devtools/server/actors/thread.js                   |   3 +
  devtools/server/actors/utils/capture-screenshot.js |   7 +-
+ devtools/server/actors/utils/sources-manager.js    |   2 +-
+ .../server/actors/webconsole/commands/manager.js   |   2 +-
  .../actors/webconsole/listeners/console-api.js     |   3 +
  devtools/shared/loader/Loader.sys.mjs              |   2 +-
+ devtools/shared/worker/worker.sys.mjs              |   4 +-
  dom/base/Document.cpp                              |   2 +-
  dom/base/nsScreen.cpp                              |   4 +-
  dom/locales/en-US/chrome/appstrings.properties     |   2 +-
@@ -106,7 +114,10 @@
  taskcluster/gecko_taskgraph/util/hash.py           |  10 +-
  .../taskcluster_taskgraph/taskgraph/util/hash.py   |   2 +-
  toolkit/actors/PictureInPictureChild.sys.mjs       |   6 +-
+ .../aboutthirdparty/content/aboutThirdParty.js     |   2 +-
  .../components/certviewer/content/certDecoder.mjs  |  12 +-
+ .../enterprisepolicies/WindowsGPOParser.sys.mjs    |   2 +-
+ .../enterprisepolicies/macOSPoliciesParser.sys.mjs |   2 +-
  toolkit/components/extensions/Extension.sys.mjs    |   6 +-
  toolkit/components/pdfjs/content/build/pdf.mjs     |   2 +-
  toolkit/components/pdfjs/content/web/viewer.css    |   4 +-
@@ -119,13 +130,14 @@
  toolkit/components/search/OpenSearchEngine.sys.mjs |   2 +-
  .../components/url-classifier/SafeBrowsing.sys.mjs |   2 +-
  .../UrlClassifierHashCompleter.sys.mjs             |   2 +-
- .../UrlClassifierListManager.sys.mjs               |   2 +-
+ .../UrlClassifierListManager.sys.mjs               |   8 +-
  toolkit/components/utils/ClientEnvironment.sys.mjs |   5 +-
  toolkit/content/aboutNetError.mjs                  |   2 +-
  toolkit/content/aboutRights-unbranded.xhtml        |   6 +-
  toolkit/content/aboutRights.xhtml                  |   4 +-
+ toolkit/content/aboutSupport.js                    |   4 +-
  toolkit/content/aboutUrlClassifier.js              |  10 +-
- toolkit/content/aboutwebrtc/aboutWebrtc.mjs        |   2 +-
+ toolkit/content/aboutwebrtc/aboutWebrtc.mjs        |   8 +-
  toolkit/content/widgets/datekeeper.js              |   4 +-
  toolkit/content/widgets/datepicker.js              |   8 +-
  toolkit/content/widgets/datetimebox.js             |   4 +-
@@ -138,7 +150,7 @@
  toolkit/themes/shared/aboutServiceWorkers.css      |   5 +
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
- 140 files changed, 941 insertions(+), 620 deletions(-)
+ 152 files changed, 970 insertions(+), 644 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 66fc21f9be2e..9a7d104cacd7 100644
@@ -761,14 +773,16 @@ index 259a8068c3aa..217d8ff8c9f2 100644
  IDI_NEWTAB ICON NEWTAB_ICO
  IDI_PBMODE ICON PBMODE_ICO
 diff --git a/browser/base/content/aboutDialog.css b/browser/base/content/aboutDialog.css
-index e1e95883da9e..04c69703c673 100644
+index e1e95883da9e..2774339910c7 100644
 --- a/browser/base/content/aboutDialog.css
 +++ b/browser/base/content/aboutDialog.css
-@@ -25,21 +25,21 @@
+@@ -24,22 +24,22 @@
+   /* min-width and min-height create room for the logo; logo is 192px tall w/
       40px above it, this leaves 8px on the bottom at the minimum height */
    min-width: 210px;
-   min-height: 240px;
+-  min-height: 240px;
 -  margin-top: 20px;
++  min-height: 256px;
 +  /* margin-top: 20px; */
    margin-inline-start: 30px;
  }
@@ -787,7 +801,7 @@ index e1e95883da9e..04c69703c673 100644
     * the dialog, so set the width to a reasonable size, but let it flex to take
     * all available space. */
 -  width: 430px;
-+  width: 300px;
++  width: 330px;
    flex: 1 auto;
  
    &:-moz-locale-dir(rtl) {
@@ -964,7 +978,7 @@ index e84ae785ee6d..eb8d5678f2f5 100644
  
  /*
 diff --git a/browser/components/enterprisepolicies/content/aboutPolicies.js b/browser/components/enterprisepolicies/content/aboutPolicies.js
-index 2de9be09826c..65e5a2f6857d 100644
+index 2de9be09826c..a01dfa3a9d8c 100644
 --- a/browser/components/enterprisepolicies/content/aboutPolicies.js
 +++ b/browser/components/enterprisepolicies/content/aboutPolicies.js
 @@ -17,6 +17,9 @@ function col(text, className) {
@@ -1031,6 +1045,33 @@ index 2de9be09826c..65e5a2f6857d 100644
  
      if (arr_sep) {
        row.classList.add("arr_sep");
+@@ -317,7 +323,7 @@ function generateDocumentation() {
+     let schema_row = document.createElement("tr");
+     if (schema.properties[policyName].properties) {
+       let column = col(
+-        JSON.stringify(schema.properties[policyName].properties, null, 1),
++        JSON.stringify(schema.properties[policyName].properties, null, "\t"),
+         "schema"
+       );
+       column.colSpan = "2";
+@@ -325,7 +331,7 @@ function generateDocumentation() {
+       sec_tbody.appendChild(schema_row);
+     } else if (schema.properties[policyName].items) {
+       let column = col(
+-        JSON.stringify(schema.properties[policyName], null, 1),
++        JSON.stringify(schema.properties[policyName], null, "\t"),
+         "schema"
+       );
+       column.colSpan = "2";
+@@ -340,7 +346,7 @@ function generateDocumentation() {
+         let enum_row = document.createElement("tr");
+         column = col(
+           "enum: " +
+-            JSON.stringify(schema.properties[policyName].enum, null, 1),
++            JSON.stringify(schema.properties[policyName].enum, null, "\t"),
+           "schema"
+         );
+         column.colSpan = "2";
 diff --git a/browser/components/enterprisepolicies/schemas/policies-schema.json b/browser/components/enterprisepolicies/schemas/policies-schema.json
 index f74d263d83bc..a81b44594b7e 100644
 --- a/browser/components/enterprisepolicies/schemas/policies-schema.json
@@ -2336,7 +2377,7 @@ index 90680fb5870b..8ef663571922 100644
  }
  
 diff --git a/build/variables.py b/build/variables.py
-index 5996269c03af..ba6cdf403f65 100644
+index 5996269c03af..01ef89eddf23 100644
 --- a/build/variables.py
 +++ b/build/variables.py
 @@ -24,7 +24,7 @@ def buildid_header(output):
@@ -2348,6 +2389,18 @@ index 5996269c03af..ba6cdf403f65 100644
      # If this output changes, be sure to update `get_buildid()`.
      output.write("#define MOZ_BUILDID %s\n" % buildid)
  
+@@ -107,6 +107,11 @@ def source_repo_header(output):
+         source = "%s/rev/%s" % (repo, changeset)
+         output.write("#define MOZ_SOURCE_REPO %s\n" % repo)
+         output.write("#define MOZ_SOURCE_URL %s\n" % source)
++    elif os.path.exists(
++        sourceurl_path := os.path.join(buildconfig.topsrcdir, "sourceurl.txt")
++    ):
++        source = open(sourceurl_path).read().splitlines()[0]
++        output.write("#define MOZ_SOURCE_URL %s\n" % source)
+ 
+ 
+ def main(args):
 diff --git a/devtools/client/aboutdebugging/src/actions/runtimes.js b/devtools/client/aboutdebugging/src/actions/runtimes.js
 index 52148f80b280..9385d4a92630 100644
 --- a/devtools/client/aboutdebugging/src/actions/runtimes.js
@@ -2360,6 +2413,32 @@ index 52148f80b280..9385d4a92630 100644
    if (runtime.isFenix) {
      switch (channel) {
        case "release":
+diff --git a/devtools/client/framework/browser-toolbox/window.js b/devtools/client/framework/browser-toolbox/window.js
+index 98dc8a5717f0..7f251f3fd5b5 100644
+--- a/devtools/client/framework/browser-toolbox/window.js
++++ b/devtools/client/framework/browser-toolbox/window.js
+@@ -207,7 +207,7 @@ function onReloadBrowser() {
+ async function openToolbox(commands) {
+   const form = commands.descriptorFront._form;
+   appendStatusMessage(
+-    `Create toolbox for target descriptor: ${JSON.stringify({ form }, null, 2)}`
++    `Create toolbox for target descriptor: ${JSON.stringify({ form }, null, "\t")}`
+   );
+ 
+   // Remember the last panel that was used inside of this profile.
+diff --git a/devtools/client/jsonview/json-viewer.js b/devtools/client/jsonview/json-viewer.js
+index cefeb7b8f649..e07f41b3a0fd 100644
+--- a/devtools/client/jsonview/json-viewer.js
++++ b/devtools/client/jsonview/json-viewer.js
+@@ -88,7 +88,7 @@ define(function (require) {
+         theApp.setState({ jsonText: input.jsonText });
+       } else {
+         if (!input.jsonPretty) {
+-          input.jsonPretty = new Text(JSON.stringify(input.json, null, "  "));
++          input.jsonPretty = new Text(JSON.stringify(input.json, null, "\t"));
+         }
+         theApp.setState({ jsonText: input.jsonPretty });
+       }
 diff --git a/devtools/client/locales/en-US/aboutdebugging.ftl b/devtools/client/locales/en-US/aboutdebugging.ftl
 index a99c82ab4edf..8971f711c1f2 100644
 --- a/devtools/client/locales/en-US/aboutdebugging.ftl
@@ -2440,6 +2519,32 @@ index 5f3db6c50107..b0a90b58ce87 100644
    }
  
    render() {
+diff --git a/devtools/client/netmonitor/src/har/har-exporter.js b/devtools/client/netmonitor/src/har/har-exporter.js
+index 9204e9899403..214c9494750c 100644
+--- a/devtools/client/netmonitor/src/har/har-exporter.js
++++ b/devtools/client/netmonitor/src/har/har-exporter.js
+@@ -218,7 +218,7 @@ const HarExporter = {
+     }
+ 
+     try {
+-      return JSON.stringify(har, null, "  ");
++      return JSON.stringify(har, null, "\t");
+     } catch (err) {
+       console.error(err);
+       return undefined;
+diff --git a/devtools/client/netmonitor/src/widgets/RequestListContextMenu.js b/devtools/client/netmonitor/src/widgets/RequestListContextMenu.js
+index 7c19e912c6e9..eee2cfba8565 100644
+--- a/devtools/client/netmonitor/src/widgets/RequestListContextMenu.js
++++ b/devtools/client/netmonitor/src/widgets/RequestListContextMenu.js
+@@ -667,7 +667,7 @@ class RequestListContextMenu {
+       mode: "cors",
+     };
+ 
+-    const options = JSON.stringify(fetchOptions, null, 4);
++    const options = JSON.stringify(fetchOptions, null, "\t");
+     const fetchString = `await fetch("${url}", ${options});`;
+     return fetchString;
+   }
 diff --git a/devtools/client/storage/ui.js b/devtools/client/storage/ui.js
 index c68f44ee3d42..f7357332de13 100644
 --- a/devtools/client/storage/ui.js
@@ -2462,6 +2567,19 @@ index c68f44ee3d42..f7357332de13 100644
        }
  
        switch (reason) {
+diff --git a/devtools/client/webconsole/components/Output/Message.js b/devtools/client/webconsole/components/Output/Message.js
+index 8fed9fd08403..cb7dbe3cdf6e 100644
+--- a/devtools/client/webconsole/components/Output/Message.js
++++ b/devtools/client/webconsole/components/Output/Message.js
+@@ -265,7 +265,7 @@ class Message extends Component {
+                         }
+                         return value;
+                       },
+-                      2
++                      "\t"
+                     )
+                   ),
+               },
 diff --git a/devtools/server/actors/thread.js b/devtools/server/actors/thread.js
 index 0042e76a2ac1..7b050d46aa6d 100644
 --- a/devtools/server/actors/thread.js
@@ -2493,6 +2611,32 @@ index e7b46620b2e9..64da3a7f849e 100644
 -  );
 +  return `${dateString} ${timeString} devtool.png`;
  }
+diff --git a/devtools/server/actors/utils/sources-manager.js b/devtools/server/actors/utils/sources-manager.js
+index 496f7503a47c..c8652c819ab2 100644
+--- a/devtools/server/actors/utils/sources-manager.js
++++ b/devtools/server/actors/utils/sources-manager.js
+@@ -511,7 +511,7 @@ class SourcesManager extends EventEmitter {
+     try {
+       DevToolsUtils.reportException("SourceActor", error);
+ 
+-      const lines = JSON.stringify(this.form(), null, 4).split(/\n/g);
++      const lines = JSON.stringify(this.form(), null, "\t").split(/\n/g);
+       lines.forEach(line => console.error("\t", line));
+     } catch (e) {
+       // ignore
+diff --git a/devtools/server/actors/webconsole/commands/manager.js b/devtools/server/actors/webconsole/commands/manager.js
+index d025ecd15661..01c8829f3c00 100644
+--- a/devtools/server/actors/webconsole/commands/manager.js
++++ b/devtools/server/actors/webconsole/commands/manager.js
+@@ -741,7 +741,7 @@ WebConsoleCommandsManager.register({
+       } else if (typeof value == "string") {
+         payload = value;
+       } else {
+-        payload = JSON.stringify(value, null, "  ");
++        payload = JSON.stringify(value, null, "\t");
+       }
+     } catch (ex) {
+       owner.helperResult = {
 diff --git a/devtools/server/actors/webconsole/listeners/console-api.js b/devtools/server/actors/webconsole/listeners/console-api.js
 index 3e5d0bc52f12..d13a33c93096 100644
 --- a/devtools/server/actors/webconsole/listeners/console-api.js
@@ -2520,6 +2664,28 @@ index b0e4c853f4a5..0306634b6d1f 100644
  });
  
  export var require = loader.require;
+diff --git a/devtools/shared/worker/worker.sys.mjs b/devtools/shared/worker/worker.sys.mjs
+index ef03d2f54d7d..a3cd6b6aafe2 100644
+--- a/devtools/shared/worker/worker.sys.mjs
++++ b/devtools/shared/worker/worker.sys.mjs
+@@ -57,7 +57,7 @@ DevToolsWorker.prototype.performTask = function (task, data, transfer) {
+       "Sending message to worker" +
+         (this._name ? " (" + this._name + ")" : "") +
+         ": " +
+-        JSON.stringify(payload, null, 2)
++        JSON.stringify(payload, null, "\t")
+     );
+   }
+   worker.postMessage(payload, transfer);
+@@ -69,7 +69,7 @@ DevToolsWorker.prototype.performTask = function (task, data, transfer) {
+           "Received message from worker" +
+             (this._name ? " (" + this._name + ")" : "") +
+             ": " +
+-            JSON.stringify(result, null, 2)
++            JSON.stringify(result, null, "\t")
+         );
+       }
+ 
 diff --git a/dom/base/Document.cpp b/dom/base/Document.cpp
 index b460181916b4..294a163fe418 100644
 --- a/dom/base/Document.cpp
@@ -4252,6 +4418,19 @@ index ea7d49b7b300..5072e01a799d 100644
      );
  
      if (currentDateSeconds >= firstSeenEndSeconds) {
+diff --git a/toolkit/components/aboutthirdparty/content/aboutThirdParty.js b/toolkit/components/aboutthirdparty/content/aboutThirdParty.js
+index eb1439eda85b..526fb081ec25 100644
+--- a/toolkit/components/aboutthirdparty/content/aboutThirdParty.js
++++ b/toolkit/components/aboutthirdparty/content/aboutThirdParty.js
+@@ -359,7 +359,7 @@ function copyDataToClipboard(aData) {
+   });
+   let clipboardData = { modules: modulesData, blocked: blockedData };
+ 
+-  return navigator.clipboard.writeText(JSON.stringify(clipboardData, null, 2));
++  return navigator.clipboard.writeText(JSON.stringify(clipboardData, null, "\t"));
+ }
+ 
+ function correctProcessTypeForFluent(type) {
 diff --git a/toolkit/components/certviewer/content/certDecoder.mjs b/toolkit/components/certviewer/content/certDecoder.mjs
 index d15ee380b5a6..267df0e26777 100644
 --- a/toolkit/components/certviewer/content/certDecoder.mjs
@@ -4282,6 +4461,32 @@ index d15ee380b5a6..267df0e26777 100644
      subject: parseSubsidiary(x509.subject.typesAndValues),
      serialNumber: hashify(getObjPath(x509, "serialNumber.valueBlock.valueHex")),
      signature: {
+diff --git a/toolkit/components/enterprisepolicies/WindowsGPOParser.sys.mjs b/toolkit/components/enterprisepolicies/WindowsGPOParser.sys.mjs
+index 81d3096079bd..20c1f7231e74 100644
+--- a/toolkit/components/enterprisepolicies/WindowsGPOParser.sys.mjs
++++ b/toolkit/components/enterprisepolicies/WindowsGPOParser.sys.mjs
+@@ -38,7 +38,7 @@ export var WindowsGPOParser = {
+     // Need an extra check here so we don't
+     // JSON.stringify if we aren't in debug mode
+     if (lazy.log._maxLogLevel == "debug") {
+-      lazy.log.debug(JSON.stringify(policies, null, 2));
++      lazy.log.debug(JSON.stringify(policies, null, "\t"));
+     }
+     return policies;
+   },
+diff --git a/toolkit/components/enterprisepolicies/macOSPoliciesParser.sys.mjs b/toolkit/components/enterprisepolicies/macOSPoliciesParser.sys.mjs
+index 908dc5c137c2..1ca5ff3ef2f1 100644
+--- a/toolkit/components/enterprisepolicies/macOSPoliciesParser.sys.mjs
++++ b/toolkit/components/enterprisepolicies/macOSPoliciesParser.sys.mjs
+@@ -32,7 +32,7 @@ export var macOSPoliciesParser = {
+     // Need an extra check here so we don't
+     // JSON.stringify if we aren't in debug mode
+     if (lazy.log.maxLogLevel == "debug") {
+-      lazy.log.debug(JSON.stringify(nativePolicies, null, 2));
++      lazy.log.debug(JSON.stringify(nativePolicies, null, "\t"));
+     }
+ 
+     return nativePolicies;
 diff --git a/toolkit/components/extensions/Extension.sys.mjs b/toolkit/components/extensions/Extension.sys.mjs
 index ead52808306a..1ae6851bdd39 100644
 --- a/toolkit/components/extensions/Extension.sys.mjs
@@ -4369,7 +4574,7 @@ index 5863ca94757e..518dff408ae6 100644
    async #parseDate(inputDate) {
      const dateObj = PDFDateString.toDateObject(inputDate);
      return dateObj ? this.l10n.get("pdfjs-document-properties-date-time-string", {
--      dateObj
+-      dateObj: dateObj.valueOf(),
 +      dateObj: dateObj.toLocaleString("sv") + (dateObj.getTimezoneOffset() ? "" : " UTC")
      }) : undefined;
    }
@@ -4601,7 +4806,7 @@ index d5e22babdf80..fecef0b4c8ba 100644
  }
  
 diff --git a/toolkit/components/url-classifier/UrlClassifierListManager.sys.mjs b/toolkit/components/url-classifier/UrlClassifierListManager.sys.mjs
-index a96c6bad15ff..6df3b8a35e35 100644
+index a96c6bad15ff..f23af6ef478e 100644
 --- a/toolkit/components/url-classifier/UrlClassifierListManager.sys.mjs
 +++ b/toolkit/components/url-classifier/UrlClassifierListManager.sys.mjs
 @@ -38,7 +38,7 @@ function log(...stuff) {
@@ -4613,6 +4818,33 @@ index a96c6bad15ff..6df3b8a35e35 100644
    msg = Services.urlFormatter.trimSensitiveURLs(msg);
    Services.console.logStringMessage(msg);
    dump(msg + "\n");
+@@ -307,7 +307,7 @@ PROT_ListManager.prototype.kickoffUpdate_ = function () {
+   initialUpdateDelay += Math.floor(Math.random() * (1 * 60 * 1000));
+ 
+   // If the user has never downloaded tables, do the check now.
+-  log("needsUpdate: " + JSON.stringify(this.needsUpdate_, undefined, 2));
++  log("needsUpdate: " + JSON.stringify(this.needsUpdate_, undefined, "\t"));
+   for (var updateUrl in this.needsUpdate_) {
+     // If we haven't already kicked off updates for this updateUrl, set a
+     // non-repeating timer for it. The timer delay will be reset either on
+@@ -485,7 +485,7 @@ PROT_ListManager.prototype.makeUpdateRequest_ = function (
+   updateUrl,
+   tableData
+ ) {
+-  log("this.tablesData: " + JSON.stringify(this.tablesData, undefined, 2));
++  log("this.tablesData: " + JSON.stringify(this.tablesData, undefined, "\t"));
+   log("existing chunks: " + tableData + "\n");
+   // Disallow blank updateUrls
+   if (!updateUrl) {
+@@ -601,7 +601,7 @@ PROT_ListManager.prototype.makeUpdateRequest_ = function (
+     streamerMap.isPostRequest = true;
+   }
+ 
+-  log("update request: " + JSON.stringify(streamerMap, undefined, 2) + "\n");
++  log("update request: " + JSON.stringify(streamerMap, undefined, "\t") + "\n");
+ 
+   // Don't send an empty request.
+   if (streamerMap.requestPayload.length) {
 diff --git a/toolkit/components/utils/ClientEnvironment.sys.mjs b/toolkit/components/utils/ClientEnvironment.sys.mjs
 index 64fb6da9e194..0fd097f90f35 100644
 --- a/toolkit/components/utils/ClientEnvironment.sys.mjs
@@ -4687,6 +4919,28 @@ index 324b97f45210..45fb126ffb02 100644
              data-l10n-name="mozilla-trademarks-link"
            ></a>
          </li>
+diff --git a/toolkit/content/aboutSupport.js b/toolkit/content/aboutSupport.js
+index efef64ee8a87..6ff264a66ce1 100644
+--- a/toolkit/content/aboutSupport.js
++++ b/toolkit/content/aboutSupport.js
+@@ -770,7 +770,7 @@ var snapshotFormatters = {
+     for (let feature of featureKeys) {
+       const obj = data[feature];
+       if (obj) {
+-        const str = JSON.stringify(obj, null, "  ");
++        const str = JSON.stringify(obj, null, "\t");
+         await addRow("features", feature, [new Text(str)]);
+         delete data[feature];
+       }
+@@ -1683,7 +1683,7 @@ function copyRawDataToClipboard(button) {
+       let str = Cc["@mozilla.org/supports-string;1"].createInstance(
+         Ci.nsISupportsString
+       );
+-      str.data = JSON.stringify(snapshot, undefined, 2);
++      str.data = JSON.stringify(snapshot, undefined, "\t");
+       let transferable = Cc[
+         "@mozilla.org/widget/transferable;1"
+       ].createInstance(Ci.nsITransferable);
 diff --git a/toolkit/content/aboutUrlClassifier.js b/toolkit/content/aboutUrlClassifier.js
 index cc88e3bf73eb..2f16de220293 100644
 --- a/toolkit/content/aboutUrlClassifier.js
@@ -4731,9 +4985,36 @@ index cc88e3bf73eb..2f16de220293 100644
                    tds = tds.concat(list);
                  } else {
 diff --git a/toolkit/content/aboutwebrtc/aboutWebrtc.mjs b/toolkit/content/aboutwebrtc/aboutWebrtc.mjs
-index 26a116ffce62..95c1322fa830 100644
+index 26a116ffce62..89ddca4bfcfa 100644
 --- a/toolkit/content/aboutwebrtc/aboutWebrtc.mjs
 +++ b/toolkit/content/aboutwebrtc/aboutWebrtc.mjs
+@@ -774,7 +774,7 @@ function renderPeerConnectionTools(rndr, report, forceRefreshFn) {
+             onclick() {
+               WGI.getStatsHistorySince(
+                 hist =>
+-                  navigator.clipboard.writeText(JSON.stringify(hist, null, 2)),
++                  navigator.clipboard.writeText(JSON.stringify(hist, null, "\t")),
+                 pcid
+               );
+             },
+@@ -816,7 +816,7 @@ function renderPeerConnectionTools(rndr, report, forceRefreshFn) {
+       rndr,
+       report.pcid,
+       "about-webrtc-copy-report-button",
+-      () => JSON.stringify({ ...report }, null, 2)
++      () => JSON.stringify({ ...report }, null, "\t")
+     ),
+     ...copyHistButton,
+     forceRefreshButton,
+@@ -1119,7 +1119,7 @@ function renderRTPStats(rndr, report, hist) {
+     { id: "rtp-stats: " + report.pcid, className: "rtp-stats" },
+     [
+       renderSubsectionHeading("about-webrtc-rtp-stats-heading", () =>
+-        JSON.stringify([...rtpStats, ...remoteRtpStats], null, 2)
++        JSON.stringify([...rtpStats, ...remoteRtpStats], null, "\t")
+       ),
+       ...rtpStats.map(stat => {
+         const { ssrc, remoteId, remoteRtpStats: rtcpStats } = stat;
 @@ -1277,7 +1277,7 @@ function renderTransportStats(
      );
    }

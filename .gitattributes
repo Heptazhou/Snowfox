@@ -1,5 +1,5 @@
 
 * -linguist-vendored linguist-detectable
 *.patch linguist-vendored
-crlf*.patch text eol=crlf
+crlf.patch -text
 mozconfig linguist-language=Shell

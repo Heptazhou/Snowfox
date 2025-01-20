@@ -93,14 +93,16 @@ function patch(x; keep = false, text = false)
 			end
 		end
 	end
-	let ver = "v$(VER.major)"
-		for f ∈ [
+	let ver = "v$(VER.major)", fs = [
 			"$ver.patch"
 			"crlf.patch"
 			"font.patch"
 			"typo.patch"
 		]
-			sh("patch --binary -sf -p1 -ld '$dir' < $f || true")
+		for cmd ∈ strip.("patch -f -p1 -ld'$dir' " .* ["--dry-run", ""])
+			for f ∈ fs
+				sh("$cmd < $f > $f.log && rm $f.log")
+			end
 		end
 	end
 end

@@ -22,18 +22,20 @@ const VRS, _ = "1.82", "win-make.dockerfile"
 
 if abspath(PROGRAM_FILE) == @__FILE__
 	if !@try parse(Bool, ENV["JULIA_SYS_ISDOCKER"]) false
-		@warn "Not allowed."
-		return
+		return @warn "Not allowed."
 	end
-	url = "https://github.com/Heptazhou/Snowfox/releases/download"
 	ver = VER_INFO.v
+	url = "https://github.com/Heptazhou/Snowfox/releases"
+	tag = "$url/tag/v$ver"
+	@info "sourceurl = " * tag
+	write("sourceurl.txt", tag, "\n")
 	write("version", ver, "\n")
 	for f ∈ filter!(isfile, readdir())
 		endswith(f, r"\.sha[-\d]+") && rm(f)
 	end
 	for f ∈ [L10N_PKG_TAR, TAR_PREFIX * ver * TAR_SUFFIX]' .*
 			[".sha256", ".sha3-512", ""]
-		curl("$url/v$ver/$f")
+		curl("$url/download/v$ver/$f")
 	end
 end
 
