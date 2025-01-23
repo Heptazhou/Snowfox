@@ -20,7 +20,7 @@ const PKG = "pkg/"
 # https://archive.mozilla.org/pub/firefox/
 # https://whattrainisitnow.com
 const ESR = v"128".major # 140
-const VER = v"132.0.2-2"
+const VER = v"133.0.3-1"
 
 const VER_REGEX = r"^v(?<ver>\d+\.\d+\.\d+)(?:-(?<rel>\d+))?(?:\+(?<pre>[a-z]+\d+))?$"
 const VER_MATCH = notnothing(match(VER_REGEX, "v$VER"))
