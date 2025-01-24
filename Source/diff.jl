@@ -18,6 +18,9 @@ if abspath(PROGRAM_FILE) == @__FILE__
 	cmd = "git diff --patch-with-stat --minimal"
 	ver = "v$(VER.major)"
 	cd("../../Firefox")
+	let distance = readstr(`git rev-list --count $ver..HEAD`)
+		@assert 10 < parse(Int, distance) < 100
+	end
 	sh("$cmd $ver~0 HEAD~5 > $ver.patch")
 	sh("$cmd HEAD~5 HEAD~4 > font.patch")
 	sh("$cmd HEAD~4 HEAD~3 > crlf.patch")

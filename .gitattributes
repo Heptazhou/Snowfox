@@ -1,5 +1,8 @@
 
 * -linguist-vendored linguist-detectable
 *.patch linguist-vendored
+*/gecko/** linguist-vendored
 crlf.patch -text
+moz.build linguist-language=Python
 mozconfig linguist-language=Shell
+snowfox.cfg linguist-language=JavaScript

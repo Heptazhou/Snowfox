@@ -38,7 +38,7 @@ RUN yes | pacman -Syu 7zip git grml-zsh-config julia sha3sum && \
 RUN  url=https://github.com/0h7z/aur/releases/download && yes | pacman -U \
 	$url/nsis-v3.10-1/nsis-3.10-1-x86_64.pkg.tar.zst \
 	$url/python311-v3.11.11-1/python311-3.11.11-1-x86_64.pkg.tar.zst \
-	$url/wine64-v9.21-1/wine64-9.21-1-x86_64.pkg.tar.zst && yes | pacman -Scc
+	$url/wine64-v9.22-1/wine64-9.22-1-x86_64.pkg.tar.zst && yes | pacman -Scc
 
 RUN cd /bin && ln -s clear cls && ln -s nano nn && ln -s nano vi && \
 	git config --global pull.rebase true && git config --global safe.directory "*" && \
