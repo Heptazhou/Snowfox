@@ -1,5 +1,8 @@
- browser/app/profile/firefox.js                     | 40 +++++++++++-----------
+ browser/app/profile/firefox.js                     | 42 +++++++++++-----------
+ browser/base/content/browser-siteProtections.js    |  2 +-
  browser/base/content/browser-sync.js               |  4 +--
+ .../customizableui/CustomizeMode.sys.mjs           |  2 +-
+ .../components/enterprisepolicies/Policies.sys.mjs |  2 +-
  browser/components/preferences/preferences.js      |  2 +-
  browser/components/search/content/searchbar.js     |  2 +-
  .../components/sessionstore/SessionStore.sys.mjs   | 16 ++++-----
@@ -20,6 +23,7 @@
  modules/libpref/init/all.js                        |  4 +--
  netwerk/protocol/http/nsHttpHandler.h              |  4 +--
  nsprpub/pr/src/misc/prtime.c                       |  2 +-
+ remote/webdriver-bidi/modules/root/storage.sys.mjs |  2 +-
  toolkit/components/glean/docs/user/migration.md    |  2 +-
  .../resistfingerprinting/nsRFPService.cpp          |  4 +--
  .../search/AppProvidedSearchEngine.sys.mjs         |  2 +-
@@ -33,12 +37,21 @@
  .../mozapps/extensions/internal/XPIInstall.sys.mjs |  4 +--
  toolkit/xre/nsAppRunner.cpp                        |  4 +--
  uriloader/exthandler/ExtHandlerService.sys.mjs     |  2 +-
- 35 files changed, 98 insertions(+), 98 deletions(-)
+ 39 files changed, 103 insertions(+), 103 deletions(-)
 
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index accada5f51fe..0d9123eeb9b8 100644
+index 9f909cd5d48a..ffe9ea3e20bc 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
+@@ -205,7 +205,7 @@ pref("app.update.langpack.enabled", false);
+   pref("toolkit.backgroundtasks.defaultTimeoutSec", 600);
+ 
+   #if defined(ENABLE_TESTS)
+-    // Test prefs to verify background tasks inheret and override browser prefs
++    // Test prefs to verify background tasks inherit and override browser prefs
+     // correctly.
+     pref("toolkit.backgroundtasks.tests.browserPrefsInherited", 15);
+     pref("toolkit.backgroundtasks.tests.browserPrefsOverriden", 16);
 @@ -356,7 +356,7 @@ pref("browser.warnOnQuit", true);
    pref("browser.warnOnQuitShortcut", true);
  #endif
@@ -137,6 +150,19 @@ index accada5f51fe..0d9123eeb9b8 100644
  
  // Enable the Storage Inspector
  pref("devtools.storage.enabled", true);
+diff --git a/browser/base/content/browser-siteProtections.js b/browser/base/content/browser-siteProtections.js
+index 016596442cca..64b85c4541fe 100644
+--- a/browser/base/content/browser-siteProtections.js
++++ b/browser/base/content/browser-siteProtections.js
+@@ -674,7 +674,7 @@ let ThirdPartyCookies =
+         // of the Preferences UI.
+         Ci.nsICookieService.BEHAVIOR_REJECT_FOREIGN, // Block all third-party cookies
+         Ci.nsICookieService.BEHAVIOR_REJECT_TRACKER, // Block third-party cookies from trackers
+-        Ci.nsICookieService.BEHAVIOR_REJECT_TRACKER_AND_PARTITION_FOREIGN, // Block trackers and patition third-party trackers
++        Ci.nsICookieService.BEHAVIOR_REJECT_TRACKER_AND_PARTITION_FOREIGN, // Block trackers and partition third-party trackers
+         Ci.nsICookieService.BEHAVIOR_REJECT, // Block all cookies
+       ];
+ 
 diff --git a/browser/base/content/browser-sync.js b/browser/base/content/browser-sync.js
 index 4ccf1b337bf6..e046eac32f35 100644
 --- a/browser/base/content/browser-sync.js
@@ -159,6 +185,32 @@ index 4ccf1b337bf6..e046eac32f35 100644
      // can lead to a empty label for 'Send To Device' Menu.
      this.init();
  
+diff --git a/browser/components/customizableui/CustomizeMode.sys.mjs b/browser/components/customizableui/CustomizeMode.sys.mjs
+index 5566ac13904e..fc6566231bc0 100644
+--- a/browser/components/customizableui/CustomizeMode.sys.mjs
++++ b/browser/components/customizableui/CustomizeMode.sys.mjs
+@@ -1400,7 +1400,7 @@ CustomizeMode.prototype = {
+     Services.prefs.setIntPref(gUIDensity.uiDensityPref, mode);
+ 
+     // If the user is choosing a different UI density mode while
+-    // the mode is overriden to Touch, remove the override.
++    // the mode is overridden to Touch, remove the override.
+     if (currentDensity.overridden) {
+       Services.prefs.setBoolPref(gUIDensity.autoTouchModePref, false);
+     }
+diff --git a/browser/components/enterprisepolicies/Policies.sys.mjs b/browser/components/enterprisepolicies/Policies.sys.mjs
+index 68cbbe1c7cd0..97ceb8db9155 100644
+--- a/browser/components/enterprisepolicies/Policies.sys.mjs
++++ b/browser/components/enterprisepolicies/Policies.sys.mjs
+@@ -653,7 +653,7 @@ export var Policies = {
+         );
+       }
+ 
+-      // New Cookie Behavior option takes precendence
++      // New Cookie Behavior option takes precedence
+       let defaultPref = Services.prefs.getDefaultBranch("");
+       let newCookieBehavior = defaultPref.getIntPref(
+         "network.cookie.cookieBehavior"
 diff --git a/browser/components/preferences/preferences.js b/browser/components/preferences/preferences.js
 index a709e3c3a9ac..5bbb9b5608e6 100644
 --- a/browser/components/preferences/preferences.js
@@ -438,7 +490,7 @@ index 6d2a7a58bda0..bb7a492c3a7c 100644
    float penalty=gi->stretch_penalty-(ve->stretch/2-VE_MINSTRETCH);
    if(penalty<0.f)penalty=0.f;
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index 4a581d80291c..8814f24542a9 100644
+index 6384b188a285..49fbd274b24f 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -66,7 +66,7 @@
@@ -640,6 +692,19 @@ index 82bed496f26e..3948eeff44b9 100644
             * defer to PR_FormatTime() for this option.
             */
            PR_FormatTime(tmpBuf, tmpBufSize, "%Z", time);
+diff --git a/remote/webdriver-bidi/modules/root/storage.sys.mjs b/remote/webdriver-bidi/modules/root/storage.sys.mjs
+index cc42ed187efb..3d2c361ef351 100644
+--- a/remote/webdriver-bidi/modules/root/storage.sys.mjs
++++ b/remote/webdriver-bidi/modules/root/storage.sys.mjs
+@@ -750,7 +750,7 @@ class StorageModule extends RootBiDiModule {
+         // This is a workaround until CHIPS support is enabled (see Bug 1898253).
+         // It handles the "context" type partitioning of the `setCookie` command
+         // (when domain is provided) and if partitioned cookies are disabled,
+-        // but ignore `about` pаges.
++        // but ignore `about` pages.
+         const principal =
+           Services.scriptSecurityManager.createContentPrincipalFromOrigin(
+             partitionKey.sourceOrigin
 diff --git a/toolkit/components/glean/docs/user/migration.md b/toolkit/components/glean/docs/user/migration.md
 index 1070fcdc49e6..6ecc75677b28 100644
 --- a/toolkit/components/glean/docs/user/migration.md

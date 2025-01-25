@@ -20,7 +20,7 @@ const PKG = "pkg/"
 # https://archive.mozilla.org/pub/firefox/
 # https://whattrainisitnow.com
 const ESR = v"128".major # 140
-const VER = v"134.0.2-1"
+const VER = v"134.0.2-2"
 
 const VER_REGEX = r"^v(?<ver>\d+\.\d+\.\d+)(?:-(?<rel>\d+))?(?:\+(?<pre>[a-z]+\d+))?$"
 const VER_MATCH = notnothing(match(VER_REGEX, "v$VER"))
@@ -43,6 +43,8 @@ const VER_INFO  = let
 	v = "$ver-$rel"
 	(; v, alpha, beta, rc, moz_ver, moz_src, moz_tar, moz_url)
 end
+
+const HASH_ALGOS = ("sha256", "sha3-512")
 
 const TAR_PREFIX = "snowfox-v"
 const TAR_SUFFIX = ".source.tar.zst"
@@ -266,6 +268,7 @@ const strip_list_msc =
 		"tdsourcetag"
 		"teclient"
 		"timestamp"
+		"track_id"
 		"treatmentID"
 		"ts"
 		"tt_from"

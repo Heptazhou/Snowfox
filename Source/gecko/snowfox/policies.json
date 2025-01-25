@@ -1,11 +1,11 @@
 {
-	"__COMMENT__ More Information": "https://github.com/mozilla/policy-templates/blob/master/README.md",
+	"__COMMENT__ More Information": "https://github.com/mozilla/policy-templates/blob/master/docs/index.md",
 	"policies": {
-		"AppUpdateURL": "https://localhost",
+		"AppUpdateURL": "https://localhost/",
 		"Cookies": {
 			"Allow": [
-				"https://example.com",
-				"https://localhost"
+				"https://example.com/",
+				"https://localhost/"
 			],
 			"Behavior": "reject-tracker-and-partition-foreign",
 			"Locked": false
@@ -19,10 +19,6 @@
 			"OfflineApps": true,
 			"Sessions": true,
 			"SiteSettings": false,
-			"Locked": false
-		},
-		"EncryptedMediaExtensions": {
-			"Enabled": true,
 			"Locked": false
 		},
 		"DisableAppUpdate": true,

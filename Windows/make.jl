@@ -30,12 +30,17 @@ if abspath(PROGRAM_FILE) == @__FILE__
 	@info "sourceurl = " * tag
 	write("sourceurl.txt", tag, "\n")
 	write("version", ver, "\n")
-	for f ∈ filter!(isfile, readdir())
-		endswith(f, r"\.sha[-\d]+") && rm(f)
-	end
-	for f ∈ [L10N_PKG_TAR, TAR_PREFIX * ver * TAR_SUFFIX]' .*
-			[".sha256", ".sha3-512", ""]
-		curl("$url/download/v$ver/$f")
+	for f ∈ (L10N_PKG_TAR, TAR_PREFIX * ver * TAR_SUFFIX)
+		for h ∈ HASH_ALGOS
+			curl("$url/download/v$ver/$f.$(h)", force = true)
+		end
+		try
+			curl("$url/download/v$ver/$f")
+			hash_chk(f)
+		catch
+			curl("$url/download/v$ver/$f", force = true)
+			hash_chk(f)
+		end
 	end
 end
 

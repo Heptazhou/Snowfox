@@ -16,18 +16,24 @@ include("base_func.jl")
 
 if abspath(PROGRAM_FILE) == @__FILE__
 	cmd = "git diff --patch-with-stat --minimal"
+	flt = ":!.vscode/"
+	owd = pwd()
 	ver = "v$(VER.major)"
-	cd("../../Firefox")
+	cd("../../Firefox/")
 	let distance = readstr(`git rev-list --count $ver..HEAD`)
 		@assert 10 < parse(Int, distance) < 100
 	end
-	sh("$cmd $ver~0 HEAD~5 > $ver.patch")
-	sh("$cmd HEAD~5 HEAD~4 > font.patch")
-	sh("$cmd HEAD~4 HEAD~3 > crlf.patch")
-	sh("$cmd HEAD~1 HEAD~0 > typo.patch")
+	sh("$cmd $ver~0 HEAD~5 $flt > $ver.patch")
+	sh("$cmd HEAD~5 HEAD~4 $flt > font.patch")
+	sh("$cmd HEAD~4 HEAD~3 $flt > crlf.patch")
+	sh("$cmd HEAD~1 HEAD~0 $flt > typo.patch")
 	for f ∈ readdir()
 		g = stdpath(@__DIR__, f)
 		endswith(f, ".patch") && @info basename(mv(f, g, force = true))
 	end
+	pause(ante = 1, post = 1)
+	cd(owd)
+	sh("julia locale.jl ../../Firefox/ -k   ")
+	sh("julia patch.jl  ../../Firefox/ -k -t")
 end
 

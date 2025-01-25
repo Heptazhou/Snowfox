@@ -19,9 +19,7 @@ function build()
 	tar = L10N_PKG_TAR
 	@time cd(SRC) do
 		sh("tar Ifc \"$TAR_ZST_18\" $tar $dir")
-		for h ∈ ("sha256", "sha3-512")
-			sh("$(h)sum $tar | tee $tar.$(h)")
-		end
+		hash_gen(tar)
 	end
 	for f ∈ filter!(startswith(tar), readdir(SRC))
 		@info mv(SRC / f, PKG / f, force = true)

@@ -23,17 +23,37 @@ const sh(c::String) = run(`sh -c $c`)
 
 macro skip_ds(path)
 	quote
-		contains($(esc(path)), ".git/") && continue
-		contains($(esc(path)), "/android/") && continue
-		contains($(esc(path)), "/gtest/") && continue
-		contains($(esc(path)), "/node_modules/") && continue
-		contains($(esc(path)), "/test/") && continue
-		contains($(esc(path)), "/testing/") && continue
-		contains($(esc(path)), "/tests/") && continue
+		any(occursin($(esc(path))),
+			[
+				".git/"
+				"/android/"
+				"/benchmarks/"
+				"/ci/"
+				"/crashtests/"
+				"/dist/"
+				"/docs/"
+				"/documentation/"
+				"/fuzztest/"
+				"/gtest/"
+				"/gtests/"
+				"/jsapi-tests/"
+				"/node_modules/"
+				"/perfdocs/"
+				"/PerformanceTests/"
+				"/reftests/"
+				"/test/"
+				"/testdata/"
+				"/testing/"
+				"/tests/"
+				"/unittest/"
+				"/unittests/"
+			],
+		) && continue
 	end
 end
 
-function curl(url::String, f::String = basename(url))::String
+function curl(url::String, f::String = basename(url); force::Bool = false)::String
+	force && rm(f; force)
 	isfile(f) || sh("$CURL $CURL_ARGS -Lo '$f' $url")
 	f
 end
@@ -67,6 +87,17 @@ function expands(str::String)::String
 		str = replace(str, f(uppercasefirst.(tup)))
 	end
 	str
+end
+
+function hash_chk(f::String)
+	for h ∈ HASH_ALGOS
+		sh("$(h)sum -c $(f).$(h)")
+	end
+end
+function hash_gen(f::String)
+	for h ∈ HASH_ALGOS
+		sh("$(h)sum $(f) | tee $(f).$(h)")
+	end
 end
 
 """
