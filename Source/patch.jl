@@ -93,8 +93,8 @@ function patch(x; keep = false, text = false)
 			end
 		end
 	end
-	let ver = "v$(VER.major)", fs = [
-			"$ver.patch"
+	let tag = VER_MAJOR, fs = [
+			"$tag.patch"
 			"crlf.patch"
 			"font.patch"
 			"typo.patch"

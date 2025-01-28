@@ -33,12 +33,12 @@ RUN cd /src && rustup default 1.83 && rustup target add x86_64-pc-windows-msvc &
 
 RUN cd /src && python3.11 mach configure
 RUN cd /src && python3.11 mach build
-RUN cd /src && python3.11 mach buildsymbols
+
 RUN cd /src && python3.11 mach package-multi-locale \
 	--locales `cat browser/locales/shipped-locales` > /dev/null
 
-RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt /pkg \
-	install/sea/* snowfox-* && rm /pkg/*.xpt_artifacts.* || true
+RUN cd /pkg && cp -pvt . /src/obj-*/dist/{install/sea/,snowfox-}* && \
+	rm *.xpt_artifacts.* || true
 RUN cd /pkg && julia 7z.jl && rm 7z.jl
 
 FROM scratch

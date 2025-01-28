@@ -42,5 +42,8 @@ if abspath(PROGRAM_FILE) == @__FILE__
 			hash_chk(f)
 		end
 	end
+	let url = "https://github.com/Heptazhou/Firefox/releases"
+		curl("$url/download/$VER_MAJOR/vs.tar.zst")
+	end
 end
 

@@ -41,6 +41,7 @@ macro skip_ds(path)
 				"/perfdocs/"
 				"/PerformanceTests/"
 				"/reftests/"
+				"/source-test/"
 				"/test/"
 				"/testdata/"
 				"/testing/"
