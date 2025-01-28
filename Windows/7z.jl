@@ -12,8 +12,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Exts
-
 const sh(c::String) = run(`sh -c $c`) # include not allowed here
 
 const fs = filter!(isfile, filter!(endswith(".zip"), readdir()))
@@ -21,9 +19,8 @@ const fs = filter!(isfile, filter!(endswith(".zip"), readdir()))
 const as = "-m0=lzma -md3840m -mfb273 -mmt2 -mqs -ms -mtm- -mx9 -stl"
 
 if abspath(PROGRAM_FILE) == @__FILE__
-	if !@try parse(Bool, ENV["JULIA_SYS_ISDOCKER"]) false
-		@warn "Not allowed."
-		return
+	if !haskey(ENV, "MOZBUILD_STATE_PATH")
+		return @warn "Not allowed."
 	end
 	for fn ∈ map(first ∘ splitext, fs)
 		sh.(["7z x     $fn.zip snowfox"])

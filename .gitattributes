@@ -1,5 +1,6 @@
 
 * -linguist-vendored linguist-detectable
+*.mozconfig linguist-language=Shell
 *.patch linguist-vendored
 */gecko/** linguist-vendored
 crlf.patch -text

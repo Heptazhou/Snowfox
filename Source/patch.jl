@@ -75,6 +75,9 @@ function patch(x; keep = false, text = false)
 	end
 	keep && return
 	cd(dir) do
+		let url = "https://github.com/Heptazhou/Snowfox/releases"
+			write("sourceurl.txt", "$url/tag/v", VER_INFO.v, "\n")
+		end
 		cd("browser/config/") do
 			f = "version.txt"
 			g = "version_display.txt"
@@ -93,8 +96,8 @@ function patch(x; keep = false, text = false)
 			end
 		end
 	end
-	let ver = "v$(VER.major)", fs = [
-			"$ver.patch"
+	let tag = VER_MAJOR, fs = [
+			"$tag.patch"
 			"crlf.patch"
 			"font.patch"
 			"typo.patch"

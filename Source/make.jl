@@ -37,8 +37,27 @@ function clean()
 end
 
 function fetch()
+	tar = VER_INFO.moz_tar
+	url = VER_INFO.moz_url
 	@time cd(SRC) do
-		curl(VER_INFO.moz_url)
+		curl(url, tar)
+		let url = replace(url, "/source/$tar" => "/SHA256SUMS")
+			sha = curl(url, "$tar.sha256", force = true)
+			str = only(filter!(endswith("source/$tar"), readlines(sha)))
+			write(sha, str[1:64], " *", tar, "\n") # 256 / log2(16)
+		end
+		txt = "$tar.txt"
+		if isfile(txt)
+			hash_chk(tar)
+		else
+			hash_chk(tar, "sha256")
+			hash_gen(tar)
+			write(txt, url, "\n")
+		end
+	end
+	tar *= '.'
+	for f ∈ filter!(startswith(tar), readdir(SRC))
+		@info cp(SRC / f, PKG / f, force = true)
 	end
 end
 

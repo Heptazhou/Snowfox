@@ -20,8 +20,9 @@ const PKG = "pkg/"
 # https://archive.mozilla.org/pub/firefox/
 # https://whattrainisitnow.com
 const ESR = v"128".major # 140
-const VER = v"134.0.2-2"
+const VER = v"134.0.2-3"
 
+const VER_MAJOR = string(:v, VER.major)
 const VER_REGEX = r"^v(?<ver>\d+\.\d+\.\d+)(?:-(?<rel>\d+))?(?:\+(?<pre>[a-z]+\d+))?$"
 const VER_MATCH = notnothing(match(VER_REGEX, "v$VER"))
 const VER_INFO  = let
@@ -66,7 +67,7 @@ const CURL_ARGS = let args = [
 	"-A\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:$ESR.0) Gecko/20100101 Firefox/$ESR.0\""
 	"-w\"%{url}\\n\""
 ]
-	join(args, " ")
+	join(args, ' ')
 end
 
 # https://duckduckgo.com/favicon.ico

@@ -22,18 +22,18 @@
 
 FROM archlinux:base-devel
 
-ENV MIRRORLIST=/etc/pacman.d/mirrorlist MOZBUILD_STATE_PATH=/moz RUSTUP_HOME=/rust \
-	PATH=/bin:$PATH
+ENV PATH=/bin:$PATH MOZBUILD_STATE_PATH=/moz RUSTUP_HOME=/rust
 
-RUN sed -re 's/(SigLevel) .+/\1 = Optional/g' -e 's/NoProgressBar/Color/g' -i /etc/pacman.conf && \
-	echo -e 'Server = https://mirrors.dotsrc.org/archlinux/$repo/os/$arch' >> $MIRRORLIST      && \
-	echo -e 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' >> $MIRRORLIST      && \
-	tac $MIRRORLIST > $MIRRORLIST~ && mv $MIRRORLIST{~,} && pacman-key --init
+RUN pacman-key --init && mkdir /moz /rust && cat<<< \
+	'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch'<<< \
+	'Server = https://mirrors.dotsrc.org/archlinux/$repo/os/$arch'<<< \
+	`< /etc/pacman.d/mirrorlist` > /etc/pacman.d/mirrorlist && \
+	sed -re 's/(SigLevel) .+/\1 = Optional/g' -e 's/NoProgressBar/Color/g' -i /etc/pacman.conf
 
-RUN yes | pacman -Syu 7zip git grml-zsh-config julia sha3sum && \
-	yes | pacman -S --needed bash-completion fastfetch mc nano zsh-completions \
-	clang llvm msitools nasm nodejs-lts-jod python-pip wasi-{compiler-rt,libc++{,abi}} \
-	cbindgen cross dump_syms unzip upx wget && yes | pacman -Scc && chsh -s /bin/zsh
+RUN yes | pacman -Syu git grml-zsh-config julia nano-syntax-highlighting sha3sum && \
+	yes | pacman -S --needed bash-completion fastfetch less mc zsh-completions \
+	clang llvm nasm nodejs-lts-jod wasi-{compiler-rt,libc++{,abi}} \
+	cbindgen rustup unzip && yes | pacman -Scc && chsh -s /bin/zsh
 
 RUN  url=https://github.com/0h7z/aur/releases/download && yes | pacman -U \
 	$url/nsis-v3.10-1/nsis-3.10-1-x86_64.pkg.tar.zst \
@@ -41,8 +41,9 @@ RUN  url=https://github.com/0h7z/aur/releases/download && yes | pacman -U \
 	$url/wine64-v10.0-2/wine64-10.0-2-x86_64.pkg.tar.zst && yes | pacman -Scc
 
 RUN cd /bin && ln -s clear cls && ln -s nano nn && ln -s nano vi && \
-	git config --global pull.rebase true && git config --global safe.directory "*" && \
-	git config --global user.name root && git config --global user.email root@localhost && \
-	julia -ie 'using Pkg; pkg"registry add General https://github.com/0h7z/0hjl.git"; exit()' && \
+	git config --global safe.directory "*" && \
+	git config --system log.date iso8601 && git config --global user.email root@localhost && \
+	git config --system pull.rebase true && git config --global user.name  root           && \
+	julia -ie 'using Pkg; pkg"registry add General https://github.com/0h7z/0hjl"; exit()' && \
 	julia -ie 'using Pkg; pkg"registry status; add Exts"; exit()'
 

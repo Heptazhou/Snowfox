@@ -16,31 +16,9 @@ include("base_func.jl")
 
 # https://devguide.python.org/versions/
 # https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html#schedule
+# https://github.com/Heptazhou/Firefox/blob/master/build/rust/windows/Cargo.toml
 # https://releases.rs
 const VPY, _ = "3.11", "../../Firefox/mach"
 const VRS, _ = "1.83", "win-make.dockerfile"
-
-if abspath(PROGRAM_FILE) == @__FILE__
-	if !@try parse(Bool, ENV["JULIA_SYS_ISDOCKER"]) false
-		return @warn "Not allowed."
-	end
-	ver = VER_INFO.v
-	url = "https://github.com/Heptazhou/Snowfox/releases"
-	tag = "$url/tag/v$ver"
-	@info "sourceurl = " * tag
-	write("sourceurl.txt", tag, "\n")
-	write("version", ver, "\n")
-	for f ∈ (L10N_PKG_TAR, TAR_PREFIX * ver * TAR_SUFFIX)
-		for h ∈ HASH_ALGOS
-			curl("$url/download/v$ver/$f.$(h)", force = true)
-		end
-		try
-			curl("$url/download/v$ver/$f")
-			hash_chk(f)
-		catch
-			curl("$url/download/v$ver/$f", force = true)
-			hash_chk(f)
-		end
-	end
-end
+const WRS, _ = "0.58", "win-base.dockerfile"
 

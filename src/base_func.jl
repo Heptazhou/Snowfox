@@ -21,6 +21,12 @@ Base.:/(s1::String, ss::String...)::String = stdpath(s1, ss...)
 
 const sh(c::String) = run(`sh -c $c`)
 
+const hash_chk(f::String, h::SymOrStr) = sh("$(h)sum -c $(f).$(h)")
+const hash_gen(f::String, h::SymOrStr) = sh("$(h)sum $(f) | tee $(f).$(h)")
+
+const hash_chk(f::String, hs::VecOrTup = HASH_ALGOS) = hash_chk.(f, hs)
+const hash_gen(f::String, hs::VecOrTup = HASH_ALGOS) = hash_gen.(f, hs)
+
 macro skip_ds(path)
 	quote
 		any(occursin($(esc(path))),
@@ -41,6 +47,7 @@ macro skip_ds(path)
 				"/perfdocs/"
 				"/PerformanceTests/"
 				"/reftests/"
+				"/source-test/"
 				"/test/"
 				"/testdata/"
 				"/testing/"
@@ -87,17 +94,6 @@ function expands(str::String)::String
 		str = replace(str, f(uppercasefirst.(tup)))
 	end
 	str
-end
-
-function hash_chk(f::String)
-	for h ∈ HASH_ALGOS
-		sh("$(h)sum -c $(f).$(h)")
-	end
-end
-function hash_gen(f::String)
-	for h ∈ HASH_ALGOS
-		sh("$(h)sum $(f) | tee $(f).$(h)")
-	end
 end
 
 """

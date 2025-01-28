@@ -22,27 +22,28 @@
 
 FROM snowfox:win-arch
 
-ENV JULIA_NUM_THREADS=auto \
-	JULIA_SYS_ISDOCKER=1
+ENV JULIA_NUM_THREADS=auto
 
-RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
-	git clone https://github.com/Heptazhou/Snowfox.git && cd /Snowfox/Windows && \
-	julia make.jl
+RUN cd /moz && curl -LR -fw"%{url}\n" --retry 3 --retry-delay 5 \
+	https://crates.io/api/v1/crates/windows/${WRS:=0.58.0}/download -o rs.tar.gz \
+	https://github.com/Heptazhou/Firefox/releases/download/v134/vs.tar.zst -O && \
+	tar fx rs.tar.gz  && rm rs.tar.gz  && mv windows-{$WRS,rs} && \
+	tar fx vs.tar.zst && rm vs.tar.zst
+
+RUN yes | pacman -Syu && yes | pacman -Scc && git clone \
+	https://github.com/Heptazhou/Snowfox.git && cd /Snowfox/Source && \
+	julia make.jl fetch && julia l10n.jl fetch
 
 ADD https://api.github.com/repos/Heptazhou/Snowfox/git/refs/heads/master version.json
 
-RUN yes | pacman -Syu && yes | pacman -Scc && cd / && \
-	cd /Snowfox/Windows && git pull -ftp && \
-	julia make.jl
+RUN yes | pacman -Syu && yes | pacman -Scc && cd /Snowfox/Source && git pull -ftp && \
+	julia l10n.jl fetch unpack patch && \
+	julia make.jl fetch unpack patch && \
+	mv -v src/l10n /moz/l10n-central && \
+	mv -v src/snowfox-*/ -T /src && mkdir /pkg
 
-RUN cd /Snowfox/Windows && mkdir -p $MOZBUILD_STATE_PATH $RUSTUP_HOME && \
-	ln -s /src/mach /bin/mach && mkdir /pkg && \
-	tar fx snowfox-v`cat version`.source.tar.zst && \
-	mv -fv snowfox-v`cat version` src && cp -t /pkg 7z.jl && \
-	rm -fr snowfox-*.zst && mv src / && cp -t /src mozconfig sourceurl.txt
-
-RUN cd /Snowfox/Windows && version=`cat version` && l10n=`realpath l10n.tar.zst` && \
-	cd $MOZBUILD_STATE_PATH && tar Ufx $l10n && rm $l10n && \
-	mv -fv l10n l10n-central && curl -LO --fail-with-body \
-	https://github.com/Heptazhou/Firefox/releases/download/v${version/.*/}/vs.tar.zst
+RUN cd /Snowfox/Windows && \
+	cp -t /pkg 7z.jl && \
+	cp -t /src *.mozconfig && \
+	ln -s /src/mach /bin/mach
 

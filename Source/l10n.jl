@@ -37,8 +37,10 @@ function clean()
 end
 
 function fetch()
+	tar = L10N_SRC_TAR
+	url = L10N_SRC_URL
 	@time cd(SRC) do
-		curl(L10N_SRC_URL, L10N_SRC_TAR)
+		curl(url, tar)
 	end
 end
 

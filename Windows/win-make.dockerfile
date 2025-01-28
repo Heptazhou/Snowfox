@@ -22,27 +22,28 @@
 
 FROM snowfox:win-base
 
-ENV CARGO_BUILD_JOBS=1 \
-	CARGO_INCREMENTAL=0
+ARG ARCH=x86-64
 
-RUN cd /src && rustup default 1.83 && rustup target add x86_64-pc-windows-msvc && \
-	ver=`cargo pkgid windows | grep -Po '#\K.+'` && cd $MOZBUILD_STATE_PATH && \
-	curl -LR https://crates.io/api/v1/crates/windows/$ver/download -o windows.gz && \
-	tar Ufx windows.gz && rm windows.gz && mv windows-{$ver,rs} && \
-	tar Ufx vs.tar.zst && rm vs.tar.zst && systemd-machine-id-setup
+ENV CARGO_BUILD_JOBS=1 \
+	MOZCONFIG=$ARCH.mozconfig
+
+RUN rustup default 1.83 && \
+	rustup target add {i686,x86_64}-pc-windows-msvc && \
+	systemd-machine-id-setup
 
 RUN cd /src && python3.11 mach configure
 RUN cd /src && python3.11 mach build
-RUN cd /src && python3.11 mach buildsymbols
-RUN cd /src && python3.11 mach package-multi-locale \
-	--locales `cat browser/locales/shipped-locales` > /dev/null
+RUN cd /src && python3.11 mach package-multi-locale > /dev/null
 
-RUN cd /src/obj-x86_64-pc-mingw32/dist && cp -pvt /pkg \
-	install/sea/* snowfox-* && rm /pkg/*.xpt_artifacts.* || true
+RUN cd /src/obj-*-w64-mingw32/dist/ && \
+	cp -pvt /pkg install/sea/* snowfox-* && \
+	rm /pkg/*.xpt_artifacts.* || true
 RUN cd /pkg && julia 7z.jl && rm 7z.jl
 
 FROM scratch
 COPY --from=0 /pkg /pkg
 
+#
 # % id=`docker create snowfox:win-make -q` && docker cp $id:pkg . -q && docker rm $id && julia move.jl
+#
 

@@ -14,7 +14,7 @@
  browser/branding/branding-common.mozbuild          |   3 +-
  .../modules/FeatureCalloutMessages.sys.mjs         |   1 +
  .../enterprisepolicies/content/aboutPolicies.css   |   8 +
- .../enterprisepolicies/content/aboutPolicies.js    |  30 ++-
+ .../enterprisepolicies/content/aboutPolicies.js    |  32 +--
  .../schemas/policies-schema.json                   |   2 -
  .../installerprefs/InstallerPrefs.sys.mjs          |   2 +-
  .../newtab/content-src/components/Logo/Logo.jsx    |   4 +-
@@ -53,6 +53,8 @@
  browser/moz.configure                              |   8 +-
  .../privatebrowsing/aboutPrivateBrowsing.css       |   3 +
  .../themes/shared/tabbrowser/tab-hover-preview.css |   2 +-
+ build/moz.configure/init.configure                 |   4 +-
+ build/moz.configure/rust.configure                 |   9 +
  build/variables.py                                 |   7 +-
  .../client/aboutdebugging/src/actions/runtimes.js  |   1 +
  .../client/framework/browser-toolbox/window.js     |   2 +-
@@ -107,8 +109,9 @@
  modules/libpref/init/all.js                        |  44 ++--
  moz.build                                          |   1 +
  netwerk/protocol/http/nsHttpHandler.cpp            |  18 +-
- python/mach/mach/telemetry.py                      |   5 +-
+ python/mach/mach/telemetry.py                      |   4 +-
  python/mozbuild/mozbuild/action/exe_7z_archive.py  |   1 +
+ python/mozbuild/mozbuild/mach_commands.py          |  10 +-
  .../html-build-viewer/build_resources.html         |   4 +-
  .../manager/pki/resources/content/clientauthask.js |   4 +-
  services/settings/Utils.sys.mjs                    |   4 +-
@@ -147,14 +150,15 @@
  .../locales/en-US/toolkit/branding/brandings.ftl   |  10 +-
  toolkit/locales/en-US/toolkit/pdfviewer/viewer.ftl |   4 +-
  toolkit/modules/DateTimePickerPanel.sys.mjs        |   4 +-
- toolkit/moz.configure                              |  14 +-
+ toolkit/moz.configure                              |  20 +-
  toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp |   4 +-
  .../extensions/internal/AddonSettings.sys.mjs      |   2 +-
  toolkit/themes/shared/aboutServiceWorkers.css      |   5 +
+ toolkit/themes/shared/aboutSupport.css             |   8 +
  toolkit/themes/shared/in-content/common-shared.css |   1 +
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
- 156 files changed, 986 insertions(+), 659 deletions(-)
+ 160 files changed, 1018 insertions(+), 665 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -1018,7 +1022,7 @@ index 5fbeb16ba201..e6a3eef93230 100644
  
  /*
 diff --git a/browser/components/enterprisepolicies/content/aboutPolicies.js b/browser/components/enterprisepolicies/content/aboutPolicies.js
-index a7a380c075b1..085389f6ff9c 100644
+index a7a380c075b1..cd73e55ab51e 100644
 --- a/browser/components/enterprisepolicies/content/aboutPolicies.js
 +++ b/browser/components/enterprisepolicies/content/aboutPolicies.js
 @@ -17,6 +17,9 @@ function col(text, className) {
@@ -1055,6 +1059,15 @@ index a7a380c075b1..085389f6ff9c 100644
      }
    }
  }
+@@ -111,7 +112,7 @@ function generateActivePolicies(data) {
+     } else {
+       let row = document.createElement("tr");
+       row.appendChild(col(policyName));
+-      row.appendChild(col(JSON.stringify(data[policyName])));
++      row.appendChild(col(JSON.stringify(data[policyName], null, "\t")));
+       row.classList.add(color_class, "last_row");
+       new_cont.appendChild(row);
+     }
 @@ -138,6 +139,9 @@ function generatePolicy(data, row, depth, new_cont, islast, arr_sep = false) {
    const color_class = row.classList.contains("odd") ? "odd" : "even";
  
@@ -2465,6 +2478,66 @@ index 90680fb5870b..1d1f1e12c0fe 100644
    font-weight: var(--font-weight-bold);
  }
  
+diff --git a/build/moz.configure/init.configure b/build/moz.configure/init.configure
+index 9bf4bb29a400..be610a94a67a 100644
+--- a/build/moz.configure/init.configure
++++ b/build/moz.configure/init.configure
+@@ -484,12 +484,12 @@ def split_triplet(triplet, allow_wasi=False):
+         canonical_kernel = "kFreeBSD"
+     elif os.startswith("gnu"):
+         canonical_os = canonical_kernel = "GNU"
+-    elif os.startswith("mingw") or os in ("windows-msvc", "windows-gnu"):
++    elif os.startswith("mingw") or os in ("windows-msvc", "windows-gnu", "windows-gnullvm"):
+         canonical_os = canonical_kernel = "WINNT"
+         if not os.startswith("mingw"):
+             if os == "windows-msvc":
+                 abi = "msvc"
+-            elif os == "windows-gnu":
++            elif os == "windows-gnu" or os == "windows-gnullvm":
+                 abi = "mingw"
+             # Many things down the line are looking for the string "mingw32"
+             # until they are all fixed, we pretend that's the raw os we had
+diff --git a/build/moz.configure/rust.configure b/build/moz.configure/rust.configure
+index a815e5bb2ce3..faffea15bdb7 100644
+--- a/build/moz.configure/rust.configure
++++ b/build/moz.configure/rust.configure
+@@ -295,6 +295,7 @@ def detect_rustc_target(
+     candidates = rust_supported_targets.get(
+         (host_or_target.cpu, host_or_target.endianness, host_or_target.os), []
+     )
++    log.debug(f"[detect_rustc_target] candidates = {[c.rust_target for c in candidates]}")
+ 
+     def find_candidate(candidates):
+         if len(candidates) == 1:
+@@ -309,6 +310,8 @@ def detect_rustc_target(
+             if host_or_target.abi:
+                 if host_or_target.abi == "msvc":
+                     suffix = "windows-msvc"
++                elif host_or_target.abi == "mingw" and compiler_info.type != "gcc":
++                    suffix = "windows-gnullvm"
+                 elif host_or_target.abi == "mingw":
+                     suffix = "windows-gnu"
+             elif compiler_info.type in ("gcc", "clang"):
+@@ -332,6 +335,8 @@ def detect_rustc_target(
+ 
+             if len(narrowed) == 1:
+                 return narrowed[0].rust_target
++            elif narrowed:
++                candidates = narrowed
+ 
+         # - For arm targets, correlate with arm_target
+         #   we could be more thorough with the supported rust targets, but they
+@@ -518,6 +523,10 @@ def rust_host_triple(
+ def rust_target_triple(
+     rustc, target, compiler_info, rust_supported_targets, arm_target
+ ):
++    log.debug(f"[rust_target_triple] rustc         = {rustc             }")
++    log.debug(f"[rust_target_triple] target        = {target.alias      }")
++    log.debug(f"[rust_target_triple] compiler_info = {compiler_info.type}")
++
+     rustc_target = detect_rustc_target(
+         target, compiler_info, arm_target, rust_supported_targets
+     )
 diff --git a/build/variables.py b/build/variables.py
 index 5996269c03af..01ef89eddf23 100644
 --- a/build/variables.py
@@ -4375,21 +4448,27 @@ index 95b5382f49c2..e83aba5ed3bd 100644
                                     userSetDocumentAcceptHeader);
        if (NS_FAILED(rv)) {
 diff --git a/python/mach/mach/telemetry.py b/python/mach/mach/telemetry.py
-index c73498a066bf..b02315266a91 100644
+index c73498a066bf..50feeab44d3c 100644
 --- a/python/mach/mach/telemetry.py
 +++ b/python/mach/mach/telemetry.py
-@@ -95,10 +95,7 @@ def is_applicable_telemetry_environment():
+@@ -95,7 +95,7 @@ def is_applicable_telemetry_environment():
  
  
  def is_telemetry_enabled(settings):
 -    if os.environ.get("DISABLE_TELEMETRY") == "1":
--        return False
--
--    return settings.mach_telemetry.is_enabled
-+    return False
++    if os.environ.get("DISABLE_TELEMETRY") == "1" or True:
+         return False
  
+     return settings.mach_telemetry.is_enabled
+@@ -284,7 +284,7 @@ def initialize_telemetry_setting(settings, topsrcdir: str, state_dir: str):
+     if state_dir is not None:
+         state_dir = Path(state_dir)
  
- def arcrc_path():
+-    if os.environ.get("DISABLE_TELEMETRY") == "1":
++    if os.environ.get("DISABLE_TELEMETRY") == "1" or True:
+         return
+ 
+     try:
 diff --git a/python/mozbuild/mozbuild/action/exe_7z_archive.py b/python/mozbuild/mozbuild/action/exe_7z_archive.py
 index b0d35be2bf88..a0ae0aa84c12 100644
 --- a/python/mozbuild/mozbuild/action/exe_7z_archive.py
@@ -4402,6 +4481,34 @@ index b0d35be2bf88..a0ae0aa84c12 100644
              ]
          )
  
+diff --git a/python/mozbuild/mozbuild/mach_commands.py b/python/mozbuild/mozbuild/mach_commands.py
+index 316008e49bb7..51956ebf7fb9 100644
+--- a/python/mozbuild/mozbuild/mach_commands.py
++++ b/python/mozbuild/mozbuild/mach_commands.py
+@@ -3245,8 +3245,8 @@ def repackage_desktop_file(
+     "--locales",
+     metavar="LOCALES",
+     nargs="+",
+-    required=True,
+-    help="List of locales to package",
++    required=False,
++    help="List of locales to package (default browser/locales/shipped-locales)",
+ )
+ @CommandArgument(
+     "--verbose", action="store_true", help="Log informative status messages."
+@@ -3262,6 +3262,12 @@ def package_l10n(command_context, verbose=False, locales=[]):
+         )
+         return 1
+ 
++    if not locales:
++        with open(mozpath.join(
++            command_context.topsrcdir, "browser/locales/shipped-locales",
++        ), "r") as io:
++            locales = io.read().splitlines()
++
+     locales = sorted(locale for locale in locales if locale != "en-US")
+ 
+     append_env = {
 diff --git a/python/mozbuild/mozbuild/resources/html-build-viewer/build_resources.html b/python/mozbuild/mozbuild/resources/html-build-viewer/build_resources.html
 index 9daf30178bb0..7bd0a08e2f7a 100644
 --- a/python/mozbuild/mozbuild/resources/html-build-viewer/build_resources.html
@@ -5295,9 +5402,27 @@ index f20f2c1668d6..ac7e3c3ac6e8 100644
      return {
        firstDayOfWeek,
 diff --git a/toolkit/moz.configure b/toolkit/moz.configure
-index 9c3bb513537f..95d1b70d262f 100644
+index 9c3bb513537f..61c5fad4e8e7 100644
 --- a/toolkit/moz.configure
 +++ b/toolkit/moz.configure
+@@ -84,7 +84,7 @@ set_config("MOZ_INCLUDE_SOURCE_INFO", True, when="MOZ_INCLUDE_SOURCE_INFO")
+ option(
+     "--with-distribution-id",
+     nargs=1,
+-    default="org.mozilla",
++    default="com.0h7z",
+     help="Set distribution-specific id",
+ )
+ set_config("MOZ_DISTRIBUTION_ID", depends("--with-distribution-id")(lambda v: v[0]))
+@@ -115,7 +115,7 @@ def all_configure_options():
+         # consecutive.
+         # Also ignore OLD_CONFIGURE and MOZCONFIG because they're not
+         # interesting.
+-        if option == previous or option.env in ("OLD_CONFIGURE", "MOZCONFIG"):
++        if option == previous or option.env in ("OLD_CONFIGURE", "MOZCONFIG", "MOZBUILD_STATE_PATH"):
+             continue
+         previous = option
+         value = __sandbox__._value_for(option)
 @@ -869,9 +869,9 @@ set_define("MOZ_AV1", av1)
  option("--disable-jxl", help="Disable jxl image support")
  
@@ -5320,6 +5445,15 @@ index 9c3bb513537f..95d1b70d262f 100644
      help="Enforce that add-ons are signed by the trusted root",
  )
  
+@@ -2739,7 +2739,7 @@ with only_when(requires_wasm_sandboxing & compile_environment):
+         "--with-wasi-sysroot",
+         env="WASI_SYSROOT",
+         nargs=1,
+-        help="Path to wasi sysroot for wasm sandboxing",
++        help="Path to wasi sysroot for wasm sandboxing (default /usr/share/wasi-sysroot)",
+     )
+ 
+     @depends("--with-wasi-sysroot", requires_wasm_sandboxing)
 @@ -2753,7 +2753,7 @@ with only_when(requires_wasm_sandboxing & compile_environment):
      @imports("os")
      def wasi_sysroot(wasi_sysroot, bootstrapped_sysroot):
@@ -5391,6 +5525,25 @@ index ae51b00c707f..288df721f369 100644
  .active {
    display: block;
  }
+diff --git a/toolkit/themes/shared/aboutSupport.css b/toolkit/themes/shared/aboutSupport.css
+index ff97226aee00..9adac4e2c7af 100644
+--- a/toolkit/themes/shared/aboutSupport.css
++++ b/toolkit/themes/shared/aboutSupport.css
+@@ -50,6 +50,14 @@ td.integer {
+   }
+ }
+ 
++#media-output-devices-tbody,
++#media-input-devices-tbody {
++  tr > td:nth-child(2) {
++    overflow-wrap: anywhere;
++    word-break: break-all;
++  }
++}
++
+ #codec-table {
+   text-align: center;
+   white-space: nowrap;
 diff --git a/toolkit/themes/shared/in-content/common-shared.css b/toolkit/themes/shared/in-content/common-shared.css
 index 38e13e0436ee..96cabcb91dbb 100644
 --- a/toolkit/themes/shared/in-content/common-shared.css
