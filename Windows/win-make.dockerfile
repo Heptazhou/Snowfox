@@ -16,34 +16,33 @@
 # % docker build -t snowfox:win-make -< win-make.dockerfile
 # % docker images
 #
-# % docker container prune -f
 # % docker system prune [-af]
 #
 
 FROM snowfox:win-base
 
-ARG ARCH=x86-64
+RUN cd /src && \
+	rustup default 1.84 && \
+	ln -sf {x86-64.,}mozconfig && \
+	rustup target add x86_64-pc-windows-msvc && \
+	# ln -sf {x86-32.,}mozconfig && \
+	# rustup target add i686-pc-windows-msvc && \
+	cat mozconfig
 
-ENV CARGO_BUILD_JOBS=1 \
-	MOZCONFIG=$ARCH.mozconfig
+RUN cd /src && mach configure
+RUN cd /src && mach compare-locales -q browser/locales/l10n.toml /moz/l10n zh-CN | \
+	rg --passthrough "missing"; (($?))
 
-RUN rustup default 1.83 && \
-	rustup target add {i686,x86_64}-pc-windows-msvc && \
-	systemd-machine-id-setup
+RUN cd /src && mach build
+RUN cd /src && mach package-multi-locale > /dev/null
 
-RUN cd /src && python3.11 mach configure
-RUN cd /src && python3.11 mach build
-RUN cd /src && python3.11 mach package-multi-locale > /dev/null
-
-RUN cd /src/obj-*-w64-mingw32/dist/ && \
-	cp -pvt /pkg install/sea/* snowfox-* && \
-	rm /pkg/*.xpt_artifacts.* || true
+RUN cd /src && cp -pt /pkg -v obj-*/dist/snowfox-*
 RUN cd /pkg && julia 7z.jl && rm 7z.jl
 
 FROM scratch
 COPY --from=0 /pkg /pkg
 
 #
-# % id=`docker create snowfox:win-make -q` && docker cp $id:pkg . -q && docker rm $id && julia move.jl
+# % id=`docker create snowfox:win-make -q` && docker cp $id:pkg . -q && docker rm $id
 #
 

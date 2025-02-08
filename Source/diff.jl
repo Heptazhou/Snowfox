@@ -35,5 +35,11 @@ if abspath(PROGRAM_FILE) == @__FILE__
 	cd(owd)
 	sh("julia locale.jl ../../Firefox/ -k   ")
 	sh("julia patch.jl  ../../Firefox/ -k -t")
+	for d ∈ [
+		"../../firefox-l10n-source/"
+		"../../firefox-l10n/zh-CN/"
+	]
+		isdir(d) && sh("julia locale.jl $(d)")
+	end
 end
 

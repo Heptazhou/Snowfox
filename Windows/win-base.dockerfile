@@ -16,7 +16,6 @@
 # % docker build -t snowfox:win-base -< win-base.dockerfile
 # % docker images
 #
-# % docker container prune -f
 # % docker system prune [-af]
 #
 
@@ -26,7 +25,7 @@ ENV JULIA_NUM_THREADS=auto
 
 RUN cd /moz && curl -LR -fw"%{url}\n" --retry 3 --retry-delay 5 \
 	https://crates.io/api/v1/crates/windows/${WRS:=0.58.0}/download -o rs.tar.gz \
-	https://github.com/Heptazhou/Firefox/releases/download/v134/vs.tar.zst -O && \
+	https://github.com/Heptazhou/Firefox/releases/download/v135/vs.tar.zst -O && \
 	tar fx rs.tar.gz  && rm rs.tar.gz  && mv windows-{$WRS,rs} && \
 	tar fx vs.tar.zst && rm vs.tar.zst
 
@@ -39,11 +38,11 @@ ADD https://api.github.com/repos/Heptazhou/Snowfox/git/refs/heads/master version
 RUN yes | pacman -Syu && yes | pacman -Scc && cd /Snowfox/Source && git pull -ftp && \
 	julia l10n.jl fetch unpack patch && \
 	julia make.jl fetch unpack patch && \
-	mv -v src/l10n /moz/l10n-central && \
+	ln -v src/l10n -srt /moz && \
 	mv -v src/snowfox-*/ -T /src && mkdir /pkg
 
 RUN cd /Snowfox/Windows && \
 	cp -t /pkg 7z.jl && \
-	cp -t /src *.mozconfig && \
+	cp -t /src -a {,*.}mozconfig && \
 	ln -s /src/mach /bin/mach
 

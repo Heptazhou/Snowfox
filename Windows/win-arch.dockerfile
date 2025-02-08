@@ -16,7 +16,6 @@
 # % docker build -t snowfox:win-arch -< win-arch.dockerfile
 # % docker images
 #
-# % docker container prune -f
 # % docker system prune [-af]
 #
 
@@ -31,9 +30,9 @@ RUN pacman-key --init && mkdir /moz /rust && cat<<< \
 	sed -re 's/(SigLevel) .+/\1 = Optional/g' -e 's/NoProgressBar/Color/g' -i /etc/pacman.conf
 
 RUN yes | pacman -Syu git grml-zsh-config julia nano-syntax-highlighting sha3sum && \
-	yes | pacman -S --needed bash-completion fastfetch less mc zsh-completions \
-	clang llvm nasm nodejs-lts-jod wasi-{compiler-rt,libc++{,abi}} \
-	cbindgen rustup unzip && yes | pacman -Scc && chsh -s /bin/zsh
+	yes | pacman -S --needed bash-completion fastfetch less mc tree zsh-completions \
+	clang llvm nodejs-lts-jod ripgrep rustup xclip \
+	cbindgen nasm unzip upx wasi-{compiler-rt,libc++{,abi}} && yes | pacman -Scc
 
 RUN  url=https://github.com/0h7z/aur/releases/download && yes | pacman -U \
 	$url/nsis-v3.10-1/nsis-3.10-1-x86_64.pkg.tar.zst \

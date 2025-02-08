@@ -19,4 +19,5 @@ ac_add_options --enable-update-channel=release
 ac_add_options --target=x86_64-w64-mingw32
 ac_add_options --with-app-basename=Snowfox
 ac_add_options --with-branding=browser/branding/snowfox
+ac_add_options --with-l10n-base=/moz/l10n
 ac_add_options --with-unsigned-addon-scopes=app,system

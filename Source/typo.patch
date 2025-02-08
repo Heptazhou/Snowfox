@@ -23,7 +23,13 @@
  modules/libpref/init/all.js                        |  4 +--
  netwerk/protocol/http/nsHttpHandler.h              |  4 +--
  nsprpub/pr/src/misc/prtime.c                       |  2 +-
+ python/mozbuild/mozbuild/backend/recursivemake.py  |  2 +-
  remote/webdriver-bidi/modules/root/storage.sys.mjs |  2 +-
+ .../compare_locales/compare/content.py             |  2 +-
+ .../compare_locales/compare_locales/merge.py       |  4 +--
+ .../compare_locales/compare_locales/paths/ini.py   |  4 +--
+ .../compare_locales/paths/matcher.py               |  4 +--
+ .../python/moz.l10n/moz/l10n/paths/config.py       |  2 +-
  toolkit/components/glean/docs/user/migration.md    |  2 +-
  .../resistfingerprinting/nsRFPService.cpp          |  4 +--
  .../search/AppProvidedSearchEngine.sys.mjs         |  2 +-
@@ -37,13 +43,13 @@
  .../mozapps/extensions/internal/XPIInstall.sys.mjs |  4 +--
  toolkit/xre/nsAppRunner.cpp                        |  4 +--
  uriloader/exthandler/ExtHandlerService.sys.mjs     |  2 +-
- 39 files changed, 103 insertions(+), 103 deletions(-)
+ 45 files changed, 112 insertions(+), 112 deletions(-)
 
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 9f909cd5d48a..ffe9ea3e20bc 100644
+index 3d0b3613be4a..9c651d66c386 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
-@@ -205,7 +205,7 @@ pref("app.update.langpack.enabled", false);
+@@ -218,7 +218,7 @@ pref("app.update.multiSessionInstallLockout.enabled", true);
    pref("toolkit.backgroundtasks.defaultTimeoutSec", 600);
  
    #if defined(ENABLE_TESTS)
@@ -52,7 +58,7 @@ index 9f909cd5d48a..ffe9ea3e20bc 100644
      // correctly.
      pref("toolkit.backgroundtasks.tests.browserPrefsInherited", 15);
      pref("toolkit.backgroundtasks.tests.browserPrefsOverriden", 16);
-@@ -356,7 +356,7 @@ pref("browser.warnOnQuit", true);
+@@ -369,7 +369,7 @@ pref("browser.warnOnQuit", true);
    pref("browser.warnOnQuitShortcut", true);
  #endif
  
@@ -61,7 +67,7 @@ index 9f909cd5d48a..ffe9ea3e20bc 100644
  #ifdef XP_MACOSX
    pref("browser.fullscreen.autohide", false);
  #else
-@@ -1006,7 +1006,7 @@ pref("browser.tabs.delayHidingAudioPlayingIconMS", 3000);
+@@ -1028,7 +1028,7 @@ pref("browser.tabs.delayHidingAudioPlayingIconMS", 3000);
  // Pref to control whether we use a separate privileged content process
  // for about: pages. This pref name did not age well: we will have multiple
  // types of privileged content processes, each with different privileges.
@@ -70,7 +76,7 @@ index 9f909cd5d48a..ffe9ea3e20bc 100644
  pref("browser.tabs.remote.separatePrivilegedContentProcess", true);
  
  #if defined(NIGHTLY_BUILD) && !defined(MOZ_ASAN)
-@@ -1067,7 +1067,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
+@@ -1094,7 +1094,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
    // implementation, but otherwise the 10s value is arbitrary.
    pref("browser.lowMemoryPollingIntervalMS", 10000);
  
@@ -79,7 +85,7 @@ index 9f909cd5d48a..ffe9ea3e20bc 100644
    // pressure. Changes to the pref take effect immediately. Browser restart not
    // required. The pref value is a bitmask:
    // 0x0: No response (other than recording for telemetry, crash reporting)
-@@ -1085,7 +1085,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
+@@ -1112,7 +1112,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
    // Controls which macOS memory-pressure level triggers the browser low memory
    // response. Changes to the pref take effect immediately. Browser restart not
    // required. By default, use the "critical" level as that occurs after "warn"
@@ -88,7 +94,7 @@ index 9f909cd5d48a..ffe9ea3e20bc 100644
    // The macOS system memory-pressure level is either none, "warn", or
    // "critical". The OS notifies the browser when the level changes. A false
    // value for the pref indicates the low memory response should occur when
-@@ -2090,7 +2090,7 @@ pref("identity.sync.tokenserver.uri", "https://token.services.mozilla.com/1.0/sy
+@@ -2139,7 +2139,7 @@ pref("identity.sync.tokenserver.uri", "https://token.services.mozilla.com/1.0/sy
  
  // Auto-config URL for FxA self-hosters, makes an HTTP request to
  // [identity.fxaccounts.autoconfig.uri]/.well-known/fxa-client-configuration
@@ -97,7 +103,7 @@ index 9f909cd5d48a..ffe9ea3e20bc 100644
  // of making changes to "identity.fxaccounts.*.uri".
  pref("identity.fxaccounts.autoconfig.uri", "");
  
-@@ -2269,19 +2269,19 @@ pref("browser.contentblocking.reject-and-isolate-cookies.preferences.ui.enabled"
+@@ -2318,19 +2318,19 @@ pref("browser.contentblocking.reject-and-isolate-cookies.preferences.ui.enabled"
  //     "fppPrivate": Fingerprinting Protection enabled in private windows
  //     "-fppPrivate": Fingerprinting Protection disabled in private windows
  //   Cookie behavior:
@@ -129,7 +135,7 @@ index 9f909cd5d48a..ffe9ea3e20bc 100644
  //   Third-party cookie deprecation behavior:
  //     "3pcd": Third-party cookie deprecation enabled
  //     "-3pcd": Third-party cookie deprecation disabled
-@@ -2744,7 +2744,7 @@ pref("devtools.target-switching.server.enabled", true);
+@@ -2795,7 +2795,7 @@ pref("devtools.target-switching.server.enabled", true);
  // remote frames).
  pref("devtools.every-frame-target.enabled", true);
  
@@ -138,7 +144,7 @@ index 9f909cd5d48a..ffe9ea3e20bc 100644
  // of the original tab the popups are coming from
  pref("devtools.popups.debug", true);
  
-@@ -2905,9 +2905,9 @@ pref("devtools.netmonitor.har.multiple-pages", false);
+@@ -2956,9 +2956,9 @@ pref("devtools.netmonitor.har.multiple-pages", false);
  pref("devtools.netmonitor.audits.slow", 500);
  
  // Enable the new Edit and Resend panel
@@ -164,10 +170,10 @@ index 016596442cca..64b85c4541fe 100644
        ];
  
 diff --git a/browser/base/content/browser-sync.js b/browser/base/content/browser-sync.js
-index 4ccf1b337bf6..e046eac32f35 100644
+index a6bd71bac930..ff32b9c48784 100644
 --- a/browser/base/content/browser-sync.js
 +++ b/browser/base/content/browser-sync.js
-@@ -878,7 +878,7 @@ var gSync = {
+@@ -890,7 +890,7 @@ var gSync = {
      if (!fxAccounts.device.recentDeviceList) {
        if (await this.refreshFxaDevices()) {
          // Assuming we made the call successfully it should be impossible to end
@@ -176,7 +182,7 @@ index 4ccf1b337bf6..e046eac32f35 100644
          if (!fxAccounts.device.recentDeviceList) {
            console.warn("Refreshing device list didn't find any devices.");
          }
-@@ -1858,7 +1858,7 @@ var gSync = {
+@@ -1919,7 +1919,7 @@ var gSync = {
  
    // "Send Tab to Device" menu item
    updateTabContextMenu(aPopupMenu, aTargetTab) {
@@ -186,7 +192,7 @@ index 4ccf1b337bf6..e046eac32f35 100644
      this.init();
  
 diff --git a/browser/components/customizableui/CustomizeMode.sys.mjs b/browser/components/customizableui/CustomizeMode.sys.mjs
-index 5566ac13904e..fc6566231bc0 100644
+index c9bdc165ff9a..1356bece100c 100644
 --- a/browser/components/customizableui/CustomizeMode.sys.mjs
 +++ b/browser/components/customizableui/CustomizeMode.sys.mjs
 @@ -1400,7 +1400,7 @@ CustomizeMode.prototype = {
@@ -225,10 +231,10 @@ index a709e3c3a9ac..5bbb9b5608e6 100644
    if (Services.prefs.getBoolPref("identity.fxaccounts.enabled")) {
      document.getElementById("category-sync").hidden = false;
 diff --git a/browser/components/search/content/searchbar.js b/browser/components/search/content/searchbar.js
-index 47e57d400e1e..c3ddcd8663fe 100644
+index c52f207333de..aff2e9970125 100644
 --- a/browser/components/search/content/searchbar.js
 +++ b/browser/components/search/content/searchbar.js
-@@ -797,7 +797,7 @@
+@@ -801,7 +801,7 @@
            // Initially the panel used for the searchbar (PopupSearchAutoComplete
            // in browser.xhtml) is hidden to avoid impacting startup / new
            // window performance. The base binding's openPopup would normally
@@ -238,7 +244,7 @@ index 47e57d400e1e..c3ddcd8663fe 100644
            // but since we're overriding openPopup we need to unhide the panel
            // ourselves.
 diff --git a/browser/components/sessionstore/SessionStore.sys.mjs b/browser/components/sessionstore/SessionStore.sys.mjs
-index 8125c1afc07f..40b95b6c687a 100644
+index 6a7896440c65..c63a77592a94 100644
 --- a/browser/components/sessionstore/SessionStore.sys.mjs
 +++ b/browser/components/sessionstore/SessionStore.sys.mjs
 @@ -352,7 +352,7 @@ export var SessionStore = {
@@ -259,7 +265,7 @@ index 8125c1afc07f..40b95b6c687a 100644
     * @param {boolean} [aOptions.private = false]
              Explicit indicator to constrain tab data to only private or non-private windows,
     * @param {boolean} [aOptions.closedTabsFromAllWindows]
-@@ -523,7 +523,7 @@ export var SessionStore = {
+@@ -533,7 +533,7 @@ export var SessionStore = {
              A SessionStore window id used to look up the window where the tab was closed
     * @param {number} aSourceOptions.sourceClosedId
              The closedId used to look up the closed window where the tab was closed
@@ -268,7 +274,7 @@ index 8125c1afc07f..40b95b6c687a 100644
     */
    forgetClosedTabById: function ss_forgetClosedTabById(
      aClosedId,
-@@ -539,7 +539,7 @@ export var SessionStore = {
+@@ -549,7 +549,7 @@ export var SessionStore = {
     *
     * @param {integer} aClosedId
     *        The closedId of the window
@@ -277,7 +283,7 @@ index 8125c1afc07f..40b95b6c687a 100644
     */
    forgetClosedWindowById: function ss_forgetClosedWindowById(aClosedId) {
      SessionStoreInternal.forgetClosedWindowById(aClosedId);
-@@ -2653,7 +2653,7 @@ var SessionStoreInternal = {
+@@ -2760,7 +2760,7 @@ var SessionStoreInternal = {
      // Clear closed tab data.
      if (windowData._closedTabs.length) {
        // Remove all of the closed tabs data.
@@ -286,7 +292,7 @@ index 8125c1afc07f..40b95b6c687a 100644
        // and removes the tabs from from the _lastClosedActions list
        while (windowData._closedTabs.length) {
          this.removeClosedTabData(windowData, windowData._closedTabs, 0);
-@@ -5451,7 +5451,7 @@ var SessionStoreInternal = {
+@@ -5810,7 +5810,7 @@ var SessionStoreInternal = {
        // Remove all previous tab data.
        tabsDataArray.length = 0;
      } else {
@@ -295,7 +301,7 @@ index 8125c1afc07f..40b95b6c687a 100644
        tabsDataArray.splice(numTabsInWindow - numTabsToRestore);
      }
  
-@@ -5665,7 +5665,7 @@ var SessionStoreInternal = {
+@@ -6024,7 +6024,7 @@ var SessionStoreInternal = {
        // TAB_LAZY_STATES holds data for lazy-browser tabs to proxy for
        // data unobtainable from the unbound browser.  This only applies to lazy
        // browsers and will be removed once the browser is inserted in the document.
@@ -304,7 +310,7 @@ index 8125c1afc07f..40b95b6c687a 100644
        let url = "about:blank";
        let title = "";
  
-@@ -7630,7 +7630,7 @@ var TabRestoreQueue = {
+@@ -8118,7 +8118,7 @@ var TabRestoreQueue = {
    },
  };
  
@@ -314,7 +320,7 @@ index 8125c1afc07f..40b95b6c687a 100644
  // windows they still hold a reference to but we don't.
  var DyingWindowCache = {
 diff --git a/browser/components/tabbrowser/TabUnloader.sys.mjs b/browser/components/tabbrowser/TabUnloader.sys.mjs
-index 2bd6097b5d1b..14c71e3c705e 100644
+index 44846cc902fd..3852cb2cb72e 100644
 --- a/browser/components/tabbrowser/TabUnloader.sys.mjs
 +++ b/browser/components/tabbrowser/TabUnloader.sys.mjs
 @@ -17,7 +17,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
@@ -353,7 +359,7 @@ index 48a00cee2425..d14a6606942b 100644
          );
        }
 diff --git a/devtools/server/actors/watcher/session-context.js b/devtools/server/actors/watcher/session-context.js
-index a0cae04c6452..a5af350a9b6b 100644
+index c83a8a0d3a59..7db4eca2dab0 100644
 --- a/devtools/server/actors/watcher/session-context.js
 +++ b/devtools/server/actors/watcher/session-context.js
 @@ -75,7 +75,7 @@ function createBrowserElementSessionContext(browserElement, config) {
@@ -377,10 +383,10 @@ index e11886599b8f..40eca29f138d 100644
   * Permission is hereby granted, free of charge, to any person obtaining
   * a copy of this software and associated documentation files (the
 diff --git a/dom/media/CubebUtils.cpp b/dom/media/CubebUtils.cpp
-index 05dca212dcbe..93979fb539fb 100644
+index 712d09e25ab0..120a732ce9d0 100644
 --- a/dom/media/CubebUtils.cpp
 +++ b/dom/media/CubebUtils.cpp
-@@ -138,7 +138,7 @@ MOZ_RUNINIT std::unordered_map<std::string, LABELS_MEDIA_AUDIO_BACKEND>
+@@ -141,7 +141,7 @@ MOZ_RUNINIT std::unordered_map<std::string, LABELS_MEDIA_AUDIO_BACKEND>
          {"sun", LABELS_MEDIA_AUDIO_BACKEND::sunaudio},
  };
  
@@ -389,7 +395,7 @@ index 05dca212dcbe..93979fb539fb 100644
  // and API used).
  //
  // sMutex protects *initialization* of this, which must be performed from each
-@@ -183,7 +183,7 @@ static void ShutdownAudioIPCServer() {
+@@ -186,7 +186,7 @@ static void ShutdownAudioIPCServer() {
  }  // namespace
  
  static const uint32_t CUBEB_NORMAL_LATENCY_MS = 100;
@@ -425,10 +431,10 @@ index 2c4fd2c64043..a65af26e2c92 100644
    AudioInfo mAudio;
  
 diff --git a/dom/serviceworkers/ServiceWorkerManager.cpp b/dom/serviceworkers/ServiceWorkerManager.cpp
-index 8ef8d090f332..9587eb221ae4 100644
+index 8de4e9d9b0f7..e579fbcd35ae 100644
 --- a/dom/serviceworkers/ServiceWorkerManager.cpp
 +++ b/dom/serviceworkers/ServiceWorkerManager.cpp
-@@ -2341,7 +2341,7 @@ bool ServiceWorkerManager::IsAvailable(nsIPrincipal* aPrincipal, nsIURI* aURI,
+@@ -2338,7 +2338,7 @@ bool ServiceWorkerManager::IsAvailable(nsIPrincipal* aPrincipal, nsIURI* aURI,
    // If it does, directly return true and handle the client controlling logic
    // in DispatchFetchEvent(). otherwise, do followings then return false.
    // 1. Set the matched service worker as the controller of LoadInfo and
@@ -451,10 +457,10 @@ index 0d23881aa4f3..0df5e018d9be 100644
      // this value can be set within the cfg file adding a level of security.
  
 diff --git a/gfx/webrender_bindings/DCLayerTree.cpp b/gfx/webrender_bindings/DCLayerTree.cpp
-index 021d8a8e2a61..75e0b263d319 100644
+index ea1b25bac9ff..d8c8abeb630e 100644
 --- a/gfx/webrender_bindings/DCLayerTree.cpp
 +++ b/gfx/webrender_bindings/DCLayerTree.cpp
-@@ -339,7 +339,7 @@ bool DCLayerTree::Initialize(HWND aHwnd, nsACString& aError) {
+@@ -331,7 +331,7 @@ bool DCLayerTree::Initialize(HWND aHwnd, nsACString& aError) {
    SupportsSwapChainTearing();
  
    mCompositionTarget->SetRoot(mRootVisual);
@@ -490,7 +496,7 @@ index 6d2a7a58bda0..bb7a492c3a7c 100644
    float penalty=gi->stretch_penalty-(ve->stretch/2-VE_MINSTRETCH);
    if(penalty<0.f)penalty=0.f;
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index 6384b188a285..49fbd274b24f 100644
+index c4688335e2b0..277760b055fb 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -66,7 +66,7 @@
@@ -511,7 +517,7 @@ index 6384b188a285..49fbd274b24f 100644
  # be updated to include the lock mode value.
  # 0 = FREE (No locking at all)
  # 1 = STANDARD (Once locked, remain locked until scrolling ends)
-@@ -1217,7 +1217,7 @@
+@@ -1222,7 +1222,7 @@
    value: "path_user"
    mirror: never
  
@@ -520,7 +526,7 @@ index 6384b188a285..49fbd274b24f 100644
  # being checked by content-analysis.  Resources that match are not checked
  # and are always permitted.
  # By default this does not check any about: page except for about:blank
-@@ -1227,7 +1227,7 @@
+@@ -1232,7 +1232,7 @@
    value: "^about:(?!blank|srcdoc).*"
    mirror: never
  
@@ -529,7 +535,7 @@ index 6384b188a285..49fbd274b24f 100644
  # being checked by content-analysis.  Resources that match are not checked
  # and are always denied.
  - name: browser.contentanalysis.deny_url_regex_list
-@@ -1618,7 +1618,7 @@
+@@ -1623,7 +1623,7 @@
    value: true
    mirror: always
  
@@ -538,7 +544,7 @@ index 6384b188a285..49fbd274b24f 100644
  - name: browser.places.interactions.typing_timeout_ms
    type: RelaxedAtomicUint32
    value: 3000
-@@ -1949,7 +1949,7 @@
+@@ -1954,7 +1954,7 @@
    mirror: never
  
  # When true, soft reloads (including location.reload())
@@ -547,7 +553,7 @@ index 6384b188a285..49fbd274b24f 100644
  # be loaded normally as-if users normally navigated to the page.
  - name: browser.soft_reload.only_force_validate_top_level_document
    type: bool
-@@ -2729,7 +2729,7 @@
+@@ -2758,7 +2758,7 @@
    value: true
    mirror: always
  
@@ -556,7 +562,7 @@ index 6384b188a285..49fbd274b24f 100644
  # events to be further coalesced in the child side after they
  # are sent.
  - name: dom.events.coalesce.touchmove
-@@ -3553,7 +3553,7 @@
+@@ -3582,7 +3582,7 @@
  
  # An upper limit for the "age" of an origin. Any origin which is older than the
  # threshold is considered as unaccessed. That doesn't necessarily mean that
@@ -565,7 +571,7 @@ index 6384b188a285..49fbd274b24f 100644
  # dom.quotaManager.checkQuotaInfoLoadTime is true and loading of quota info
  # takes a long time (dom.quotaManager.longQuotaInfoLoadTimeThresholdMs is used
  # to decide what is a long quota info load time).
-@@ -3662,7 +3662,7 @@
+@@ -3691,7 +3691,7 @@
      mirror: always
      do_not_use_directly: true
  
@@ -574,7 +580,7 @@ index 6384b188a285..49fbd274b24f 100644
    # QuotaVFS.
  -   name: dom.quotaManager.overrideXFullPathname
      type: RelaxedAtomicBool
-@@ -4014,7 +4014,7 @@
+@@ -4043,7 +4043,7 @@
    mirror: always
  
  # If true, tries to break upgrade downgrade cycles where https-only tries
@@ -583,7 +589,7 @@ index 6384b188a285..49fbd274b24f 100644
  - name: dom.security.https_only_mode_break_upgrade_downgrade_endless_loop
    type: RelaxedAtomicBool
    value: true
-@@ -4110,7 +4110,7 @@
+@@ -4139,7 +4139,7 @@
    value: false
    mirror: always
  
@@ -592,7 +598,7 @@ index 6384b188a285..49fbd274b24f 100644
  # API.
  - name: dom.security.setHTML.enabled
    type: bool
-@@ -4404,7 +4404,7 @@
+@@ -4433,7 +4433,7 @@
    value: 25 * 1024
    mirror: always
  
@@ -601,7 +607,7 @@ index 6384b188a285..49fbd274b24f 100644
  # don't advertise this pref as a way for disabling LSNG. This pref is intended
  # for internal testing only and will be removed in near future. Accidental
  # disabling of LSNG can lead to a data loss in a combination with disabled
-@@ -5316,7 +5316,7 @@
+@@ -5345,7 +5345,7 @@
    mirror: always
  
  # Controls if a double click word selection also deletes one adjacent whitespace
@@ -609,8 +615,8 @@ index 6384b188a285..49fbd274b24f 100644
 +# (if feasible). This mimics native behavior on MacOS.
  - name: editor.word_select.delete_space_after_doubleclick_selection
    type: bool
-   value: true
-@@ -9903,7 +9903,7 @@
+ #ifndef XP_MACOSX
+@@ -9967,7 +9967,7 @@
    mirror: always
  
  # On Android, don't synth mouse move events after scrolling, as they cause
@@ -619,7 +625,7 @@ index 6384b188a285..49fbd274b24f 100644
  # satisfactorily resolved.
  - name: layout.reflow.synthMouseMove
    type: bool
-@@ -15039,13 +15039,13 @@
+@@ -15265,13 +15265,13 @@
    value: 1080
    mirror: always
  
@@ -636,10 +642,10 @@ index 6384b188a285..49fbd274b24f 100644
    type: RelaxedAtomicBool
    value: false
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index 4fc8496897a3..748536efc1fd 100644
+index 4ffdcacd43ca..1a9032b40c27 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
-@@ -649,7 +649,7 @@ pref("devtools.performance.recording.ui-base-url", "https://profiler.firefox.com
+@@ -650,7 +650,7 @@ pref("devtools.performance.recording.ui-base-url", "https://profiler.firefox.com
  // When gathering profiles from child processes, this is the longest time (in
  // seconds) allowed between two responses. 0 = Use internal default.
  pref("devtools.performance.recording.child.timeout_s", 0);
@@ -648,7 +654,7 @@ index 4fc8496897a3..748536efc1fd 100644
  // it's a developer focused item. It can still be enabled by going to profiler.firefox.com,
  // but by default it is off on Release and Beta. Note that this only adds it to the
  // the customization palette, not to the navbar.
-@@ -839,7 +839,7 @@ pref("privacy.fingerprintingProtection.overrides", "");
+@@ -840,7 +840,7 @@ pref("privacy.fingerprintingProtection.overrides", "");
  // or remove features on a domain granular level.
  pref("privacy.fingerprintingProtection.granularOverrides", "");
  
@@ -658,10 +664,10 @@ index 4fc8496897a3..748536efc1fd 100644
  // (See nsICookieService::BEHAVIOR_REJECT_TRACKER cookie behavior)
  // See: Bug 1505212, Bug 1659394, Bug 1631811, Bug 1665035.
 diff --git a/netwerk/protocol/http/nsHttpHandler.h b/netwerk/protocol/http/nsHttpHandler.h
-index d8ef1358734f..80014668b671 100644
+index c5b26e3224f3..7aef519b694b 100644
 --- a/netwerk/protocol/http/nsHttpHandler.h
 +++ b/netwerk/protocol/http/nsHttpHandler.h
-@@ -488,7 +488,7 @@ class nsHttpHandler final : public nsIHttpProtocolHandler,
+@@ -490,7 +490,7 @@ class nsHttpHandler final : public nsIHttpProtocolHandler,
  
    bool EchConfigEnabled(bool aIsHttp3 = false) const;
    // When EchConfig is enabled and all records with echConfig are failed, this
@@ -670,7 +676,7 @@ index d8ef1358734f..80014668b671 100644
    // In the case an HTTPS RRSet contains some RRs with echConfig and some
    // without, we always fallback to the origin one.
    bool FallbackToOriginIfConfigsAreECHAndAllFailed() const;
-@@ -800,7 +800,7 @@ class nsHttpHandler final : public nsIHttpProtocolHandler,
+@@ -801,7 +801,7 @@ class nsHttpHandler final : public nsIHttpProtocolHandler,
    // or rate optimization related to the active/background tab is hit.
    // We carry this value through each http channel's onstoprequest notification
    // to the parent process.  On the content process then we just update this
@@ -692,6 +698,19 @@ index 82bed496f26e..3948eeff44b9 100644
             * defer to PR_FormatTime() for this option.
             */
            PR_FormatTime(tmpBuf, tmpBufSize, "%Z", time);
+diff --git a/python/mozbuild/mozbuild/backend/recursivemake.py b/python/mozbuild/mozbuild/backend/recursivemake.py
+index 39f250adb063..ec91d69b3f77 100644
+--- a/python/mozbuild/mozbuild/backend/recursivemake.py
++++ b/python/mozbuild/mozbuild/backend/recursivemake.py
+@@ -986,7 +986,7 @@ class RecursiveMakeBackend(MakeBackend):
+ 
+                     # In the export and libs tiers, we don't skip directories
+                     # containing a Makefile.in.
+-                    # topobjdir is handled separatedly, don't do anything for
++                    # topobjdir is handled separately, don't do anything for
+                     # it.
+                     if bf.relobjdir:
+                         for tier in ("export", "libs"):
 diff --git a/remote/webdriver-bidi/modules/root/storage.sys.mjs b/remote/webdriver-bidi/modules/root/storage.sys.mjs
 index cc42ed187efb..3d2c361ef351 100644
 --- a/remote/webdriver-bidi/modules/root/storage.sys.mjs
@@ -705,6 +724,95 @@ index cc42ed187efb..3d2c361ef351 100644
          const principal =
            Services.scriptSecurityManager.createContentPrincipalFromOrigin(
              partitionKey.sourceOrigin
+diff --git a/third_party/python/compare_locales/compare_locales/compare/content.py b/third_party/python/compare_locales/compare_locales/compare/content.py
+index 1e879a643c14..74b6fdcca673 100644
+--- a/third_party/python/compare_locales/compare_locales/compare/content.py
++++ b/third_party/python/compare_locales/compare_locales/compare/content.py
+@@ -263,7 +263,7 @@ class ContentComparer:
+         except UserWarning:
+             p = None
+ 
+-        # if we don't support this file, assume CAN_COPY to mimick
++        # if we don't support this file, assume CAN_COPY to mimic
+         # l10n dir as closely as possible
+         caps = p.capabilities if p else parser.CAN_COPY
+         if (caps & (parser.CAN_COPY | parser.CAN_MERGE)):
+diff --git a/third_party/python/compare_locales/compare_locales/merge.py b/third_party/python/compare_locales/compare_locales/merge.py
+index 1d73560bb97d..d7569e2b2f7a 100644
+--- a/third_party/python/compare_locales/compare_locales/merge.py
++++ b/third_party/python/compare_locales/compare_locales/merge.py
+@@ -63,12 +63,12 @@ def merge_resources(parser, resources, keep_newest=True):
+         if isinstance(entity, cl.Comment):
+             counter[entity.val] += 1
+             # Use the (value, index) tuple as the key. AddRemove will
+-            # de-deplicate identical comments at the same index.
++            # de-duplicate identical comments at the same index.
+             return ((entity.val, counter[entity.val]), entity)
+ 
+         if isinstance(entity, cl.Whitespace):
+             # Use the Whitespace instance as the key so that it's always
+-            # unique. Adjecent whitespace will be folded into the longer one in
++            # unique. Adjacent whitespace will be folded into the longer one in
+             # prune.
+             return (entity, entity)
+ 
+diff --git a/third_party/python/compare_locales/compare_locales/paths/ini.py b/third_party/python/compare_locales/compare_locales/paths/ini.py
+index bde7def0cac1..af3c122a9a61 100644
+--- a/third_party/python/compare_locales/compare_locales/paths/ini.py
++++ b/third_party/python/compare_locales/compare_locales/paths/ini.py
+@@ -18,7 +18,7 @@ class L10nConfigParser:
+         """Constructor for L10nConfigParsers
+ 
+         inipath -- l10n.ini path
+-        Optional keyword arguments are fowarded to the inner ConfigParser as
++        Optional keyword arguments are forwarded to the inner ConfigParser as
+         defaults.
+         """
+         self.inipath = mozpath.normpath(inipath)
+@@ -66,7 +66,7 @@ class L10nConfigParser:
+         """Entry point to load the l10n.ini file this Parser refers to.
+ 
+         This implementation uses synchronous loads, subclasses might overload
+-        this behaviour. If you do, make sure to pass a file-like object
++        this behavior. If you do, make sure to pass a file-like object
+         to onLoadConfig.
+         """
+         cp = ConfigParser(self.defaults)
+diff --git a/third_party/python/compare_locales/compare_locales/paths/matcher.py b/third_party/python/compare_locales/compare_locales/paths/matcher.py
+index 82de936107c1..a5eed75f54f8 100644
+--- a/third_party/python/compare_locales/compare_locales/paths/matcher.py
++++ b/third_party/python/compare_locales/compare_locales/paths/matcher.py
+@@ -282,7 +282,7 @@ class Variable(Node):
+     def expand(self, env, raise_missing=False):
+         '''Create a string for this Variable.
+ 
+-        This expansion happens recursively. We avoid recusion loops
++        This expansion happens recursively. We avoid recursion loops
+         by removing the current variable from the environment that's used
+         to expand child variable references.
+         '''
+@@ -337,7 +337,7 @@ class AndroidLocale(Variable):
+     def expand(self, env, raise_missing=False):
+         '''Create a string for this Variable.
+ 
+-        This expansion happens recursively. We avoid recusion loops
++        This expansion happens recursively. We avoid recursion loops
+         by removing the current variable from the environment that's used
+         to expand child variable references.
+         '''
+diff --git a/third_party/python/moz.l10n/moz/l10n/paths/config.py b/third_party/python/moz.l10n/moz/l10n/paths/config.py
+index 9b23034c56db..3674be22ab4b 100644
+--- a/third_party/python/moz.l10n/moz/l10n/paths/config.py
++++ b/third_party/python/moz.l10n/moz/l10n/paths/config.py
+@@ -123,7 +123,7 @@ class L10nConfigPaths:
+         fp = set(force_paths) if force_paths else None
+         for path in toml.get("paths", []):
+             ref: str = normpath(join(self._ref_root, path["reference"]))
+-            target: str = path["l10n"]  # Note: not normalised, so sep=="/"
++            target: str = path["l10n"]  # Note: not normalized, so sep=="/"
+             if env_map:
+                 target = target.format_map(env_map)
+             self._templates.append((path_stars.sub("{}", ref), path_regex(target)))
 diff --git a/toolkit/components/glean/docs/user/migration.md b/toolkit/components/glean/docs/user/migration.md
 index 1070fcdc49e6..6ecc75677b28 100644
 --- a/toolkit/components/glean/docs/user/migration.md
@@ -719,7 +827,7 @@ index 1070fcdc49e6..6ecc75677b28 100644
  ```yaml
  js:
 diff --git a/toolkit/components/resistfingerprinting/nsRFPService.cpp b/toolkit/components/resistfingerprinting/nsRFPService.cpp
-index d1900abdcf1c..20a1c404c9cf 100644
+index ad8eeb2f3627..817d35306775 100644
 --- a/toolkit/components/resistfingerprinting/nsRFPService.cpp
 +++ b/toolkit/components/resistfingerprinting/nsRFPService.cpp
 @@ -445,7 +445,7 @@ double nsRFPService::TimerResolution(RTPCallerType aRTPCallerType) {
@@ -741,10 +849,10 @@ index d1900abdcf1c..20a1c404c9cf 100644
   *
   * When comparing times across different seed values: time may go backwards.
 diff --git a/toolkit/components/search/AppProvidedSearchEngine.sys.mjs b/toolkit/components/search/AppProvidedSearchEngine.sys.mjs
-index 6241687ad5b7..b8e7bc0c760d 100644
+index 22cd357a4ac5..f25ef138dabb 100644
 --- a/toolkit/components/search/AppProvidedSearchEngine.sys.mjs
 +++ b/toolkit/components/search/AppProvidedSearchEngine.sys.mjs
-@@ -540,7 +540,7 @@ export class AppProvidedSearchEngine extends SearchEngine {
+@@ -589,7 +589,7 @@ export class AppProvidedSearchEngine extends SearchEngine {
     *   An object suitable for serialization as JSON.
     */
    toJSON() {
@@ -754,10 +862,10 @@ index 6241687ad5b7..b8e7bc0c760d 100644
      return {
        id: this.id,
 diff --git a/toolkit/components/search/SearchService.sys.mjs b/toolkit/components/search/SearchService.sys.mjs
-index 1205d55cfe70..6af7fa513274 100644
+index fe6b6da350bd..68101a308abf 100644
 --- a/toolkit/components/search/SearchService.sys.mjs
 +++ b/toolkit/components/search/SearchService.sys.mjs
-@@ -961,7 +961,7 @@ export class SearchService {
+@@ -999,7 +999,7 @@ export class SearchService {
    /**
     * A deferred promise that is resolved when initialization has finished.
     *
@@ -766,7 +874,7 @@ index 1205d55cfe70..6af7fa513274 100644
     * has failed.
     *
     * @type {Promise}
-@@ -974,7 +974,7 @@ export class SearchService {
+@@ -1012,7 +1012,7 @@ export class SearchService {
     *
     * These are the statuses:
     *   "not initialized" - The SearchService has not started initialization.
@@ -775,7 +883,7 @@ index 1205d55cfe70..6af7fa513274 100644
     *   "success" - The SearchService successfully completed initialization.
     *   "failed" - The SearchService failed during initialization.
     *
-@@ -1067,7 +1067,7 @@ export class SearchService {
+@@ -1103,7 +1103,7 @@ export class SearchService {
  
    /**
     * A Set of installed search extensions reported by AddonManager
@@ -784,7 +892,7 @@ index 1205d55cfe70..6af7fa513274 100644
     * during init(). Does not contain application provided engines.
     *
     * @type {Set<object>}
-@@ -1076,7 +1076,7 @@ export class SearchService {
+@@ -1121,7 +1121,7 @@ export class SearchService {
  
    /**
     * A Set of removed search extensions reported by AddonManager
@@ -793,7 +901,7 @@ index 1205d55cfe70..6af7fa513274 100644
     * during init().
     *
     * @type {Set<object>}
-@@ -1308,7 +1308,7 @@ export class SearchService {
+@@ -1356,7 +1356,7 @@ export class SearchService {
     * with it.
     *
     * This function sets #initDeferredPromise to resolve or reject.
@@ -802,7 +910,7 @@ index 1205d55cfe70..6af7fa513274 100644
     *   | Rejected | when initialization has failed.
     */
    async #init() {
-@@ -1713,7 +1713,7 @@ export class SearchService {
+@@ -1778,7 +1778,7 @@ export class SearchService {
      // If the user's previous engine id is different than the new current
      // engine id, or if the user was using the app default engine and the
      // app default engine id is different than the new current engine id,
@@ -811,7 +919,7 @@ index 1205d55cfe70..6af7fa513274 100644
      if (
        (prevCurrentEngineId && prevCurrentEngineId !== newCurrentEngineId) ||
        (!prevCurrentEngineId &&
-@@ -1759,7 +1759,7 @@ export class SearchService {
+@@ -1824,7 +1824,7 @@ export class SearchService {
  
    /**
     * Loads any engines that have been received from the AddonManager during
@@ -820,7 +928,7 @@ index 1205d55cfe70..6af7fa513274 100644
     *
     * @param {object} [settings]
     *   The saved settings for the user.
-@@ -1892,7 +1892,7 @@ export class SearchService {
+@@ -1957,7 +1957,7 @@ export class SearchService {
          this._maybeReloadEngines(changeReason).catch(console.error);
        }, 10000);
        lazy.logConsole.debug(
@@ -829,7 +937,7 @@ index 1205d55cfe70..6af7fa513274 100644
        );
        return;
      }
-@@ -1922,7 +1922,7 @@ export class SearchService {
+@@ -1987,7 +1987,7 @@ export class SearchService {
     * the default engines, so that we're not removing active defaults or trying
     * to set a default to something that hasn't been added yet. The order is:
     *
@@ -838,7 +946,7 @@ index 1205d55cfe70..6af7fa513274 100644
     * 2) Add any new engines from the new configuration.
     * 3) Check for changes needed to the default engines due to environment changes
     *    and potentially overriding engines as per the override allowlist.
-@@ -2492,7 +2492,7 @@ export class SearchService {
+@@ -2574,7 +2574,7 @@ export class SearchService {
    }
  
    #buildSortedEngineList() {
@@ -847,7 +955,7 @@ index 1205d55cfe70..6af7fa513274 100644
      // in the case of tests which don't define a default search engine.
      // If there's no default defined, then we revert to the first item in the
      // sorted list, but we can't do that if we don't have a list.
-@@ -3004,7 +3004,7 @@ export class SearchService {
+@@ -3108,7 +3108,7 @@ export class SearchService {
      );
  
      // Only do this if we're initialized though - this function can get called
@@ -856,7 +964,7 @@ index 1205d55cfe70..6af7fa513274 100644
      if (this.isInitialized) {
        this.#recordDefaultChangedEvent(
          privateMode,
-@@ -3650,7 +3650,7 @@ class SearchDefaultOverrideAllowlistHandler {
+@@ -3755,7 +3755,7 @@ class SearchDefaultOverrideAllowlistHandler {
     *   The extension object (from add-on manager) that will override the
     *   app provided search engine.
     * @param {string} appProvidedEngineId
@@ -865,7 +973,7 @@ index 1205d55cfe70..6af7fa513274 100644
     * @returns {boolean}
     *   Returns true if the search engine extension may override the app provided
     *   instance.
-@@ -3685,7 +3685,7 @@ class SearchDefaultOverrideAllowlistHandler {
+@@ -3790,7 +3790,7 @@ class SearchDefaultOverrideAllowlistHandler {
     * @param {SearchEngine} engine
     *   The existing search engine.
     * @param {string} appProvidedEngineId
@@ -888,10 +996,10 @@ index f57753239cec..28831a8cf8a6 100644
      if (value === undefined) {
        document.l10n.setAttributes(item, l10nId);
 diff --git a/toolkit/content/license.html b/toolkit/content/license.html
-index c7d530621c5d..af8a3abae001 100644
+index 2d3c7dd2ded6..8b690e9e0d9f 100644
 --- a/toolkit/content/license.html
 +++ b/toolkit/content/license.html
-@@ -5915,7 +5915,7 @@ product.
+@@ -5919,7 +5919,7 @@ product.
            <td>
              <pre>
  
@@ -914,10 +1022,10 @@ index 2e3ae1922659..d9484496958d 100644
      _createComponents() {
        this.components = {
 diff --git a/toolkit/content/widgets/datetimebox.js b/toolkit/content/widgets/datetimebox.js
-index bd5731860643..ede47e48dd54 100644
+index 65fdc1d6ebea..b73c2f6fca90 100644
 --- a/toolkit/content/widgets/datetimebox.js
 +++ b/toolkit/content/widgets/datetimebox.js
-@@ -351,9 +351,9 @@ this.DateTimeBoxWidget = class {
+@@ -352,9 +352,9 @@ this.DateTimeBoxWidget = class {
  
      if (aIsNumeric) {
        field.classList.add("numeric");
@@ -989,10 +1097,10 @@ index 4083992e5b19..e7928b35a834 100644
    async init() {
      this.file = this.sourceURI.QueryInterface(Ci.nsIFileURL).file;
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
-index 357e3d25fb82..377e34b9527a 100644
+index 16b02c35d3a7..80e18cd3e865 100644
 --- a/toolkit/xre/nsAppRunner.cpp
 +++ b/toolkit/xre/nsAppRunner.cpp
-@@ -421,7 +421,7 @@ void MozExpectedExit() { gIsExpectedExit = true; }
+@@ -422,7 +422,7 @@ void MozExpectedExit() { gIsExpectedExit = true; }
   */
  static void UnexpectedExit() {
    if (!gIsExpectedExit) {
@@ -1001,7 +1109,7 @@ index 357e3d25fb82..377e34b9527a 100644
      MOZ_CRASH("Exit called by third party code.");
    }
  }
-@@ -617,7 +617,7 @@ static nsIXULRuntime::ExperimentStatus gWin32kExperimentStatus =
+@@ -618,7 +618,7 @@ static nsIXULRuntime::ExperimentStatus gWin32kExperimentStatus =
  //  Enrolled
  //  - User does the default aka Default
  //

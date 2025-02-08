@@ -21,7 +21,7 @@ pref("privacy.fingerprintingProtection.overrides", "+AllTargets,-CSSPrefersColor
 pref("privacy.resistFingerprinting.letterboxing", false);
 
 pref("browser.preferences.policiesNotice", false);
-pref("browser.tabs.hoverPreview.titleLineClamp", 0);
+pref("browser.tabs.hoverPreview.titleLineClamp", 0); // 6
 pref("image.avif.force-loop", true);
 pref("image.rgbx-mode", 0); // 0 black 1 white
 pref("media.eme.showBrowserMessage", true);
