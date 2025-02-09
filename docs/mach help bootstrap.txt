@@ -1,0 +1,26 @@
+usage: mach [global arguments] bootstrap [command arguments]
+
+Bootstrap system and mach for optimal development experience.
+
+Global Arguments:
+  -v, --verbose         Print verbose output.
+  -l FILENAME, --log-file FILENAME
+                        Filename to write log data to.
+  --log-interval        Prefix log line with interval from last message rather than relative time. Note that this is
+                        NOT execution time if there are parallel operations.
+  --no-interactive      Automatically selects the default option on any interactive prompts. If the output is not a
+                        terminal, then --no-interactive is assumed.
+  --log-no-times        Do not prefix log lines with times. By default, mach will prefix each output line with the
+                        time since command start.
+  -h, --help            Show this help message.
+  --debug-command       Start a Python debugger when command is dispatched.
+  --profile-command     Capture a Python profile of the mach process as command is dispatched.
+  --settings FILENAME   Path to settings file.
+
+Command Arguments:
+  --application-choice {Firefox for Desktop Artifact Mode,Firefox for Desktop,GeckoView/Firefox for Android Artifact Mode,GeckoView/Firefox for Android,SpiderMonkey JavaScript engine,browser_artifact_mode,browser,mobile_android_artifact_mode,mobile_android,js}
+                        Pass in an application choice instead of using the default interactive prompt.
+  --no-system-changes   Only execute actions that leave the system configuration alone.
+  --exclude EXCLUDE [EXCLUDE ...]
+                        A list of bootstrappable elements not to bootstrap.
+

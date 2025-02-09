@@ -1,0 +1,51 @@
+usage: mach [global arguments] build [command arguments]
+
+Build the source tree.
+
+With no arguments, this will perform a full build.
+
+Positional arguments define targets to build. These can be make targets
+or patterns like "<dir>/<target>" to indicate a make target within a
+directory.
+
+There are a few special targets that can be used to perform a partial
+build faster than what `mach build` would perform:
+
+* binaries - compiles and links all C/C++ sources and produces shared
+  libraries and executables (binaries).
+
+* faster - builds JavaScript, XUL, CSS, etc files.
+
+"binaries" and "faster" almost fully complement each other. However,
+there are build actions not captured by either. If things don't appear to
+be rebuilding, perform a vanilla `mach build` to rebuild the world.
+
+Global Arguments:
+  -v, --verbose         Print verbose output.
+  -l FILENAME, --log-file FILENAME
+                        Filename to write log data to.
+  --log-interval        Prefix log line with interval from last message rather than relative time. Note that this is
+                        NOT execution time if there are parallel operations.
+  --no-interactive      Automatically selects the default option on any interactive prompts. If the output is not a
+                        terminal, then --no-interactive is assumed.
+  --log-no-times        Do not prefix log lines with times. By default, mach will prefix each output line with the
+                        time since command start.
+  -h, --help            Show this help message.
+  --debug-command       Start a Python debugger when command is dispatched.
+  --profile-command     Capture a Python profile of the mach process as command is dispatched.
+  --settings FILENAME   Path to settings file.
+
+Command Arguments:
+  --jobs jobs, -j jobs  Number of concurrent jobs to run. Default is based on the number of CPUs and the estimated
+                        size of the jobs (see --job-size).
+  --job-size size       Estimated RAM required, in GiB, for each parallel job. Used to compute a default number of
+                        concurrent jobs.
+  -C DIRECTORY, --directory DIRECTORY
+                        Change to a subdirectory of the build directory first.
+  what                  What to build. Can be a top-level make target or a relative directory. If multiple options are
+                        provided, they will be built serially. BUILDING ONLY PARTS OF THE TREE CAN RESULT IN BAD TREE
+                        STATE. USE AT YOUR OWN RISK.
+  -v, --verbose         Verbose output for what commands the build is running.
+  --keep-going          Keep building after an error has occurred
+  --priority priority   idle/less/normal/more/high. (Default idle)
+

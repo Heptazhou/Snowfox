@@ -1,0 +1,16 @@
+usage: mach [global arguments] command [command arguments]
+
+mach (German for "do") is the main interface to the Mozilla build system and
+common developer tasks.
+
+You tell mach the command you want to perform and it does it for you.
+
+Some common commands are:
+
+    mach build     Build/compile the source tree.
+    mach help      Show full help, including the list of all commands.
+
+To see more help for a specific command, run:
+
+  mach help <command>
+

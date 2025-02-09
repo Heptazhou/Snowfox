@@ -1,0 +1,34 @@
+usage: mach [global arguments] compare-locales [command arguments]
+
+Run compare-locales.
+
+Global Arguments:
+  -v, --verbose         Print verbose output.
+  -l FILENAME, --log-file FILENAME
+                        Filename to write log data to.
+  --log-interval        Prefix log line with interval from last message rather than relative time. Note that this is
+                        NOT execution time if there are parallel operations.
+  --no-interactive      Automatically selects the default option on any interactive prompts. If the output is not a
+                        terminal, then --no-interactive is assumed.
+  --log-no-times        Do not prefix log lines with times. By default, mach will prefix each output line with the
+                        time since command start.
+  -h, --help            Show this help message.
+  --debug-command       Start a Python debugger when command is dispatched.
+  --profile-command     Capture a Python profile of the mach process as command is dispatched.
+  --settings FILENAME   Path to settings file.
+
+Command Arguments:
+  l10n.toml             TOML or INI file for the project
+  l10n-base-dir         Parent directory of localizations
+  locale-code           Locale code and top-level directory of each localization
+  -q, --quiet           Show less data. Specified once, don't show obsolete entities. Specified twice, also hide
+                        missing entities. Specify thrice to exclude warnings and four times to just show stats
+  -m MERGE, --merge MERGE
+                        Use this directory to stage merged files
+  --validate            Run compare-locales against reference
+  --json JSON           Serialize to JSON. Value is the name of the output file, pass "-" to serialize to stdout and
+                        hide the default output.
+  -D var=value          Overwrite variables in TOML files
+  --full                Compare projects that are disabled
+  --return-zero         Return 0 regardless of l10n status
+

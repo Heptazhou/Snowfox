@@ -1,0 +1,37 @@
+usage: mach [global arguments] repackage subcommand [subcommand arguments]
+
+Repackages artifacts into different formats.
+
+This is generally used after packages are signed by the signing
+scriptworkers in order to bundle things up into shippable formats, such as a
+.dmg on OSX or an installer exe on Windows.
+
+Global Arguments:
+  -v, --verbose         Print verbose output.
+  -l FILENAME, --log-file FILENAME
+                        Filename to write log data to.
+  --log-interval        Prefix log line with interval from last message rather than relative time. Note that this is
+                        NOT execution time if there are parallel operations.
+  --no-interactive      Automatically selects the default option on any interactive prompts. If the output is not a
+                        terminal, then --no-interactive is assumed.
+  --log-no-times        Do not prefix log lines with times. By default, mach will prefix each output line with the
+                        time since command start.
+  -h, --help            Show this help message.
+  --debug-command       Start a Python debugger when command is dispatched.
+  --profile-command     Capture a Python profile of the mach process as command is dispatched.
+  --settings FILENAME   Path to settings file.
+
+Sub Commands:
+  deb                   Repackage a tar file into a .deb for Linux
+  deb-l10n              Repackage a .xpi langpack file into a .deb for Linux
+  desktop-file          Prepare a firefox.desktop file
+  dmg                   Repackage a tar file into a .dmg for OSX
+  installer             Repackage into a Windows installer exe
+  mar                   Repackage into complete MAR file
+  msi                   Repackage into a MSI
+  msix                  Repackage into an MSIX
+  pkg                   Repackage a tar file into a .pkg for OSX
+  sign-msix             Sign an MSIX for local testing
+  snap                  Repackage into Snap format for developer testing
+  snap-install          Install an unofficial Snap package and, if needed, enable its connections
+

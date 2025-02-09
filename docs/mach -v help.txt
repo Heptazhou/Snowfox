@@ -1,0 +1,211 @@
+usage: mach [global arguments] command [command arguments]
+
+Global Arguments:
+  -v, --verbose         Print verbose output.
+  -l FILENAME, --log-file FILENAME
+                        Filename to write log data to.
+  --log-interval        Prefix log line with interval from last message rather than relative time. Note that this is
+                        NOT execution time if there are parallel operations.
+  --no-interactive      Automatically selects the default option on any interactive prompts. If the output is not a
+                        terminal, then --no-interactive is assumed.
+  --log-no-times        Do not prefix log lines with times. By default, mach will prefix each output line with the
+                        time since command start.
+  -h, --help            Show this help message.
+  --debug-command       Start a Python debugger when command is dispatched.
+  --profile-command     Capture a Python profile of the mach process as command is dispatched.
+  --settings FILENAME   Path to settings file.
+
+Build Commands:
+  Interact with the build system
+
+  build                 Build the tree.
+  build-backend         Generate a backend used to build the tree.
+  cargo                 Run `cargo <cargo_command>` on a given crate. Defaults to gkrust.
+  clobber               Clobber the tree (delete the object directory).
+  compare-locales       Run source checks on a localization.
+  configure             Configure the tree (run configure and config.status).
+  hazards               Commands for running the static analysis for GC rooting hazards
+
+Post-build Commands:
+  Common actions performed after completing a build.
+
+  artifact              Use pre-built artifacts to build Firefox.
+  buildsymbols          Produce a package of Breakpad-format symbols.
+  geckodriver           Run the WebDriver implementation for Gecko.
+  install               Install the package on the machine (or device in the case of Android).
+  package               Package the built product for distribution as an APK, DMG, etc.
+  package-multi-locale  Package a multi-locale version of the built product for distribution as an APK, DMG, etc.
+  resource-usage        Show a profile of the build in the Firefox Profiler.
+  run                   Run the compiled program, possibly under a debugger or DMD.
+  show-log              Display mach logs
+  warnings-list         Show a list of compiler warnings.
+  warnings-summary      Show a summary of compiler warnings.
+  watch                 Watch and re-build (parts of) the tree.
+
+Testing:
+  Run tests.
+
+  addtest               Generate tests based on templates
+  android-test          Run Android tests.
+  awsy-test             Run Are We Slim Yet (AWSY) memory usage testing using marionette.
+  browsertime           Run [browsertime](https://github.com/sitespeedio/browsertime) performance tests.
+  cppunittest           Run cpp unit tests (C++ tests).
+  crashtest             Run crashtests (Check if crashes on a page).
+  fetch-condprofile
+  firefox-ui-functional
+                        Run the functional test suite of Firefox UI tests.
+  fluent-migration-test
+                        Test Fluent migration recipes.
+  gtest                 Run GTest unit tests (C++ tests).
+  jit-test              Run SpiderMonkey jit-tests in the JS shell.
+  jsapi-tests           Run SpiderMonkey JSAPI tests.
+  jsshell-bench         Run benchmarks in the SpiderMonkey JS shell.
+  jstestbrowser         Run js/src/tests in the browser.
+  jstests               Run SpiderMonkey JS tests in the JS shell.
+  manifest              Manifest operations
+  marionette-test       Remote control protocol to Gecko, used for browser automation.
+  mochitest             Run any flavor of mochitest (integration test).
+  mozharness            Run tests using mozharness.
+  perftest              Run any flavor of perftest
+  perftest-test         Run perftest tests
+  perftest-tools        Run perftest tools
+  puppeteer-test        Run Puppeteer unit tests.
+  python-test           Run Python unit tests with pytest.
+  raptor                Run Raptor performance tests.
+  raptor-test           Run Raptor performance tests.
+  reftest               Run reftests (layout and graphics correctness).
+  run-condprofile
+  rusttests             Run rust unit tests (via cargo test).
+  talos-test            Run talos tests (performance testing).
+  telemetry-tests-client
+                        Run tests specifically for the Telemetry client
+  test                  Run tests (detects the kind of test and runs it).
+  test-info             Display historical test results.
+  test-interventions    Test the webcompat interventions
+  tps-build             Build TPS add-on.
+  web-platform-tests    Run web-platform-tests.
+  web-platform-tests-update
+                        Update web-platform-test metadata.
+  webidl-parser-test    Run WebIDL tests (Interface Browser parser).
+  wpt                   Run web-platform-tests.
+  wpt-fetch-logs        Fetch wptreport.json logs from taskcluster
+  wpt-interop-score     Score a run according to Interop 2023
+  wpt-manifest-update   Update web-platform-test manifests.
+  wpt-metadata-merge
+  wpt-metadata-summary  Create a json summary of the wpt metadata
+  wpt-serve             Run the wpt server
+  wpt-test-paths        Get a mapping from test ids to files
+  wpt-unittest          Run the wpt tools and wptrunner unit tests
+  wpt-update            Update web-platform-test metadata.
+  xpcshell-test         Run XPCOM Shell tests (API direct unit testing)
+
+CI:
+  Taskcluster commands
+
+  release-history       Query balrog for release history used by enable partials generation
+  taskcluster-build-image
+                        Build a Docker image
+  taskcluster-image-digest
+                        Print the digest of the image of this name based on the current contents of the tree.
+  taskcluster-load-image
+                        Load a pre-built Docker image. Note that you need to have docker installed and running for
+                        this to work.
+  taskgraph             Manipulate TaskCluster task graphs defined in-tree
+  try                   Push selected tasks to the try server
+
+Development Environment:
+  Set up and configure your development environment.
+
+  android-emulator      Run the Android emulator with an AVD from test automation. Environment variable
+                        MOZ_EMULATOR_COMMAND_ARGS, if present, will over-ride the command line arguments used to
+                        launch the emulator.
+  bootstrap             Install required system packages for building.
+  clang-tidy            Convenience alias for the static-analysis command
+  compileflags          Display the compilation flags for a given source file
+  doc                   Generate and serve documentation from the tree.
+  doctor                Diagnose and fix common development environment issues.
+  eslint                Run eslint or help configure eslint for optimal development.
+  format                Format files, alternative to 'lint --fix'
+  generate-test-certs   Generate test certificates and keys from specifications.
+  ide                   Generate a project and launch an IDE.
+  lint                  Run linters.
+  node                  Run the NodeJS interpreter used for building.
+  npm                   Run the npm executable from the NodeJS used for building.
+  python                Run Python.
+  settings              Show available config settings.
+  static-analysis       Run C++ static analysis checks using clang-tidy
+  uniffi                Generate JS bindings using uniffi-bindgen-gecko-js
+  vcs-setup             Help configure a VCS for optimal development.
+
+Low-level Build System Interaction:
+  Interact with specific parts of the build system.
+
+  environment           Show info about the mach and build environment.
+  file-info             Query for metadata about files.
+  mozbuild-reference    View reference documentation on mozbuild files.
+
+Potpourri:
+  Potent potables and assorted snacks.
+
+  addstory              Scaffold a front-end Storybook story.
+  addwidget             Scaffold a front-end component.
+  buildtokens           Build the design tokens CSS files
+  busted                Query known bugs in our tooling, and file new ones.
+  clang-format          Run clang-format on current changes
+  data-review           Describe how Data Review works in mozilla-central
+  event-into-legacy     Create a Legacy Telemetry compatible event definition from an existing Glean Event metric.
+  gen-use-counter-metrics
+                        Generate a Glean use_counter_metrics.yaml file, creating metrics definitions for every use
+                        counter.
+  gen-uuid              Generate a uuid suitable for use in xpidl files and/or in C++
+  gifft                 Generate a Glean metric definition for a given Legacy Telemetry probe. Only supports Events
+                        and Scalars.
+  import-pr             Import a pull request from Github to the local repo.
+  install-moz-phab      Install patch submission tool.
+  logspam               Warning categorizer for treeherder test runs.
+  mach-commands         List all mach commands.
+  mach-completion       Prints a list of completion strings for the specified command.
+  mach-debug-commands   Show info about available mach commands.
+  macos-sign            Sign a built and packaged (./mach build package) Firefox bundle on macOS. Limitations: 1)
+                        macos-sign doesn't support building the .app built in the object dir in-place (for now)
+                        because it contains symlinks. First use "./mach build package" to build a .dmg containing a
+                        bundled .app. Then extract the .app from the dmg to a readable/writable directory. The bundled
+                        app can be signed with macos-sign (using the -a argument). 2) The signing configuration (which
+                        maps files in the .app to entitlement files in the tree to be used when signing) is loaded
+                        from the build configuration in the local repo. For example, when signing a Release 120 build
+                        using mach from a revision of mozilla-central, macos-sign will use the bundle ID to determine
+                        the signing should use the Release channel entitlements, but the configuration used will be
+                        the Release configuration as defined in the repo working directory, not the configuration from
+                        the revision of the earlier 120 build.
+  mots                  Manage module information in-tree using the mots CLI.
+  mozregression         Regression range finder for nightly and inbound builds.
+  pastebin              Command line interface to paste.mozilla.org.
+  prettier-format       Run prettier on current changes
+  remote                Remote protocol related operations.
+  repackage             Repackage artifacts into different formats.
+  storybook             Start the Storybook server and launch the site in a local build of Firefox. This will install
+                        npm dependencies, if necessary.
+  ts                    Run TypeScript and related commands.
+  update-glean          Update Glean to the given version
+  update-glean-tags     Creates a list of valid glean tags based on in-tree bugzilla component definitions
+  vendor                Vendor third-party dependencies into the source repository.
+  webidl-example        Generate example files for a WebIDL interface.
+  xpcshell              Run the xpcshell binary
+
+Release automation:
+  Commands for used in release automation.
+
+  release               Task that are part of the release process.
+
+Disabled:
+  The disabled commands are hidden by default. Use -v to display them. These commands are unavailable for your
+  current context, run "mach <command>" to see why.
+
+  geckoview-junit       Run remote geckoview junit tests.
+  valgrind-test         Run the Valgrind test job (memory-related errors).
+  android               Run Android-specific commands.
+  gradle                Run gradle.
+  gradle-install
+  power                 Get system power consumption and related measurements for all running browsers. Available only
+                        on Mac OS X 10.10 and above. Requires root access.
+

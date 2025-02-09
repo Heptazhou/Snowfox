@@ -1,0 +1,41 @@
+usage: mach [global arguments] clobber [command arguments]
+
+Clean up the source and object directories.
+
+Performing builds and running various commands generate various files.
+
+Sometimes it is necessary to clean up these files in order to make
+things work again. This command can be used to perform that cleanup.
+
+The `objdir` target removes most files in the current object directory
+(where build output is stored). Some files (like Visual Studio project
+files) are not removed by default. If you would like to remove the
+object directory in its entirety, run with `--full`.
+
+The `python` target will clean up Python's generated files (virtualenvs,
+".pyc", "__pycache__", etc).
+
+The `gradle` target will remove the "gradle" subdirectory of the object
+directory.
+
+By default, the command clobbers the `objdir` and `python` targets.
+
+Global Arguments:
+  -v, --verbose         Print verbose output.
+  -l FILENAME, --log-file FILENAME
+                        Filename to write log data to.
+  --log-interval        Prefix log line with interval from last message rather than relative time. Note that this is
+                        NOT execution time if there are parallel operations.
+  --no-interactive      Automatically selects the default option on any interactive prompts. If the output is not a
+                        terminal, then --no-interactive is assumed.
+  --log-no-times        Do not prefix log lines with times. By default, mach will prefix each output line with the
+                        time since command start.
+  -h, --help            Show this help message.
+  --debug-command       Start a Python debugger when command is dispatched.
+  --profile-command     Capture a Python profile of the mach process as command is dispatched.
+  --settings FILENAME   Path to settings file.
+
+Command Arguments:
+  what    Target to clobber, must be one of {objdir, gradle, python} (default objdir and python).
+  --full  Perform a full clobber
+

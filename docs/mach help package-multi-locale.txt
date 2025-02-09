@@ -1,0 +1,24 @@
+usage: mach [global arguments] package-multi-locale [command arguments]
+
+Package a multi-locale version of the built product for distribution as an APK, DMG, etc.
+
+Global Arguments:
+  -v, --verbose         Print verbose output.
+  -l FILENAME, --log-file FILENAME
+                        Filename to write log data to.
+  --log-interval        Prefix log line with interval from last message rather than relative time. Note that this is
+                        NOT execution time if there are parallel operations.
+  --no-interactive      Automatically selects the default option on any interactive prompts. If the output is not a
+                        terminal, then --no-interactive is assumed.
+  --log-no-times        Do not prefix log lines with times. By default, mach will prefix each output line with the
+                        time since command start.
+  -h, --help            Show this help message.
+  --debug-command       Start a Python debugger when command is dispatched.
+  --profile-command     Capture a Python profile of the mach process as command is dispatched.
+  --settings FILENAME   Path to settings file.
+
+Command Arguments:
+  --locales LOCALES [LOCALES ...]
+                        List of locales to package (default browser/locales/shipped-locales)
+  --verbose             Log informative status messages.
+

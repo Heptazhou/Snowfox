@@ -1,0 +1,37 @@
+usage: mach [global arguments] artifact toolchain [command arguments]
+
+Download, cache and install pre-built toolchains.
+
+Global Arguments:
+  -v, --verbose         Print verbose output.
+  -l FILENAME, --log-file FILENAME
+                        Filename to write log data to.
+  --log-interval        Prefix log line with interval from last message rather than relative time. Note that this is
+                        NOT execution time if there are parallel operations.
+  --no-interactive      Automatically selects the default option on any interactive prompts. If the output is not a
+                        terminal, then --no-interactive is assumed.
+  --log-no-times        Do not prefix log lines with times. By default, mach will prefix each output line with the
+                        time since command start.
+  -h, --help            Show this help message.
+  --debug-command       Start a Python debugger when command is dispatched.
+  --profile-command     Capture a Python profile of the mach process as command is dispatched.
+  --settings FILENAME   Path to settings file.
+
+Sub Command Arguments:
+  --verbose, -v         Print verbose output.
+  --cache-dir DIR       Directory where to store the artifacts cache
+  --skip-cache          Skip all local caches to force re-fetching remote artifacts.
+  --from-build BUILD [BUILD ...]
+                        Download toolchains resulting from the given build(s); BUILD is a name of a toolchain task,
+                        e.g. linux64-clang
+  --from-task TASK_ID:ARTIFACT [TASK_ID:ARTIFACT ...]
+                        Download toolchain artifact from a given task.
+  --tooltool-manifest MANIFEST
+                        Explicit tooltool manifest to process
+  --no-unpack           Do not unpack any downloaded file
+  --retry RETRY         Number of times to retry failed downloads
+  --bootstrap           Whether this is being called from bootstrap. This verifies the toolchain is annotated as a
+                        toolchain used for local development.
+  --artifact-manifest FILE
+                        Store a manifest about the downloaded taskcluster artifacts
+

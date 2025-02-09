@@ -1,0 +1,42 @@
+usage: mach [global arguments] vendor subcommand [subcommand arguments]
+
+Vendor third-party dependencies into the source repository.
+
+Vendoring rust and python can be done with ./mach vendor [rust/python].
+Vendoring other libraries can be done with ./mach vendor [arguments] path/to/file.yaml
+
+Global Arguments:
+  -v, --verbose         Print verbose output.
+  -l FILENAME, --log-file FILENAME
+                        Filename to write log data to.
+  --log-interval        Prefix log line with interval from last message rather than relative time. Note that this is
+                        NOT execution time if there are parallel operations.
+  --no-interactive      Automatically selects the default option on any interactive prompts. If the output is not a
+                        terminal, then --no-interactive is assumed.
+  --log-no-times        Do not prefix log lines with times. By default, mach will prefix each output line with the
+                        time since command start.
+  -h, --help            Show this help message.
+  --debug-command       Start a Python debugger when command is dispatched.
+  --profile-command     Capture a Python profile of the mach process as command is dispatched.
+  --settings FILENAME   Path to settings file.
+
+Sub Commands:
+  python                Vendor Python packages from pypi.org into third_party/python. Some extra files like docs and
+                        tests will automatically be excluded.Downloads the packages listed in
+                        third_party/python/pyproject.toml, along with their transitive dependencies, and adds them to
+                        version control.
+  rust                  Vendor rust crates from crates.io into third_party/rust
+
+Command Arguments:
+  --check-for-update    For scripted use, prints the new commit to update to, or nothing if up to date.
+  --add-to-exports      Will attempt to add new header files into any relevant EXPORTS block.
+  --ignore-modified     Ignore modified files in current checkout.
+  -r REVISION, --revision REVISION
+                        Repository tag or commit to update to.
+  -f, --force           Force a re-vendor even if we're up to date
+  --verify, -v          (Only) verify the manifest.
+  --patch-mode PATCH_MODE
+                        Select how vendored patches will be imported. 'none' skips patch import, and'only' imports
+                        patches and skips library vendoring.
+  library               The moz.yaml file of the library to vendor.
+
