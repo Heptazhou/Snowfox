@@ -7,6 +7,7 @@
  browser/app/profile/firefox.js                     | 160 +++++++-------
  .../{firefox.exe.manifest => snowfox.exe.manifest} |   4 +-
  browser/app/splash.rc                              |   4 +-
+ browser/app/winlauncher/ErrorHandler.cpp           |   6 +-
  browser/base/content/aboutDialog.css               |  27 ++-
  browser/base/content/aboutDialog.js                |   9 +-
  browser/base/content/aboutDialog.xhtml             |   9 +-
@@ -97,6 +98,7 @@
  dom/xml/resources/XMLPrettyPrint.css               |   3 +-
  gfx/thebes/PrintTargetPDF.cpp                      |   2 +-
  gfx/thebes/PrintTargetSkPDF.cpp                    |   2 +-
+ gfx/thebes/gfxWindowsPlatform.cpp                  |   6 +-
  image/DecoderFactory.cpp                           |   6 +
  image/decoders/nsAVIFDecoder.cpp                   |   4 +
  image/decoders/nsJXLDecoder.cpp                    | 241 +++++++++++++++++++--
@@ -124,16 +126,24 @@
  python/mozbuild/mozbuild/mach_commands.py          |  11 +-
  .../html-build-viewer/build_resources.html         |   4 +-
  .../manager/pki/resources/content/clientauthask.js |   4 +-
+ .../chromium-shim/base/file_version_info_win.cpp   |   4 +-
  services/settings/Utils.sys.mjs                    |   4 +-
  services/sync/modules/telemetry.sys.mjs            |   2 +-
  taskcluster/gecko_taskgraph/util/hash.py           |  10 +-
  .../taskcluster_taskgraph/taskgraph/util/hash.py   |   2 +-
+ .../lib/libwinapi_mincore.a                        |   2 +-
+ .../lib/libwinapi_onecore.a                        |   2 +-
+ .../lib/libwinapi_onecoreuap.a                     |   2 +-
+ .../lib/libwinapi_mincore.a                        |   2 +-
+ .../lib/libwinapi_onecore.a                        |   2 +-
+ .../lib/libwinapi_onecoreuap.a                     |   2 +-
  toolkit/actors/PictureInPictureChild.sys.mjs       |   6 +-
  .../aboutthirdparty/content/aboutThirdParty.js     |   2 +-
  .../components/certviewer/content/certDecoder.mjs  |  12 +-
  .../enterprisepolicies/WindowsGPOParser.sys.mjs    |   2 +-
  .../enterprisepolicies/macOSPoliciesParser.sys.mjs |   2 +-
  toolkit/components/extensions/Extension.sys.mjs    |   6 +-
+ .../maintenanceservice/serviceinstall.cpp          |   6 +-
  toolkit/components/pdfjs/content/build/pdf.mjs     |   2 +-
  toolkit/components/pdfjs/content/web/viewer.css    |   4 +-
  toolkit/components/pdfjs/content/web/viewer.mjs    |  10 +-
@@ -157,6 +167,8 @@
  toolkit/content/widgets/datekeeper.js              |   4 +-
  toolkit/content/widgets/datepicker.js              |   8 +-
  toolkit/content/widgets/datetimebox.js             |   4 +-
+ .../windows/unittests/minidump_test.cc             |   4 +-
+ .../src/tools/windows/symupload/symupload.cc       |   4 +-
  .../locales/en-US/toolkit/branding/brandings.ftl   |  10 +-
  toolkit/locales/en-US/toolkit/pdfviewer/viewer.ftl |   4 +-
  toolkit/modules/DateTimePickerPanel.sys.mjs        |   4 +-
@@ -171,11 +183,14 @@
  toolkit/themes/shared/aboutServiceWorkers.css      |   5 +
  toolkit/themes/shared/aboutSupport.css             |   8 +
  toolkit/themes/shared/in-content/common-shared.css |   1 +
+ toolkit/xre/dllservices/ModuleVersionInfo.cpp      |   4 +-
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
  tools/@types/package.json                          |   1 +
  .../eslint-plugin-spidermonkey-js/package.json     |   1 +
+ widget/windows/WinHeaderOnlyUtils.h                |   6 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
- 177 files changed, 1082 insertions(+), 686 deletions(-)
+ xpcom/io/nsLocalFileWin.cpp                        |   4 +-
+ 192 files changed, 1110 insertions(+), 714 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -833,6 +848,26 @@ index 259a8068c3aa..217d8ff8c9f2 100644
  IDI_NEWWINDOW ICON NEWWINDOW_ICO
  IDI_NEWTAB ICON NEWTAB_ICO
  IDI_PBMODE ICON PBMODE_ICO
+diff --git a/browser/app/winlauncher/ErrorHandler.cpp b/browser/app/winlauncher/ErrorHandler.cpp
+index 706842446bf8..60c689086fca 100644
+--- a/browser/app/winlauncher/ErrorHandler.cpp
++++ b/browser/app/winlauncher/ErrorHandler.cpp
+@@ -384,12 +384,12 @@ static bool AddModuleInfo(const nsAutoHandle& aSnapshot,
+     aJson.StartArrayProperty(mozilla::MakeStringSpan(leafUtf8.get()));
+ 
+     std::string version;
+-    DWORD verInfoSize = ::GetFileVersionInfoSizeW(module.szExePath, nullptr);
++    DWORD verInfoSize = ::GetFileVersionInfoSizeExW(0, module.szExePath, nullptr);
+     if (verInfoSize) {
+       auto verInfoBuf = mozilla::MakeUnique<BYTE[]>(verInfoSize);
+ 
+-      if (::GetFileVersionInfoW(module.szExePath, 0, verInfoSize,
+-                                verInfoBuf.get())) {
++      if (::GetFileVersionInfoExW(0, module.szExePath, 0, verInfoSize,
++                                  verInfoBuf.get())) {
+         VS_FIXEDFILEINFO* fixedInfo = nullptr;
+         UINT fixedInfoLen = 0;
+ 
 diff --git a/browser/base/content/aboutDialog.css b/browser/base/content/aboutDialog.css
 index e1e95883da9e..b50ca0cf2eb3 100644
 --- a/browser/base/content/aboutDialog.css
@@ -3253,6 +3288,30 @@ index 6a1cde8847b1..9b17802e87f5 100644
    SkPDF::DateTime now = {0};
    SkPDFUtils::GetDateTime(&now);
    metadata.fCreation = now;
+diff --git a/gfx/thebes/gfxWindowsPlatform.cpp b/gfx/thebes/gfxWindowsPlatform.cpp
+index c0a645f19842..bfe9c4f3dd1f 100644
+--- a/gfx/thebes/gfxWindowsPlatform.cpp
++++ b/gfx/thebes/gfxWindowsPlatform.cpp
+@@ -1271,7 +1271,7 @@ void gfxWindowsPlatform::GetDLLVersion(char16ptr_t aDLLPath,
+   DWORD versInfoSize, vers[4] = {0};
+   // version info not available case
+   aVersion.AssignLiteral(u"0.0.0.0");
+-  versInfoSize = GetFileVersionInfoSizeW(aDLLPath, nullptr);
++  versInfoSize = GetFileVersionInfoSizeExW(0, aDLLPath, nullptr);
+   AutoTArray<BYTE, 512> versionInfo;
+ 
+   if (versInfoSize == 0) {
+@@ -1282,8 +1282,8 @@ void gfxWindowsPlatform::GetDLLVersion(char16ptr_t aDLLPath,
+   // pretended earlier.
+   versionInfo.AppendElements(uint32_t(versInfoSize));
+ 
+-  if (!GetFileVersionInfoW(aDLLPath, 0, versInfoSize,
+-                           LPBYTE(versionInfo.Elements()))) {
++  if (!GetFileVersionInfoExW(0, aDLLPath, 0, versInfoSize,
++                             LPBYTE(versionInfo.Elements()))) {
+     return;
+   }
+ 
 diff --git a/image/DecoderFactory.cpp b/image/DecoderFactory.cpp
 index f36f03c7f262..d5eba465cf48 100644
 --- a/image/DecoderFactory.cpp
@@ -4768,6 +4827,26 @@ index 747e347ab514..cc15921ebf20 100644
      timeStyle: "long",
    });
    document.l10n.setAttributes(
+diff --git a/security/sandbox/chromium-shim/base/file_version_info_win.cpp b/security/sandbox/chromium-shim/base/file_version_info_win.cpp
+index bc4d6a4fe0ad..1db90589b3b0 100644
+--- a/security/sandbox/chromium-shim/base/file_version_info_win.cpp
++++ b/security/sandbox/chromium-shim/base/file_version_info_win.cpp
+@@ -51,13 +51,13 @@ FileVersionInfoWin::CreateFileVersionInfoWin(const base::FilePath& file_path) {
+ 
+   DWORD dummy;
+   const wchar_t* path = file_path.value().c_str();
+-  const DWORD length = ::GetFileVersionInfoSize(path, &dummy);
++  const DWORD length = ::GetFileVersionInfoSizeEx(0, path, &dummy);
+   if (length == 0)
+     return nullptr;
+ 
+   std::vector<uint8_t> data(length, 0);
+ 
+-  if (!::GetFileVersionInfo(path, dummy, length, data.data()))
++  if (!::GetFileVersionInfoEx(0, path, dummy, length, data.data()))
+     return nullptr;
+ 
+   const LanguageAndCodePage* translate = GetTranslate(data.data());
 diff --git a/services/settings/Utils.sys.mjs b/services/settings/Utils.sys.mjs
 index d3643aedf21a..b896a68dc60d 100644
 --- a/services/settings/Utils.sys.mjs
@@ -4841,6 +4920,83 @@ index ad50dc5a1c2f..14f0065aa72f 100644
      for path in sorted(found):
          h.update(
              f"{hash_path(mozpath.abspath(mozpath.join(base_path, path)))} {mozpath.normsep(path)}\n".encode()
+diff --git a/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_mincore.a b/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_mincore.a
+index 1d283d8ab23d..5de35a4e7d0e 100644
+--- a/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_mincore.a
++++ b/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_mincore.a
+@@ -1,6 +1,6 @@
+ INPUT(
+ libwinapi_mincore-dfscli.a
+-libwinapi_mincore-api-ms-win-core-version-l1-1-1.a
++libwinapi_mincore-api-ms-win-core-version-l1-1-0.a
+ libwinapi_mincore-api-ms-win-core-processthreads-l1-1-1.a
+ libwinapi_mincore-api-ms-win-core-winrt-error-l1-1-0.a
+ libwinapi_mincore-api-ms-win-devices-config-l1-1-1.a
+diff --git a/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_onecore.a b/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_onecore.a
+index c3ad6036b0ce..4fb271c96579 100644
+--- a/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_onecore.a
++++ b/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_onecore.a
+@@ -24,7 +24,7 @@ libwinapi_onecore-api-ms-win-shcore-scaling-l1-1-2.a
+ libwinapi_onecore-mswsock.a
+ libwinapi_onecore-api-ms-win-core-fibers-l2-1-0.a
+ libwinapi_onecore-api-ms-win-shell-shdirectory-l1-1-0.a
+-libwinapi_onecore-api-ms-win-core-version-l1-1-1.a
++libwinapi_onecore-api-ms-win-core-version-l1-1-0.a
+ libwinapi_onecore-api-ms-win-core-processthreads-l1-1-2.a
+ libwinapi_onecore-dsrole.a
+ libwinapi_onecore-schedcli.a
+diff --git a/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_onecoreuap.a b/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_onecoreuap.a
+index 34c606fa64d3..1b3fe11a5f0c 100644
+--- a/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_onecoreuap.a
++++ b/third_party/rust/winapi-i686-pc-windows-gnu/lib/libwinapi_onecoreuap.a
+@@ -294,7 +294,7 @@ libwinapi_onecoreuap-api-ms-win-core-file-l1-2-2.a
+ libwinapi_onecoreuap-api-ms-win-core-processthreads-l1-1-1.a
+ libwinapi_onecoreuap-api-ms-win-security-systemfunctions-l1-1-0.a
+ libwinapi_onecoreuap-api-ms-win-core-com-l1-1-2.a
+-libwinapi_onecoreuap-api-ms-win-core-version-l1-1-1.a
++libwinapi_onecoreuap-api-ms-win-core-version-l1-1-0.a
+ libwinapi_onecoreuap-api-ms-win-core-kernel32-legacy-l1-1-1.a
+ libwinapi_onecoreuap-api-ms-win-core-profile-l1-1-0.a
+ libwinapi_onecoreuap-api-ms-win-eventing-classicprovider-l1-1-0.a
+diff --git a/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_mincore.a b/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_mincore.a
+index d2e567dd2292..c02074e627a7 100644
+--- a/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_mincore.a
++++ b/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_mincore.a
+@@ -135,7 +135,7 @@ libwinapi_mincore-api-ms-win-core-rtlsupport-l1-1-0.a
+ libwinapi_mincore-mpr.a
+ libwinapi_mincore-api-ms-win-core-synch-l1-1-0.a
+ libwinapi_mincore-bcrypt.a
+-libwinapi_mincore-api-ms-win-core-version-l1-1-1.a
++libwinapi_mincore-api-ms-win-core-version-l1-1-0.a
+ libwinapi_mincore-api-ms-win-core-timezone-l1-1-0.a
+ libwinapi_mincore-dnsapi.a
+ libwinapi_mincore-api-ms-win-core-datetime-l1-1-1.a
+diff --git a/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_onecore.a b/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_onecore.a
+index 73de4a1a64cc..3210dfd4f84d 100644
+--- a/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_onecore.a
++++ b/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_onecore.a
+@@ -180,7 +180,7 @@ libwinapi_onecore-api-ms-win-core-registry-l1-1-0.a
+ libwinapi_onecore-api-ms-win-core-file-l2-1-0.a
+ libwinapi_onecore-api-ms-win-core-calendar-l1-1-0.a
+ libwinapi_onecore-api-ms-win-core-processthreads-l1-1-3.a
+-libwinapi_onecore-api-ms-win-core-version-l1-1-1.a
++libwinapi_onecore-api-ms-win-core-version-l1-1-0.a
+ libwinapi_onecore-api-ms-win-core-kernel32-legacy-l1-1-2.a
+ libwinapi_onecore-api-ms-win-core-largeinteger-l1-1-0.a
+ libwinapi_onecore-api-ms-win-core-namedpipe-l1-2-2.a
+diff --git a/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_onecoreuap.a b/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_onecoreuap.a
+index 8e19e5165e32..969e80f9a227 100644
+--- a/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_onecoreuap.a
++++ b/third_party/rust/winapi-x86_64-pc-windows-gnu/lib/libwinapi_onecoreuap.a
+@@ -124,7 +124,7 @@ libwinapi_onecoreuap-api-ms-win-core-rtlsupport-l1-1-0.a
+ libwinapi_onecoreuap-uiautomationcore.a
+ libwinapi_onecoreuap-api-ms-win-core-util-l1-1-1.a
+ libwinapi_onecoreuap-api-ms-win-core-libraryloader-l1-2-2.a
+-libwinapi_onecoreuap-api-ms-win-core-version-l1-1-1.a
++libwinapi_onecoreuap-api-ms-win-core-version-l1-1-0.a
+ libwinapi_onecoreuap-ws2_32.a
+ libwinapi_onecoreuap-api-ms-win-core-wow64-l1-1-0.a
+ libwinapi_onecoreuap-api-ms-win-core-namedpipe-ansi-l1-1-0.a
 diff --git a/toolkit/actors/PictureInPictureChild.sys.mjs b/toolkit/actors/PictureInPictureChild.sys.mjs
 index 7ae1aa58bbae..559bb7651616 100644
 --- a/toolkit/actors/PictureInPictureChild.sys.mjs
@@ -4950,6 +5106,24 @@ index 4e2d93473a52..c41774db580a 100644
        // Add to EP so it is preserved after ADDON_INSTALL.
        lazy.ExtensionPermissions.add(this.id, {
          permissions: [PRIVATE_ALLOWED_PERMISSION],
+diff --git a/toolkit/components/maintenanceservice/serviceinstall.cpp b/toolkit/components/maintenanceservice/serviceinstall.cpp
+index c59a74b94a02..2f11d2c615b5 100644
+--- a/toolkit/components/maintenanceservice/serviceinstall.cpp
++++ b/toolkit/components/maintenanceservice/serviceinstall.cpp
+@@ -78,10 +78,10 @@ static int ReadMaintenanceServiceStrings(
+  */
+ static BOOL GetVersionNumberFromPath(LPWSTR path, DWORD& A, DWORD& B, DWORD& C,
+                                      DWORD& D) {
+-  DWORD fileVersionInfoSize = GetFileVersionInfoSizeW(path, 0);
++  DWORD fileVersionInfoSize = GetFileVersionInfoSizeExW(0, path, 0);
+   mozilla::UniquePtr<char[]> fileVersionInfo(new char[fileVersionInfoSize]);
+-  if (!GetFileVersionInfoW(path, 0, fileVersionInfoSize,
+-                           fileVersionInfo.get())) {
++  if (!GetFileVersionInfoExW(0, path, 0, fileVersionInfoSize,
++                             fileVersionInfo.get())) {
+     LOG_WARN(
+         ("Could not obtain file info of old service.  (%lu)", GetLastError()));
+     return FALSE;
 diff --git a/toolkit/components/pdfjs/content/build/pdf.mjs b/toolkit/components/pdfjs/content/build/pdf.mjs
 index 9798d4f8f947..58eac3e07740 100644
 --- a/toolkit/components/pdfjs/content/build/pdf.mjs
@@ -5550,6 +5724,48 @@ index e7099e4028c8..65fdc1d6ebea 100644
      formatter.formatToParts(Date.now()).map(part => {
        switch (part.type) {
          case "year":
+diff --git a/toolkit/crashreporter/breakpad-client/windows/unittests/minidump_test.cc b/toolkit/crashreporter/breakpad-client/windows/unittests/minidump_test.cc
+index 82641125c1c0..131414d90953 100644
+--- a/toolkit/crashreporter/breakpad-client/windows/unittests/minidump_test.cc
++++ b/toolkit/crashreporter/breakpad-client/windows/unittests/minidump_test.cc
+@@ -130,7 +130,7 @@ class MinidumpTest: public testing::Test {
+ bool HasFileInfo(const std::wstring& file_path) {
+   DWORD dummy;
+   const wchar_t* path = file_path.c_str();
+-  DWORD length = ::GetFileVersionInfoSize(path, &dummy);
++  DWORD length = ::GetFileVersionInfoSizeEx(0, path, &dummy);
+   if (length == 0)
+     return NULL;
+ 
+@@ -138,7 +138,7 @@ bool HasFileInfo(const std::wstring& file_path) {
+   if (!data)
+     return false;
+ 
+-  if (!::GetFileVersionInfo(path, dummy, length, data)) {
++  if (!::GetFileVersionInfoEx(0, path, dummy, length, data)) {
+     free(data);
+     return false;
+   }
+diff --git a/toolkit/crashreporter/google-breakpad/src/tools/windows/symupload/symupload.cc b/toolkit/crashreporter/google-breakpad/src/tools/windows/symupload/symupload.cc
+index 7e3029326d5c..e8e007e85af6 100644
+--- a/toolkit/crashreporter/google-breakpad/src/tools/windows/symupload/symupload.cc
++++ b/toolkit/crashreporter/google-breakpad/src/tools/windows/symupload/symupload.cc
+@@ -75,13 +75,13 @@ using google_breakpad::WindowsStringUtils;
+ // as a string, for example, "1.2.3.4".  Returns true on success.
+ static bool GetFileVersionString(const wchar_t *filename, wstring *version) {
+   DWORD handle;
+-  DWORD version_size = GetFileVersionInfoSize(filename, &handle);
++  DWORD version_size = GetFileVersionInfoSizeEx(0, filename, &handle);
+   if (version_size < sizeof(VS_FIXEDFILEINFO)) {
+     return false;
+   }
+ 
+   vector<char> version_info(version_size);
+-  if (!GetFileVersionInfo(filename, handle, version_size, &version_info[0])) {
++  if (!GetFileVersionInfoEx(0, filename, handle, version_size, &version_info[0])) {
+     return false;
+   }
+ 
 diff --git a/toolkit/locales/en-US/toolkit/branding/brandings.ftl b/toolkit/locales/en-US/toolkit/branding/brandings.ftl
 index 3861d8b61317..1094d23650ae 100644
 --- a/toolkit/locales/en-US/toolkit/branding/brandings.ftl
@@ -5882,6 +6098,26 @@ index 0315cd6896ba..9df12fcad656 100644
  }
  
  @media (prefers-color-scheme: dark) {
+diff --git a/toolkit/xre/dllservices/ModuleVersionInfo.cpp b/toolkit/xre/dllservices/ModuleVersionInfo.cpp
+index c8c2956a7405..b96a0762841b 100644
+--- a/toolkit/xre/dllservices/ModuleVersionInfo.cpp
++++ b/toolkit/xre/dllservices/ModuleVersionInfo.cpp
+@@ -69,13 +69,13 @@ static bool QueryStringValue(const void* aBlock, const DWORD* aTranslations,
+ 
+ bool ModuleVersionInfo::GetFromImage(const nsAString& aPath) {
+   nsString path(aPath);
+-  DWORD infoSize = GetFileVersionInfoSizeW(path.get(), nullptr);
++  DWORD infoSize = GetFileVersionInfoSizeExW(0, path.get(), nullptr);
+   if (!infoSize) {
+     return false;
+   }
+ 
+   auto verInfo = MakeUnique<BYTE[]>(infoSize);
+-  if (!::GetFileVersionInfoW(path.get(), 0, infoSize, verInfo.get())) {
++  if (!::GetFileVersionInfoExW(0, path.get(), 0, infoSize, verInfo.get())) {
+     return false;
+   }
+ 
 diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
 index 3b4612e02c5b..31c47e47ba12 100644
 --- a/toolkit/xre/nsXREDirProvider.cpp
@@ -5987,6 +6223,28 @@ index 7563a31995c1..61c3cfb79e13 100644
    "description": "A collection of rules that help enforce JavaScript coding standard in the Mozilla SpiderMonkey project.",
    "keywords": [
      "eslint",
+diff --git a/widget/windows/WinHeaderOnlyUtils.h b/widget/windows/WinHeaderOnlyUtils.h
+index 15861cc73b88..5359a64df482 100644
+--- a/widget/windows/WinHeaderOnlyUtils.h
++++ b/widget/windows/WinHeaderOnlyUtils.h
+@@ -673,14 +673,14 @@ class ModuleVersion final {
+ 
+ inline LauncherResult<ModuleVersion> GetModuleVersion(
+     const wchar_t* aModuleFullPath) {
+-  DWORD verInfoLen = ::GetFileVersionInfoSizeW(aModuleFullPath, nullptr);
++  DWORD verInfoLen = ::GetFileVersionInfoSizeExW(0, aModuleFullPath, nullptr);
+   if (!verInfoLen) {
+     return LAUNCHER_ERROR_FROM_LAST();
+   }
+ 
+   auto verInfoBuf = MakeUnique<BYTE[]>(verInfoLen);
+-  if (!::GetFileVersionInfoW(aModuleFullPath, 0, verInfoLen,
+-                             verInfoBuf.get())) {
++  if (!::GetFileVersionInfoExW(0, aModuleFullPath, 0, verInfoLen,
++                               verInfoBuf.get())) {
+     return LAUNCHER_ERROR_FROM_LAST();
+   }
+ 
 diff --git a/xpcom/base/AvailableMemoryWatcherWin.cpp b/xpcom/base/AvailableMemoryWatcherWin.cpp
 index 1effbe322657..7b3311186d93 100644
 --- a/xpcom/base/AvailableMemoryWatcherWin.cpp
@@ -6004,3 +6262,23 @@ index 1effbe322657..7b3311186d93 100644
  }
  
  void nsAvailableMemoryWatcher::StartPollingIfUserInteracting(
+diff --git a/xpcom/io/nsLocalFileWin.cpp b/xpcom/io/nsLocalFileWin.cpp
+index 2aa6cf4fbdc4..3e25725511f3 100644
+--- a/xpcom/io/nsLocalFileWin.cpp
++++ b/xpcom/io/nsLocalFileWin.cpp
+@@ -1661,13 +1661,13 @@ nsLocalFile::GetVersionInfoField(const char* aField, nsAString& aResult) {
+   const WCHAR* path = mWorkingPath.get();
+ 
+   DWORD dummy;
+-  DWORD size = ::GetFileVersionInfoSizeW(path, &dummy);
++  DWORD size = ::GetFileVersionInfoSizeExW(0, path, &dummy);
+   if (!size) {
+     return rv;
+   }
+ 
+   void* ver = moz_xcalloc(size, 1);
+-  if (::GetFileVersionInfoW(path, 0, size, ver)) {
++  if (::GetFileVersionInfoExW(0, path, 0, size, ver)) {
+     LANGANDCODEPAGE* translate = nullptr;
+     UINT pageCount;
+     BOOL queryResult = ::VerQueryValueW(ver, L"\\VarFileInfo\\Translation",

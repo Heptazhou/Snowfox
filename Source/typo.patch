@@ -7,6 +7,7 @@
  browser/components/search/content/searchbar.js     |  2 +-
  .../components/sessionstore/SessionStore.sys.mjs   | 16 ++++-----
  browser/components/tabbrowser/TabUnloader.sys.mjs  |  2 +-
+ config/windows-h-unicode.decls.h                   |  2 +-
  .../client/framework/browser-toolbox/window.js     |  2 +-
  devtools/client/fronts/inspector.js                |  2 +-
  devtools/server/actors/watcher/session-context.js  |  2 +-
@@ -43,7 +44,7 @@
  .../mozapps/extensions/internal/XPIInstall.sys.mjs |  4 +--
  toolkit/xre/nsAppRunner.cpp                        |  4 +--
  uriloader/exthandler/ExtHandlerService.sys.mjs     |  2 +-
- 45 files changed, 112 insertions(+), 112 deletions(-)
+ 46 files changed, 113 insertions(+), 113 deletions(-)
 
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
 index 3d0b3613be4a..9c651d66c386 100644
@@ -331,6 +332,19 @@ index 44846cc902fd..3852cb2cb72e 100644
 +// the lowest tab. Otherwise, do a more intensive computation that determines the
  // tabs to close based on memory and process use.
  const MIN_TABS_COUNT = 10;
+ 
+diff --git a/config/windows-h-unicode.decls.h b/config/windows-h-unicode.decls.h
+index 9274bcca9da2..3a0f0a660fd6 100644
+--- a/config/windows-h-unicode.decls.h
++++ b/config/windows-h-unicode.decls.h
+@@ -15,7 +15,7 @@
+  * will be defined as 'inline', and will only be defined if the corresponding
+  * #define directive has not been #undef-ed.
+  *
+- * NOTE: This is *NOT* a real C header, but rather an input to the avove script.
++ * NOTE: This is *NOT* a real C header, but rather an input to the above script.
+  * Only basic declarations in the form found here are allowed.
+  */
  
 diff --git a/devtools/client/framework/browser-toolbox/window.js b/devtools/client/framework/browser-toolbox/window.js
 index 7f251f3fd5b5..30ca768b8339 100644
