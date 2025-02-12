@@ -4,6 +4,7 @@ ac_add_options --disable-cargo-incremental
 ac_add_options --disable-crashreporter
 ac_add_options --disable-debug
 ac_add_options --disable-default-browser-agent
+ac_add_options --disable-gecko-profiler
 ac_add_options --disable-maintenance-service
 ac_add_options --disable-tests
 ac_add_options --disable-updater

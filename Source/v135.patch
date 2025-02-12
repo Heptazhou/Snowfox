@@ -117,6 +117,7 @@
  modules/libpref/init/StaticPrefList.yaml           | 129 ++++++-----
  modules/libpref/init/all.js                        |  44 ++--
  moz.build                                          |   1 +
+ mozglue/misc/moz.build                             |   6 +-
  netwerk/protocol/http/nsHttpHandler.cpp            |  18 +-
  package.json                                       |   1 +
  python/mach/mach/telemetry.py                      |   4 +-
@@ -190,7 +191,7 @@
  widget/windows/WinHeaderOnlyUtils.h                |   6 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
  xpcom/io/nsLocalFileWin.cpp                        |   4 +-
- 192 files changed, 1110 insertions(+), 714 deletions(-)
+ 193 files changed, 1115 insertions(+), 715 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -4593,6 +4594,28 @@ index 559182bb0a67..0dc6b837778e 100644
      "testing",
      "third_party/python",
  ]
+diff --git a/mozglue/misc/moz.build b/mozglue/misc/moz.build
+index b7a2d88d4238..0374765833f3 100644
+--- a/mozglue/misc/moz.build
++++ b/mozglue/misc/moz.build
+@@ -81,12 +81,16 @@ if CONFIG["OS_ARCH"] == "WINNT":
+         "NativeNt.h",
+         "WindowsDiagnostics.h",
+         "WindowsDpiInitialization.h",
+-        "WindowsEnumProcessModules.h",
+         "WindowsMapRemoteView.h",
+         "WindowsProcessMitigations.h",
+         "WindowsStackCookie.h",
+         "WindowsUnwindInfo.h",
+     ]
++    if CONFIG["MOZ_GECKO_PROFILER"]:
++        # mozglue/baseprofiler/core/shared-libraries-win32.cc
++        # mozglue/baseprofiler/moz.build
++        EXPORTS.mozilla += ["WindowsEnumProcessModules.h"]
++
+     EXPORTS.mozilla.glue += [
+         "WindowsUnicode.h",
+     ]
 diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
 index 0e249f5283fa..31eeae03e3ce 100644
 --- a/netwerk/protocol/http/nsHttpHandler.cpp
