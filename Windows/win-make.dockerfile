@@ -43,6 +43,6 @@ FROM scratch
 COPY --from=0 /pkg /pkg
 
 #
-# % id=`docker create snowfox:win-make -q` && docker cp $id:pkg . -q && docker rm $id
+# % id=`docker create snowfox:win-make -q` && docker cp $id:pkg . && docker rm $id
 #
 

@@ -41,9 +41,8 @@
  browser/installer/windows/Makefile.in              |   2 +-
  browser/installer/windows/app.tag                  |   2 +-
  browser/installer/windows/nsis/defines.nsi.in      |  14 +-
- browser/installer/windows/nsis/installer.nsi       |  25 ++-
+ browser/installer/windows/nsis/installer.nsi       |  24 +-
  browser/installer/windows/nsis/shared.nsh          | 153 +++++++------
- browser/installer/windows/nsis/stub.nsi            |   4 +-
  browser/installer/windows/nsis/uninstaller.nsi     |  57 ++---
  .../locales/en-US/browser/appExtensionFields.ftl   |   2 +-
  .../browser/policies/policies-descriptions.ftl     |   2 +-
@@ -174,8 +173,10 @@
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
  tools/@types/package.json                          |   1 +
  .../eslint-plugin-spidermonkey-js/package.json     |   1 +
+ widget/windows/WinHeaderOnlyUtils.h                |   2 +
+ widget/windows/WinUtils.h                          |   2 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
- 177 files changed, 1082 insertions(+), 686 deletions(-)
+ 178 files changed, 1082 insertions(+), 685 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -283,7 +284,7 @@ index 3ca37324b1bb..562712e4a24c 100644
      }
      FreeLibrary(user32);
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 8cbe147d48e8..3d0b3613be4a 100644
+index 8cbe147d48e8..c400a70a07db 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -48,7 +48,7 @@ pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/pri
@@ -505,7 +506,7 @@ index 8cbe147d48e8..3d0b3613be4a 100644
  // Tab Unloader does not unload tabs whose last inactive period is longer than
  // this value (in milliseconds).
 -pref("browser.tabs.min_inactive_duration_before_unload", 600000);
-+pref("browser.tabs.min_inactive_duration_before_unload", 1200_000);
++pref("browser.tabs.min_inactive_duration_before_unload", 1200000);
  
  // Does middleclick paste of clipboard to new tab button
  #ifdef UNIX_BUT_NOT_MAC
@@ -1757,7 +1758,7 @@ index eb9e403c3651..acf0feb2ba66 100644
  !define TELEMETRY_INSTALL_PING_VERSION 1
  !define TELEMETRY_INSTALL_PING_DOCTYPE install
 diff --git a/browser/installer/windows/nsis/installer.nsi b/browser/installer/windows/nsis/installer.nsi
-index 18421b8d43d2..3bfa9cbf9724 100755
+index 18421b8d43d2..788a033b7631 100755
 --- a/browser/installer/windows/nsis/installer.nsi
 +++ b/browser/installer/windows/nsis/installer.nsi
 @@ -227,9 +227,9 @@ Page custom preSummary leaveSummary
@@ -1811,14 +1812,6 @@ index 18421b8d43d2..3bfa9cbf9724 100755
      ${If} "$R7" == "0"
        strCpy $R7 "$(WARN_MIN_SUPPORTED_OSVER_CPU_MSG)"
      ${Else}
-@@ -1753,6 +1753,7 @@ Function .onInit
- !ifdef HAVE_64BIT_BUILD
-   ${If} "${ARCH}" == "AArch64"
-     ${IfNot} ${IsNativeARM64}
-+    ${OrIfNot} ${AtLeastWin10}
-       MessageBox MB_OKCANCEL|MB_ICONSTOP "$(WARN_MIN_SUPPORTED_OSVER_MSG)" IDCANCEL +2
-       ExecShell "open" "${URLSystemRequirements}"
-       Quit
 diff --git a/browser/installer/windows/nsis/shared.nsh b/browser/installer/windows/nsis/shared.nsh
 index b7f8e1453089..aed4ca8e3ac8 100755
 --- a/browser/installer/windows/nsis/shared.nsh
@@ -2143,21 +2136,6 @@ index b7f8e1453089..aed4ca8e3ac8 100755
    ; Remove protocol handlers
    ClearErrors
    ReadRegStr $0 HKLM "Software\Classes\${_PROTOCOL}\DefaultIcon" ""
-diff --git a/browser/installer/windows/nsis/stub.nsi b/browser/installer/windows/nsis/stub.nsi
-index 92ca5b003a16..5a214cc3a0f8 100644
---- a/browser/installer/windows/nsis/stub.nsi
-+++ b/browser/installer/windows/nsis/stub.nsi
-@@ -324,8 +324,8 @@ Function .onInit
-   ; SSE2 instruction set is available.
-   System::Call "kernel32::IsProcessorFeaturePresent(i 10)i .R7"
- 
--  ; Windows 8.1/Server 2012 R2 and lower are not supported.
--  ${Unless} ${AtLeastWin10}
-+  ; Windows NT 6.0 (Vista/Server 2008) and lower are not supported.
-+  ${Unless} ${AtLeastWin7}
-     StrCpy $ExitCode "${ERR_PREINSTALL_SYS_OS_REQ}"
-     ${If} "$R7" == "0"
-       strCpy $R7 "$(WARN_MIN_SUPPORTED_OSVER_CPU_MSG)"
 diff --git a/browser/installer/windows/nsis/uninstaller.nsi b/browser/installer/windows/nsis/uninstaller.nsi
 index 559c8b46ee06..6fb81dfd570a 100755
 --- a/browser/installer/windows/nsis/uninstaller.nsi
@@ -4710,7 +4688,7 @@ index b69a10aac521..c64e06146c0f 100644
                  num_jobs = max(1, min(cpus, from_mem))
                  print(
 diff --git a/python/mozbuild/mozbuild/mach_commands.py b/python/mozbuild/mozbuild/mach_commands.py
-index 29ad2a385d53..a96be3a1957e 100644
+index 29ad2a385d53..9cd3b828de51 100644
 --- a/python/mozbuild/mozbuild/mach_commands.py
 +++ b/python/mozbuild/mozbuild/mach_commands.py
 @@ -3251,8 +3251,8 @@ def repackage_desktop_file(
@@ -4733,7 +4711,7 @@ index 29ad2a385d53..a96be3a1957e 100644
 +            command_context.topsrcdir, "browser/locales/shipped-locales",
 +        ), "r") as io:
 +            locales = io.read().splitlines()
-+            print(" ".join(["--locales", *locales]))
++            print(" ".join(["mach", "package-multi-locale", "--locales", *locales]))
 +
      locales = sorted(locale for locale in locales if locale != "en-US")
  
@@ -5987,6 +5965,32 @@ index 7563a31995c1..61c3cfb79e13 100644
    "description": "A collection of rules that help enforce JavaScript coding standard in the Mozilla SpiderMonkey project.",
    "keywords": [
      "eslint",
+diff --git a/widget/windows/WinHeaderOnlyUtils.h b/widget/windows/WinHeaderOnlyUtils.h
+index 15861cc73b88..0b9065228b1f 100644
+--- a/widget/windows/WinHeaderOnlyUtils.h
++++ b/widget/windows/WinHeaderOnlyUtils.h
+@@ -738,6 +738,8 @@ inline LauncherResult<TOKEN_ELEVATION_TYPE> GetElevationType(
+ }
+ 
+ inline bool HasPackageIdentity() {
++  return false;
++
+   HMODULE kernel32Dll = ::GetModuleHandleW(L"kernel32");
+   if (!kernel32Dll) {
+     return false;
+diff --git a/widget/windows/WinUtils.h b/widget/windows/WinUtils.h
+index 69c731605887..bad368f9aae8 100644
+--- a/widget/windows/WinUtils.h
++++ b/widget/windows/WinUtils.h
+@@ -248,7 +248,7 @@ class WinUtils {
+    */
+   static gfx::MarginDouble GetUnwriteableMarginsForDeviceInInches(HDC aHdc);
+ 
+-  static bool HasPackageIdentity() { return sHasPackageIdentity; }
++  static bool HasPackageIdentity() { return false; }
+ 
+   /*
+    * The "family name" of a Windows app package is the full name without any of
 diff --git a/xpcom/base/AvailableMemoryWatcherWin.cpp b/xpcom/base/AvailableMemoryWatcherWin.cpp
 index 1effbe322657..7b3311186d93 100644
 --- a/xpcom/base/AvailableMemoryWatcherWin.cpp
