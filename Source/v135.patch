@@ -117,6 +117,8 @@
  modules/libpref/init/StaticPrefList.yaml           | 129 ++++++-----
  modules/libpref/init/all.js                        |  44 ++--
  moz.build                                          |   1 +
+ mozglue/misc/AwakeTimeStamp.cpp                    |   4 +
+ mozglue/misc/AwakeTimeStamp.h                      |   1 +
  mozglue/misc/moz.build                             |   6 +-
  netwerk/protocol/http/nsHttpHandler.cpp            |  18 +-
  package.json                                       |   1 +
@@ -191,7 +193,7 @@
  widget/windows/WinHeaderOnlyUtils.h                |   6 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
  xpcom/io/nsLocalFileWin.cpp                        |   4 +-
- 193 files changed, 1115 insertions(+), 715 deletions(-)
+ 195 files changed, 1120 insertions(+), 715 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -4594,6 +4596,39 @@ index 559182bb0a67..0dc6b837778e 100644
      "testing",
      "third_party/python",
  ]
+diff --git a/mozglue/misc/AwakeTimeStamp.cpp b/mozglue/misc/AwakeTimeStamp.cpp
+index a67c3e49a8aa..bfabcef182da 100644
+--- a/mozglue/misc/AwakeTimeStamp.cpp
++++ b/mozglue/misc/AwakeTimeStamp.cpp
+@@ -91,12 +91,16 @@ AwakeTimeStamp AwakeTimeStamp::NowLoRes() {
+   return AwakeTimeStamp(interrupt_time / kHNSperUS);
+ }
+ 
++#  ifndef MOZ_GECKO_PROFILER
++AwakeTimeStamp AwakeTimeStamp::Now() { return NowLoRes(); }
++#  else
+ AwakeTimeStamp AwakeTimeStamp::Now() {
+   ULONGLONG interrupt_time;
+   QueryUnbiasedInterruptTimePrecise(&interrupt_time);
+ 
+   return AwakeTimeStamp(interrupt_time / kHNSperUS);
+ }
++#  endif
+ 
+ #else  // Linux and other POSIX but not macOS
+ #  include <time.h>
+diff --git a/mozglue/misc/AwakeTimeStamp.h b/mozglue/misc/AwakeTimeStamp.h
+index 6c6a358fbe33..079880fc618d 100644
+--- a/mozglue/misc/AwakeTimeStamp.h
++++ b/mozglue/misc/AwakeTimeStamp.h
+@@ -26,6 +26,7 @@ class AwakeTimeDuration;
+ // When using NowLoRes(), the timestamp shouldn't be considered to be
+ // high-resolution, and is suitable to measure time from a hundred of
+ // milliseconds (because of Windows limitations).
++// When MOZ_GECKO_PROFILER is defined,
+ // Now() can be a bit more expensive on Windows, and is precise. Both
+ // methods are equivalent on non-Windows.
+ class AwakeTimeStamp {
 diff --git a/mozglue/misc/moz.build b/mozglue/misc/moz.build
 index b7a2d88d4238..0374765833f3 100644
 --- a/mozglue/misc/moz.build
