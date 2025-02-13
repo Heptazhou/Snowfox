@@ -105,13 +105,14 @@
  image/decoders/nsJXLDecoder.h                      |  14 +-
  image/imgFrame.cpp                                 |   6 +-
  intl/components/src/Calendar.cpp                   |   4 +-
- js/src/jit/ProcessExecutableMemory.cpp             |   2 +-
+ js/src/jit/ProcessExecutableMemory.cpp             |   4 +-
  js/src/octane/gbemu-part1.js                       |   8 +-
  js/src/octane/mandreel.js                          |   2 +-
- js/src/vm/Time.cpp                                 |   4 +
+ js/src/vm/Time.cpp                                 |   6 +
  layout/style/TopLevelImageDocument.css             |   9 +-
  layout/style/res/ua.css                            |  17 ++
  mach                                               |   2 +-
+ media/highway/moz.build                            |   9 +
  media/libcubeb/src/cubeb_alsa.c                    |   4 +-
  media/libcubeb/src/cubeb_winmm.c                   |  14 +-
  media/libsoundtouch/src/TDStretch.cpp              |   2 +-
@@ -119,9 +120,9 @@
  modules/libpref/init/StaticPrefList.yaml           | 129 ++++++-----
  modules/libpref/init/all.js                        |  44 ++--
  moz.build                                          |   1 +
- mozglue/misc/AwakeTimeStamp.cpp                    |   4 +
+ .../baseprofiler/core/shared-libraries-win32.cc    |   2 +
+ mozglue/misc/AwakeTimeStamp.cpp                    |   6 +
  mozglue/misc/AwakeTimeStamp.h                      |   1 +
- mozglue/misc/moz.build                             |   6 +-
  netwerk/protocol/http/nsHttpHandler.cpp            |  18 +-
  package.json                                       |   1 +
  python/mach/mach/telemetry.py                      |   4 +-
@@ -135,7 +136,8 @@
  services/settings/Utils.sys.mjs                    |   4 +-
  services/sync/modules/telemetry.sys.mjs            |   2 +-
  taskcluster/gecko_taskgraph/util/hash.py           |  10 +-
- .../desktop_capture/win/screen_capture_utils.cc    |   6 +
+ .../highway/hwy/contrib/thread_pool/futex.h        |   2 +
+ .../desktop_capture/win/screen_capture_utils.cc    |   8 +
  .../taskcluster_taskgraph/taskgraph/util/hash.py   |   2 +-
  .../lib/libwinapi_mincore.a                        |   2 +-
  .../lib/libwinapi_onecore.a                        |   2 +-
@@ -196,7 +198,7 @@
  widget/windows/WinHeaderOnlyUtils.h                |   6 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
  xpcom/io/nsLocalFileWin.cpp                        |   4 +-
- 198 files changed, 1131 insertions(+), 716 deletions(-)
+ 200 files changed, 1147 insertions(+), 715 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -3745,7 +3747,7 @@ index d44dedaaae4e..c7af6f363af7 100644
    return minimalDays;
  }
 diff --git a/js/src/jit/ProcessExecutableMemory.cpp b/js/src/jit/ProcessExecutableMemory.cpp
-index 1565ba5e22af..b05b9850286d 100644
+index 1565ba5e22af..2f75e6330ac2 100644
 --- a/js/src/jit/ProcessExecutableMemory.cpp
 +++ b/js/src/jit/ProcessExecutableMemory.cpp
 @@ -54,7 +54,7 @@ using namespace js;
@@ -3757,6 +3759,15 @@ index 1565ba5e22af..b05b9850286d 100644
  #    define NEED_JIT_UNWIND_HANDLING
  #  endif
  
+@@ -196,6 +196,8 @@ static DWORD ExceptionHandler(PEXCEPTION_RECORD exceptionRecord,
+ }
+ 
+ // Required for enabling Stackwalking on windows using external tools.
++// * ntdll.dll
++// https://learn.microsoft.com/windows/win32/api/winnt/nf-winnt-rtladdgrowablefunctiontable
+ extern "C" NTSYSAPI DWORD NTAPI RtlAddGrowableFunctionTable(
+     PVOID* DynamicTable, PRUNTIME_FUNCTION FunctionTable, DWORD EntryCount,
+     DWORD MaximumEntryCount, ULONG_PTR RangeBase, ULONG_PTR RangeEnd);
 diff --git a/js/src/octane/gbemu-part1.js b/js/src/octane/gbemu-part1.js
 index 10f19e4a195f..38d372b9ae81 100644
 --- a/js/src/octane/gbemu-part1.js
@@ -3811,17 +3822,19 @@ index 82ebd23d36ca..f7af05540265 100644
  		__Mandreel_Audio_CreateStream_created = true;
  	}
 diff --git a/js/src/vm/Time.cpp b/js/src/vm/Time.cpp
-index 79884a962c20..cb9ffd06a250 100644
+index 79884a962c20..44d5a95d4634 100644
 --- a/js/src/vm/Time.cpp
 +++ b/js/src/vm/Time.cpp
-@@ -64,7 +64,11 @@ static int64_t FileTimeToUnixMicroseconds(const FILETIME& ft) {
+@@ -64,7 +64,13 @@ static int64_t FileTimeToUnixMicroseconds(const FILETIME& ft) {
  
  int64_t PRMJ_Now() {
    FILETIME ft;
-+#  ifndef MOZ_GECKO_PROFILER
-+  GetSystemTimeAsFileTime(&ft);
-+#  else
++#  ifdef MOZ_GECKO_PROFILER
++  // * kernel32.dll
++  // https://learn.microsoft.com/windows/win32/api/sysinfoapi/nf-sysinfoapi-getsystemtimepreciseasfiletime
    GetSystemTimePreciseAsFileTime(&ft);
++#  else
++  GetSystemTimeAsFileTime(&ft);
 +#  endif
    return FileTimeToUnixMicroseconds(ft);
  }
@@ -3888,6 +3901,26 @@ index 5ea05fb643c0..fbdca0fe4def 100755
  # This Source Code Form is subject to the terms of the Mozilla Public
  # License, v. 2.0. If a copy of the MPL was not distributed with this
  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+diff --git a/media/highway/moz.build b/media/highway/moz.build
+index 71e750077bee..90deaa6f4061 100644
+--- a/media/highway/moz.build
++++ b/media/highway/moz.build
+@@ -8,6 +8,15 @@ LOCAL_INCLUDES += [
+     "/third_party/highway/",
+ ]
+ 
++# third_party/highway/hwy/contrib/thread_pool/futex.h
++if CONFIG["OS_ARCH"] == "WINNT" and not CONFIG["MOZ_GECKO_PROFILER"]:
++    DEFINES["HWY_DISABLE_FUTEX"] = True
++    # build/moz.configure/toolchain.configure
++    if CONFIG["CC_TYPE"] == "clang-cl":
++        CXXFLAGS += ["-std:c++20"]
++    else:
++        CXXFLAGS += ["-std=gnu++20"]
++
+ # CMake has check_include_file() but for now we disable this.
+ # See bug 1839363 and bug 1903190.
+ if CONFIG["TARGET_CPU"] in ("ppc64", "s390x") and CONFIG["OS_TARGET"] == "Linux":
 diff --git a/media/libcubeb/src/cubeb_alsa.c b/media/libcubeb/src/cubeb_alsa.c
 index f114f27d7bee..e46d5baf3d80 100644
 --- a/media/libcubeb/src/cubeb_alsa.c
@@ -4628,11 +4661,24 @@ index 559182bb0a67..0dc6b837778e 100644
      "testing",
      "third_party/python",
  ]
+diff --git a/mozglue/baseprofiler/core/shared-libraries-win32.cc b/mozglue/baseprofiler/core/shared-libraries-win32.cc
+index 7c1b9d1d5e01..b955627d393b 100644
+--- a/mozglue/baseprofiler/core/shared-libraries-win32.cc
++++ b/mozglue/baseprofiler/core/shared-libraries-win32.cc
+@@ -195,6 +195,8 @@ SharedLibraryInfo SharedLibraryInfo::GetInfoForSelf() {
+                                        mozilla::Some(aModule));
+       };
+ 
++  // * api-ms-win-core-psapi-l1-1-0.dll
++  // https://learn.microsoft.com/windows/win32/api/psapi/nf-psapi-enumprocessmodules
+   mozilla::EnumerateProcessModules(addSharedLibraryFromModuleInfo);
+   return sharedLibraryInfo;
+ }
 diff --git a/mozglue/misc/AwakeTimeStamp.cpp b/mozglue/misc/AwakeTimeStamp.cpp
-index a67c3e49a8aa..bfabcef182da 100644
+index a67c3e49a8aa..610053b6de4c 100644
 --- a/mozglue/misc/AwakeTimeStamp.cpp
 +++ b/mozglue/misc/AwakeTimeStamp.cpp
-@@ -91,12 +91,16 @@ AwakeTimeStamp AwakeTimeStamp::NowLoRes() {
+@@ -91,12 +91,18 @@ AwakeTimeStamp AwakeTimeStamp::NowLoRes() {
    return AwakeTimeStamp(interrupt_time / kHNSperUS);
  }
  
@@ -4641,6 +4687,8 @@ index a67c3e49a8aa..bfabcef182da 100644
 +#  else
  AwakeTimeStamp AwakeTimeStamp::Now() {
    ULONGLONG interrupt_time;
++  // * api-ms-win-core-realtime-l1-1-1.dll
++  // https://learn.microsoft.com/windows/win32/api/realtimeapiset/nf-realtimeapiset-queryunbiasedinterrupttimeprecise
    QueryUnbiasedInterruptTimePrecise(&interrupt_time);
  
    return AwakeTimeStamp(interrupt_time / kHNSperUS);
@@ -4661,28 +4709,6 @@ index 6c6a358fbe33..079880fc618d 100644
  // Now() can be a bit more expensive on Windows, and is precise. Both
  // methods are equivalent on non-Windows.
  class AwakeTimeStamp {
-diff --git a/mozglue/misc/moz.build b/mozglue/misc/moz.build
-index b7a2d88d4238..0374765833f3 100644
---- a/mozglue/misc/moz.build
-+++ b/mozglue/misc/moz.build
-@@ -81,12 +81,16 @@ if CONFIG["OS_ARCH"] == "WINNT":
-         "NativeNt.h",
-         "WindowsDiagnostics.h",
-         "WindowsDpiInitialization.h",
--        "WindowsEnumProcessModules.h",
-         "WindowsMapRemoteView.h",
-         "WindowsProcessMitigations.h",
-         "WindowsStackCookie.h",
-         "WindowsUnwindInfo.h",
-     ]
-+    if CONFIG["MOZ_GECKO_PROFILER"]:
-+        # mozglue/baseprofiler/core/shared-libraries-win32.cc
-+        # mozglue/baseprofiler/moz.build
-+        EXPORTS.mozilla += ["WindowsEnumProcessModules.h"]
-+
-     EXPORTS.mozilla.glue += [
-         "WindowsUnicode.h",
-     ]
 diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
 index 0e249f5283fa..31eeae03e3ce 100644
 --- a/netwerk/protocol/http/nsHttpHandler.cpp
@@ -4997,8 +5023,21 @@ index 485c9a7c480e..bf1039e1eac2 100644
          for path in sorted(files.keys()):
              if path.endswith((".pyc", ".pyd", ".pyo")):
                  continue
+diff --git a/third_party/highway/hwy/contrib/thread_pool/futex.h b/third_party/highway/hwy/contrib/thread_pool/futex.h
+index ff3b77f20264..d3d816cf84fc 100644
+--- a/third_party/highway/hwy/contrib/thread_pool/futex.h
++++ b/third_party/highway/hwy/contrib/thread_pool/futex.h
+@@ -119,6 +119,8 @@ static inline uint32_t BlockUntilDifferent(const uint32_t prev,
+   for (;;) {
+     const uint32_t next = current.load(acq);
+     if (next != prev) return next;
++    // * api-ms-win-core-synch-l1-2-0.dll
++    // https://learn.microsoft.com/windows/win32/api/synchapi/nf-synchapi-waitonaddress
+     const BOOL ok = WaitOnAddress(address, pprev, sizeof(prev), max_ms);
+     HWY_DASSERT(ok);
+     (void)ok;
 diff --git a/third_party/libwebrtc/modules/desktop_capture/win/screen_capture_utils.cc b/third_party/libwebrtc/modules/desktop_capture/win/screen_capture_utils.cc
-index f68cfb94c16d..fb1d1cc37cee 100644
+index f68cfb94c16d..d89842cfc414 100644
 --- a/third_party/libwebrtc/modules/desktop_capture/win/screen_capture_utils.cc
 +++ b/third_party/libwebrtc/modules/desktop_capture/win/screen_capture_utils.cc
 @@ -12,6 +12,7 @@
@@ -5009,15 +5048,17 @@ index f68cfb94c16d..fb1d1cc37cee 100644
  
  #include <string>
  #include <vector>
-@@ -147,6 +148,7 @@ DesktopRect GetFullscreenRect() {
+@@ -147,13 +148,20 @@ DesktopRect GetFullscreenRect() {
  }
  
  DesktopVector GetDpiForMonitor(HMONITOR monitor) {
 +#ifdef MOZ_GECKO_PROFILER
    UINT dpi_x, dpi_y;
    // MDT_EFFECTIVE_DPI includes the scale factor as well as the system DPI.
++  // * api-ms-win-shcore-scaling-l1-1-1.dll
++  // https://learn.microsoft.com/windows/win32/api/shellscalingapi/nf-shellscalingapi-getdpiformonitor
    HRESULT hr = ::GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &dpi_x, &dpi_y);
-@@ -154,6 +156,10 @@ DesktopVector GetDpiForMonitor(HMONITOR monitor) {
+   if (SUCCEEDED(hr)) {
      return {static_cast<INT>(dpi_x), static_cast<INT>(dpi_y)};
    }
    RTC_LOG_GLE_EX(LS_WARNING, hr) << "GetDpiForMonitor() failed";
