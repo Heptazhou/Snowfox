@@ -105,8 +105,10 @@
  image/decoders/nsJXLDecoder.h                      |  14 +-
  image/imgFrame.cpp                                 |   6 +-
  intl/components/src/Calendar.cpp                   |   4 +-
+ js/src/jit/ProcessExecutableMemory.cpp             |   2 +-
  js/src/octane/gbemu-part1.js                       |   8 +-
  js/src/octane/mandreel.js                          |   2 +-
+ js/src/vm/Time.cpp                                 |   4 +
  layout/style/TopLevelImageDocument.css             |   9 +-
  layout/style/res/ua.css                            |  17 ++
  mach                                               |   2 +-
@@ -194,7 +196,7 @@
  widget/windows/WinHeaderOnlyUtils.h                |   6 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
  xpcom/io/nsLocalFileWin.cpp                        |   4 +-
- 196 files changed, 1126 insertions(+), 715 deletions(-)
+ 198 files changed, 1131 insertions(+), 716 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -3742,6 +3744,19 @@ index d44dedaaae4e..c7af6f363af7 100644
  
    return minimalDays;
  }
+diff --git a/js/src/jit/ProcessExecutableMemory.cpp b/js/src/jit/ProcessExecutableMemory.cpp
+index 1565ba5e22af..b05b9850286d 100644
+--- a/js/src/jit/ProcessExecutableMemory.cpp
++++ b/js/src/jit/ProcessExecutableMemory.cpp
+@@ -54,7 +54,7 @@ using namespace js;
+ using namespace js::jit;
+ 
+ #ifdef XP_WIN
+-#  if defined(HAVE_64BIT_BUILD)
++#  if defined(HAVE_64BIT_BUILD) && defined(MOZ_GECKO_PROFILER)
+ #    define NEED_JIT_UNWIND_HANDLING
+ #  endif
+ 
 diff --git a/js/src/octane/gbemu-part1.js b/js/src/octane/gbemu-part1.js
 index 10f19e4a195f..38d372b9ae81 100644
 --- a/js/src/octane/gbemu-part1.js
@@ -3795,6 +3810,22 @@ index 82ebd23d36ca..f7af05540265 100644
  		}
  		__Mandreel_Audio_CreateStream_created = true;
  	}
+diff --git a/js/src/vm/Time.cpp b/js/src/vm/Time.cpp
+index 79884a962c20..cb9ffd06a250 100644
+--- a/js/src/vm/Time.cpp
++++ b/js/src/vm/Time.cpp
+@@ -64,7 +64,11 @@ static int64_t FileTimeToUnixMicroseconds(const FILETIME& ft) {
+ 
+ int64_t PRMJ_Now() {
+   FILETIME ft;
++#  ifndef MOZ_GECKO_PROFILER
++  GetSystemTimeAsFileTime(&ft);
++#  else
+   GetSystemTimePreciseAsFileTime(&ft);
++#  endif
+   return FileTimeToUnixMicroseconds(ft);
+ }
+ #endif
 diff --git a/layout/style/TopLevelImageDocument.css b/layout/style/TopLevelImageDocument.css
 index f03295f67374..47f336d9182d 100644
 --- a/layout/style/TopLevelImageDocument.css
