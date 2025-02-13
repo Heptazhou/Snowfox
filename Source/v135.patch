@@ -63,6 +63,7 @@
  build/moz.configure/windows.configure              |   2 +-
  build/templates.mozbuild                           |  10 +
  build/variables.py                                 |   7 +-
+ build/workspace-hack/Cargo.toml                    |   2 +-
  config/rules.mk                                    |   2 +-
  .../client/aboutdebugging/src/actions/runtimes.js  |   1 +
  .../client/framework/browser-toolbox/window.js     |   2 +-
@@ -120,7 +121,6 @@
  modules/libpref/init/StaticPrefList.yaml           | 129 ++++++-----
  modules/libpref/init/all.js                        |  44 ++--
  moz.build                                          |   1 +
- .../baseprofiler/core/shared-libraries-win32.cc    |   2 +
  mozglue/misc/AwakeTimeStamp.cpp                    |   6 +
  mozglue/misc/AwakeTimeStamp.h                      |   1 +
  netwerk/protocol/http/nsHttpHandler.cpp            |  18 +-
@@ -136,7 +136,7 @@
  services/settings/Utils.sys.mjs                    |   4 +-
  services/sync/modules/telemetry.sys.mjs            |   2 +-
  taskcluster/gecko_taskgraph/util/hash.py           |  10 +-
- .../highway/hwy/contrib/thread_pool/futex.h        |   2 +
+ .../highway/hwy/contrib/thread_pool/futex.h        |   4 +-
  .../desktop_capture/win/screen_capture_utils.cc    |   8 +
  .../taskcluster_taskgraph/taskgraph/util/hash.py   |   2 +-
  .../lib/libwinapi_mincore.a                        |   2 +-
@@ -156,6 +156,7 @@
  toolkit/components/pdfjs/content/web/viewer.css    |   4 +-
  toolkit/components/pdfjs/content/web/viewer.mjs    |  10 +-
  toolkit/components/printing/content/print.js       |   2 +-
+ toolkit/components/processtools/src/lib.rs         |  10 +-
  toolkit/components/remote/nsDBusRemoteClient.cpp   |   8 +-
  toolkit/components/remote/nsDBusRemoteServer.cpp   |  12 +-
  .../resistfingerprinting/RFPHelper.sys.mjs         |  20 ++
@@ -198,7 +199,7 @@
  widget/windows/WinHeaderOnlyUtils.h                |   6 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
  xpcom/io/nsLocalFileWin.cpp                        |   4 +-
- 200 files changed, 1147 insertions(+), 715 deletions(-)
+ 201 files changed, 1156 insertions(+), 718 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -2750,6 +2751,19 @@ index 5996269c03af..01ef89eddf23 100644
  
  
  def main(args):
+diff --git a/build/workspace-hack/Cargo.toml b/build/workspace-hack/Cargo.toml
+index 727220a05948..d33fdb45345f 100644
+--- a/build/workspace-hack/Cargo.toml
++++ b/build/workspace-hack/Cargo.toml
+@@ -163,7 +163,7 @@ features = [
+     "setupapi",
+     "shlobj",
+     "std",
+-    "synchapi",
++    # "synchapi",
+     "sysinfoapi",
+     "taskschd",
+     "timeapi",
 diff --git a/config/rules.mk b/config/rules.mk
 index 0d7dd71be7ed..68598ec8c102 100644
 --- a/config/rules.mk
@@ -4661,19 +4675,6 @@ index 559182bb0a67..0dc6b837778e 100644
      "testing",
      "third_party/python",
  ]
-diff --git a/mozglue/baseprofiler/core/shared-libraries-win32.cc b/mozglue/baseprofiler/core/shared-libraries-win32.cc
-index 7c1b9d1d5e01..b955627d393b 100644
---- a/mozglue/baseprofiler/core/shared-libraries-win32.cc
-+++ b/mozglue/baseprofiler/core/shared-libraries-win32.cc
-@@ -195,6 +195,8 @@ SharedLibraryInfo SharedLibraryInfo::GetInfoForSelf() {
-                                        mozilla::Some(aModule));
-       };
- 
-+  // * api-ms-win-core-psapi-l1-1-0.dll
-+  // https://learn.microsoft.com/windows/win32/api/psapi/nf-psapi-enumprocessmodules
-   mozilla::EnumerateProcessModules(addSharedLibraryFromModuleInfo);
-   return sharedLibraryInfo;
- }
 diff --git a/mozglue/misc/AwakeTimeStamp.cpp b/mozglue/misc/AwakeTimeStamp.cpp
 index a67c3e49a8aa..610053b6de4c 100644
 --- a/mozglue/misc/AwakeTimeStamp.cpp
@@ -5024,9 +5025,18 @@ index 485c9a7c480e..bf1039e1eac2 100644
              if path.endswith((".pyc", ".pyd", ".pyo")):
                  continue
 diff --git a/third_party/highway/hwy/contrib/thread_pool/futex.h b/third_party/highway/hwy/contrib/thread_pool/futex.h
-index ff3b77f20264..d3d816cf84fc 100644
+index ff3b77f20264..0e457d7329db 100644
 --- a/third_party/highway/hwy/contrib/thread_pool/futex.h
 +++ b/third_party/highway/hwy/contrib/thread_pool/futex.h
+@@ -110,7 +110,7 @@ static inline uint32_t BlockUntilDifferent(const uint32_t prev,
+     }
+   }
+ 
+-#elif HWY_OS_WIN && !defined(HWY_DISABLE_FUTEX)
++#elif HWY_OS_WIN && !defined(HWY_DISABLE_FUTEX) && defined(MOZ_GECKO_PROFILER)
+   // It is always safe to cast to void.
+   volatile void* address = static_cast<volatile void*>(&current);
+   // API is not const-correct, but only loads from the pointer.
 @@ -119,6 +119,8 @@ static inline uint32_t BlockUntilDifferent(const uint32_t prev,
    for (;;) {
      const uint32_t next = current.load(acq);
@@ -5373,6 +5383,30 @@ index 9049f695b2a3..57b43279756c 100644
 +      supportsMonochrome: true,
        name: PrintUtils.SAVE_TO_PDF_PRINTER,
      };
+ 
+diff --git a/toolkit/components/processtools/src/lib.rs b/toolkit/components/processtools/src/lib.rs
+index 7a648f6b579d..7528db7d7d53 100644
+--- a/toolkit/components/processtools/src/lib.rs
++++ b/toolkit/components/processtools/src/lib.rs
+@@ -172,10 +172,18 @@ impl ProcessToolsService {
+         };
+         let new_thread = Handle::from_raw(new_thread).ok_or(NS_ERROR_FAILURE)?;
+ 
++        // third_party/rust/winapi/src/um/synchapi.rs
++        extern "system" {
++            pub fn WaitForSingleObject(
++                hHandle: winapi::um::winnt::HANDLE,
++                dwMilliseconds: winapi::shared::minwindef::DWORD,
++            ) -> winapi::shared::minwindef::DWORD;
++        }
+         unsafe {
+-            winapi::um::synchapi::WaitForSingleObject(
++            WaitForSingleObject(
+                 new_thread.raw(),
+                 winapi::um::winbase::INFINITE,
++                // winapi::um::synchapi::WaitForSingleObject
+             );
+         }
  
 diff --git a/toolkit/components/remote/nsDBusRemoteClient.cpp b/toolkit/components/remote/nsDBusRemoteClient.cpp
 index 204b3b9c37dd..cc61dae7899a 100644
