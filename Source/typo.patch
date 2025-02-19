@@ -47,7 +47,7 @@
  46 files changed, 113 insertions(+), 113 deletions(-)
 
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 3d0b3613be4a..9c651d66c386 100644
+index c400a70a07db..2237ba864bc8 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -218,7 +218,7 @@ pref("app.update.multiSessionInstallLockout.enabled", true);

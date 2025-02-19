@@ -106,6 +106,8 @@
  image/decoders/nsJXLDecoder.h                      |  14 +-
  image/imgFrame.cpp                                 |   6 +-
  intl/components/src/Calendar.cpp                   |   4 +-
+ .../src/chrome/common/process_watcher_win.cc       |   4 +-
+ ipc/glue/ProcessChild.cpp                          |   4 +-
  js/src/jit/ProcessExecutableMemory.cpp             |   4 +-
  js/src/octane/gbemu-part1.js                       |   8 +-
  js/src/octane/mandreel.js                          |   2 +-
@@ -199,7 +201,7 @@
  widget/windows/WinHeaderOnlyUtils.h                |   6 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
  xpcom/io/nsLocalFileWin.cpp                        |   4 +-
- 201 files changed, 1156 insertions(+), 718 deletions(-)
+ 203 files changed, 1162 insertions(+), 720 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -307,7 +309,7 @@ index 3ca37324b1bb..562712e4a24c 100644
      }
      FreeLibrary(user32);
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 8cbe147d48e8..3d0b3613be4a 100644
+index 8cbe147d48e8..c400a70a07db 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -48,7 +48,7 @@ pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/pri
@@ -529,7 +531,7 @@ index 8cbe147d48e8..3d0b3613be4a 100644
  // Tab Unloader does not unload tabs whose last inactive period is longer than
  // this value (in milliseconds).
 -pref("browser.tabs.min_inactive_duration_before_unload", 600000);
-+pref("browser.tabs.min_inactive_duration_before_unload", 1200_000);
++pref("browser.tabs.min_inactive_duration_before_unload", 1200000);
  
  // Does middleclick paste of clipboard to new tab button
  #ifdef UNIX_BUT_NOT_MAC
@@ -3760,6 +3762,36 @@ index d44dedaaae4e..c7af6f363af7 100644
  
    return minimalDays;
  }
+diff --git a/ipc/chromium/src/chrome/common/process_watcher_win.cc b/ipc/chromium/src/chrome/common/process_watcher_win.cc
+index aa05ca4d6880..c0355c13f402 100644
+--- a/ipc/chromium/src/chrome/common/process_watcher_win.cc
++++ b/ipc/chromium/src/chrome/common/process_watcher_win.cc
+@@ -8,7 +8,9 @@
+ 
+ #include <algorithm>
+ #include <processthreadsapi.h>
+-#include <synchapi.h>
++#ifdef MOZ_GECKO_PROFILER
++#  include <synchapi.h>
++#endif
+ #include "base/message_loop.h"
+ #include "base/object_watcher.h"
+ #include "prenv.h"
+diff --git a/ipc/glue/ProcessChild.cpp b/ipc/glue/ProcessChild.cpp
+index 9134560c574f..5e045b082ee3 100644
+--- a/ipc/glue/ProcessChild.cpp
++++ b/ipc/glue/ProcessChild.cpp
+@@ -11,7 +11,9 @@
+ 
+ #ifdef XP_WIN
+ #  include <stdlib.h>  // for _exit()
+-#  include <synchapi.h>
++#  ifdef MOZ_GECKO_PROFILER
++#    include <synchapi.h>
++#  endif
+ #else
+ #  include <unistd.h>  // for _exit()
+ #  include <time.h>
 diff --git a/js/src/jit/ProcessExecutableMemory.cpp b/js/src/jit/ProcessExecutableMemory.cpp
 index 1565ba5e22af..2f75e6330ac2 100644
 --- a/js/src/jit/ProcessExecutableMemory.cpp
