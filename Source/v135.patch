@@ -32,6 +32,7 @@
  .../content/aboutPrivateBrowsing.html              |   4 +-
  browser/components/screenshots/fileHelpers.mjs     |   8 +-
  browser/components/shell/ShellService.sys.mjs      |  13 +-
+ browser/components/shell/WindowsUserChoice.cpp     |  10 +-
  browser/components/shell/nsWindowsShellService.cpp |   6 +-
  .../tabbrowser/content/tab-hover-preview.mjs       |  10 +
  .../urlbar/QuickActionsLoaderDefault.sys.mjs       |   2 +-
@@ -177,7 +178,7 @@
  toolkit/locales/en-US/toolkit/pdfviewer/viewer.ftl |   4 +-
  toolkit/modules/DateTimePickerPanel.sys.mjs        |   4 +-
  toolkit/moz.configure                              |  20 +-
- toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp |   4 +-
+ toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp |  14 +-
  .../extensions/internal/AddonSettings.sys.mjs      |   2 +-
  toolkit/mozapps/installer/package-name.mk          |  12 +-
  toolkit/mozapps/installer/packager.mk              |   4 +
@@ -191,12 +192,13 @@
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
  tools/@types/package.json                          |   1 +
  .../eslint-plugin-spidermonkey-js/package.json     |   1 +
- widget/windows/ToastNotification.cpp               |   6 +
- widget/windows/WinHeaderOnlyUtils.h                |   6 +-
- widget/windows/nsWindow.cpp                        |   4 +
+ widget/windows/ToastNotification.cpp               |  10 +-
+ widget/windows/WinHeaderOnlyUtils.h                |  10 +-
+ widget/windows/WinUtils.h                          |   2 +-
+ widget/windows/nsWindow.cpp                        |   8 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
  xpcom/io/nsLocalFileWin.cpp                        |   4 +-
- 198 files changed, 1141 insertions(+), 713 deletions(-)
+ 200 files changed, 1170 insertions(+), 718 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -1559,6 +1561,45 @@ index a66c87e19ee2..10433538d95e 100644
          ]);
        } catch (err) {
          telemetryResult = "ErrOther";
+diff --git a/browser/components/shell/WindowsUserChoice.cpp b/browser/components/shell/WindowsUserChoice.cpp
+index 2a7b3e185864..0b950455c6c8 100644
+--- a/browser/components/shell/WindowsUserChoice.cpp
++++ b/browser/components/shell/WindowsUserChoice.cpp
+@@ -20,7 +20,9 @@
+  */
+ 
+ #include <windows.h>
+-#include <appmodel.h>  // for GetPackageFamilyName
++#if 0
++#  include <appmodel.h>  // for GetPackageFamilyName
++#endif
+ #include <sddl.h>      // for ConvertSidToStringSidW
+ #include <wincrypt.h>  // for CryptoAPI base64
+ #include <bcrypt.h>    // for CNG MD5
+@@ -437,12 +439,15 @@ bool CheckProgIDExists(const wchar_t* aProgID) {
+ }
+ 
+ nsresult GetMsixProgId(const wchar_t* assoc, UniquePtr<wchar_t[]>& aProgId) {
++#if 0
+   // Retrieve the registry path to the package from registry path:
+   // clang-format off
+   // HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages\[Package Full Name]\App\Capabilities\[FileAssociations | URLAssociations]\[File | URL]
+   // clang-format on
+ 
+   UINT32 pfnLen = 0;
++  // * kernel32.dll
++  // https://learn.microsoft.com/windows/win32/api/appmodel/nf-appmodel-getcurrentpackagefullname
+   LONG rv = GetCurrentPackageFullName(&pfnLen, nullptr);
+   NS_ENSURE_TRUE(rv != APPMODEL_ERROR_NO_PACKAGE, NS_ERROR_FAILURE);
+ 
+@@ -484,4 +489,7 @@ nsresult GetMsixProgId(const wchar_t* assoc, UniquePtr<wchar_t[]>& aProgId) {
+   aProgId.swap(progId);
+ 
+   return NS_OK;
++#else
++  return NS_ERROR_WDBA_NO_PROGID;
++#endif
+ }
 diff --git a/browser/components/shell/nsWindowsShellService.cpp b/browser/components/shell/nsWindowsShellService.cpp
 index 7b9f5111c83c..9e364b50e1c4 100644
 --- a/browser/components/shell/nsWindowsShellService.cpp
@@ -6018,10 +6059,21 @@ index bd6648a89e71..423505ac9cd2 100644
  
  set_config("ANDROID_PACKAGE_NAME", android_package_name)
 diff --git a/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp b/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
-index 2407391e7aea..1cb542e66406 100644
+index 2407391e7aea..afda914be1fa 100644
 --- a/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
 +++ b/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
-@@ -446,8 +446,8 @@ nsresult SetDefaultBrowserUserChoice(
+@@ -4,7 +4,9 @@
+  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ 
+ #include <windows.h>
+-#include <appmodel.h>
++#if 0
++#  include <appmodel.h>
++#endif
+ #include <shlobj.h>  // for SHChangeNotify and IApplicationAssociationRegistration
+ #include <timeapi.h>
+ 
+@@ -446,8 +448,8 @@ nsresult SetDefaultBrowserUserChoice(
    }
  
    nsTArray<nsString> browserDefaults = {
@@ -6032,6 +6084,22 @@ index 2407391e7aea..1cb542e66406 100644
  
    browserDefaults.AppendElements(aExtraFileExtensions);
  
+@@ -764,9 +766,15 @@ function Set-DefaultHandlerRegistry($Association, $Path, $ProgID, $Hash, $RegRen
+ nsresult SetDefaultExtensionHandlersUserChoiceImpl(
+     const wchar_t* aAumi, const wchar_t* const aSid, const bool aRegRename,
+     const nsTArray<nsString>& aFileExtensions) {
++#if 0
+   UINT32 pfnLen = 0;
++  // * kernel32.dll
++  // https://learn.microsoft.com/windows/win32/api/appmodel/nf-appmodel-getcurrentpackagefullname
+   bool inMsix =
+       GetCurrentPackageFullName(&pfnLen, nullptr) != APPMODEL_ERROR_NO_PACKAGE;
++#else
++  bool inMsix = false;
++#endif
+ 
+   if (inMsix) {
+     return SetDefaultExtensionHandlersUserChoiceImplMsix(
 diff --git a/toolkit/mozapps/extensions/internal/AddonSettings.sys.mjs b/toolkit/mozapps/extensions/internal/AddonSettings.sys.mjs
 index 09bb0adc9717..8d6fbe2b2322 100644
 --- a/toolkit/mozapps/extensions/internal/AddonSettings.sys.mjs
@@ -6315,10 +6383,21 @@ index 7563a31995c1..61c3cfb79e13 100644
    "keywords": [
      "eslint",
 diff --git a/widget/windows/ToastNotification.cpp b/widget/windows/ToastNotification.cpp
-index 51e094331f9c..eec1cdb10012 100644
+index 51e094331f9c..5d5d545dad4f 100644
 --- a/widget/windows/ToastNotification.cpp
 +++ b/widget/windows/ToastNotification.cpp
-@@ -133,9 +133,12 @@ bool ToastNotification::EnsureAumidRegistered() {
+@@ -7,7 +7,9 @@
+ #include "ToastNotification.h"
+ 
+ #include <windows.h>
+-#include <appmodel.h>
++#if 0
++#  include <appmodel.h>
++#endif
+ #include <ktmw32.h>
+ #include <windows.foundation.h>
+ #include <wrl/client.h>
+@@ -133,9 +135,12 @@ bool ToastNotification::EnsureAumidRegistered() {
  }
  
  bool ToastNotification::AssignIfMsixAumid(Maybe<nsAutoString>& aAumid) {
@@ -6331,7 +6410,7 @@ index 51e094331f9c..eec1cdb10012 100644
    if (GetCurrentApplicationUserModelId(&len, nullptr) !=
        ERROR_INSUFFICIENT_BUFFER) {
      MOZ_LOG(sWASLog, LogLevel::Debug, ("Not an MSIX package"));
-@@ -147,6 +150,9 @@ bool ToastNotification::AssignIfMsixAumid(Maybe<nsAutoString>& aAumid) {
+@@ -147,6 +152,9 @@ bool ToastNotification::AssignIfMsixAumid(Maybe<nsAutoString>& aAumid) {
  
    aAumid.emplace(buffer.Elements());
    return true;
@@ -6342,7 +6421,7 @@ index 51e094331f9c..eec1cdb10012 100644
  
  bool ToastNotification::AssignIfNsisAumid(nsAutoString& aInstallHash,
 diff --git a/widget/windows/WinHeaderOnlyUtils.h b/widget/windows/WinHeaderOnlyUtils.h
-index 15861cc73b88..5359a64df482 100644
+index 15861cc73b88..7817f536555b 100644
 --- a/widget/windows/WinHeaderOnlyUtils.h
 +++ b/widget/windows/WinHeaderOnlyUtils.h
 @@ -673,14 +673,14 @@ class ModuleVersion final {
@@ -6363,11 +6442,53 @@ index 15861cc73b88..5359a64df482 100644
      return LAUNCHER_ERROR_FROM_LAST();
    }
  
+@@ -737,6 +737,9 @@ inline LauncherResult<TOKEN_ELEVATION_TYPE> GetElevationType(
+   return elevationType;
+ }
+ 
++#if 1
++inline bool HasPackageIdentity() { return false; }
++#else
+ inline bool HasPackageIdentity() {
+   HMODULE kernel32Dll = ::GetModuleHandleW(L"kernel32");
+   if (!kernel32Dll) {
+@@ -756,6 +759,7 @@ inline bool HasPackageIdentity() {
+          (pGetCurrentPackageId(&packageNameSize, nullptr) ==
+           ERROR_INSUFFICIENT_BUFFER);
+ }
++#endif
+ 
+ inline UniquePtr<wchar_t[]> GetPackageFamilyName() {
+   HMODULE kernel32Dll = ::GetModuleHandleW(L"kernel32");
+diff --git a/widget/windows/WinUtils.h b/widget/windows/WinUtils.h
+index 69c731605887..bad368f9aae8 100644
+--- a/widget/windows/WinUtils.h
++++ b/widget/windows/WinUtils.h
+@@ -248,7 +248,7 @@ class WinUtils {
+    */
+   static gfx::MarginDouble GetUnwriteableMarginsForDeviceInInches(HDC aHdc);
+ 
+-  static bool HasPackageIdentity() { return sHasPackageIdentity; }
++  static bool HasPackageIdentity() { return false; }
+ 
+   /*
+    * The "family name" of a Windows app package is the full name without any of
 diff --git a/widget/windows/nsWindow.cpp b/widget/windows/nsWindow.cpp
-index 2f6d842c5325..e77295064ec1 100644
+index 2f6d842c5325..3b7cf2bb0c53 100644
 --- a/widget/windows/nsWindow.cpp
 +++ b/widget/windows/nsWindow.cpp
-@@ -1025,14 +1025,18 @@ nsresult nsWindow::Create(nsIWidget* aParent, const LayoutDeviceIntRect& aRect,
+@@ -84,7 +84,9 @@
+ #include "nsWindowTaskbarConcealer.h"
+ #include "nsAppRunner.h"
+ 
+-#include <appmodel.h>
++#if 0
++#  include <appmodel.h>
++#endif
+ #include <shellapi.h>
+ #include <windows.h>
+ #include <wtsapi32.h>
+@@ -1025,14 +1027,18 @@ nsresult nsWindow::Create(nsIWidget* aParent, const LayoutDeviceIntRect& aRect,
        // grouping works properly
        Unused << NS_WARN_IF(!mozilla::widget::WinTaskbar::GenerateAppUserModelID(
            aumid, usePrivateAumid));
