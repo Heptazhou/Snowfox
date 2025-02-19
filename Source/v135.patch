@@ -42,9 +42,8 @@
  browser/installer/windows/Makefile.in              |   2 +-
  browser/installer/windows/app.tag                  |   2 +-
  browser/installer/windows/nsis/defines.nsi.in      |  14 +-
- browser/installer/windows/nsis/installer.nsi       |  25 ++-
+ browser/installer/windows/nsis/installer.nsi       |  24 +-
  browser/installer/windows/nsis/shared.nsh          | 153 +++++++------
- browser/installer/windows/nsis/stub.nsi            |   4 +-
  browser/installer/windows/nsis/uninstaller.nsi     |  57 ++---
  .../locales/en-US/browser/appExtensionFields.ftl   |   2 +-
  .../browser/policies/policies-descriptions.ftl     |   2 +-
@@ -63,7 +62,6 @@
  build/moz.configure/windows.configure              |   2 +-
  build/templates.mozbuild                           |  10 +
  build/variables.py                                 |   7 +-
- build/workspace-hack/Cargo.toml                    |   2 +-
  config/rules.mk                                    |   2 +-
  .../client/aboutdebugging/src/actions/runtimes.js  |   1 +
  .../client/framework/browser-toolbox/window.js     |   2 +-
@@ -106,8 +104,6 @@
  image/decoders/nsJXLDecoder.h                      |  14 +-
  image/imgFrame.cpp                                 |   6 +-
  intl/components/src/Calendar.cpp                   |   4 +-
- .../src/chrome/common/process_watcher_win.cc       |   4 +-
- ipc/glue/ProcessChild.cpp                          |   4 +-
  js/src/jit/ProcessExecutableMemory.cpp             |   4 +-
  js/src/octane/gbemu-part1.js                       |   8 +-
  js/src/octane/mandreel.js                          |   2 +-
@@ -115,7 +111,6 @@
  layout/style/TopLevelImageDocument.css             |   9 +-
  layout/style/res/ua.css                            |  17 ++
  mach                                               |   2 +-
- media/highway/moz.build                            |   9 +
  media/libcubeb/src/cubeb_alsa.c                    |   4 +-
  media/libcubeb/src/cubeb_winmm.c                   |  14 +-
  media/libsoundtouch/src/TDStretch.cpp              |   2 +-
@@ -138,7 +133,6 @@
  services/settings/Utils.sys.mjs                    |   4 +-
  services/sync/modules/telemetry.sys.mjs            |   2 +-
  taskcluster/gecko_taskgraph/util/hash.py           |  10 +-
- .../highway/hwy/contrib/thread_pool/futex.h        |   4 +-
  .../desktop_capture/win/screen_capture_utils.cc    |   8 +
  .../taskcluster_taskgraph/taskgraph/util/hash.py   |   2 +-
  .../lib/libwinapi_mincore.a                        |   2 +-
@@ -158,7 +152,6 @@
  toolkit/components/pdfjs/content/web/viewer.css    |   4 +-
  toolkit/components/pdfjs/content/web/viewer.mjs    |  10 +-
  toolkit/components/printing/content/print.js       |   2 +-
- toolkit/components/processtools/src/lib.rs         |  10 +-
  toolkit/components/remote/nsDBusRemoteClient.cpp   |   8 +-
  toolkit/components/remote/nsDBusRemoteServer.cpp   |  12 +-
  .../resistfingerprinting/RFPHelper.sys.mjs         |  20 ++
@@ -198,10 +191,12 @@
  toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
  tools/@types/package.json                          |   1 +
  .../eslint-plugin-spidermonkey-js/package.json     |   1 +
+ widget/windows/ToastNotification.cpp               |   6 +
  widget/windows/WinHeaderOnlyUtils.h                |   6 +-
+ widget/windows/nsWindow.cpp                        |   4 +
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
  xpcom/io/nsLocalFileWin.cpp                        |   4 +-
- 203 files changed, 1162 insertions(+), 720 deletions(-)
+ 198 files changed, 1141 insertions(+), 713 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -1803,7 +1798,7 @@ index eb9e403c3651..acf0feb2ba66 100644
  !define TELEMETRY_INSTALL_PING_VERSION 1
  !define TELEMETRY_INSTALL_PING_DOCTYPE install
 diff --git a/browser/installer/windows/nsis/installer.nsi b/browser/installer/windows/nsis/installer.nsi
-index 18421b8d43d2..3bfa9cbf9724 100755
+index 18421b8d43d2..788a033b7631 100755
 --- a/browser/installer/windows/nsis/installer.nsi
 +++ b/browser/installer/windows/nsis/installer.nsi
 @@ -227,9 +227,9 @@ Page custom preSummary leaveSummary
@@ -1857,14 +1852,6 @@ index 18421b8d43d2..3bfa9cbf9724 100755
      ${If} "$R7" == "0"
        strCpy $R7 "$(WARN_MIN_SUPPORTED_OSVER_CPU_MSG)"
      ${Else}
-@@ -1753,6 +1753,7 @@ Function .onInit
- !ifdef HAVE_64BIT_BUILD
-   ${If} "${ARCH}" == "AArch64"
-     ${IfNot} ${IsNativeARM64}
-+    ${OrIfNot} ${AtLeastWin10}
-       MessageBox MB_OKCANCEL|MB_ICONSTOP "$(WARN_MIN_SUPPORTED_OSVER_MSG)" IDCANCEL +2
-       ExecShell "open" "${URLSystemRequirements}"
-       Quit
 diff --git a/browser/installer/windows/nsis/shared.nsh b/browser/installer/windows/nsis/shared.nsh
 index b7f8e1453089..aed4ca8e3ac8 100755
 --- a/browser/installer/windows/nsis/shared.nsh
@@ -2189,21 +2176,6 @@ index b7f8e1453089..aed4ca8e3ac8 100755
    ; Remove protocol handlers
    ClearErrors
    ReadRegStr $0 HKLM "Software\Classes\${_PROTOCOL}\DefaultIcon" ""
-diff --git a/browser/installer/windows/nsis/stub.nsi b/browser/installer/windows/nsis/stub.nsi
-index 92ca5b003a16..5a214cc3a0f8 100644
---- a/browser/installer/windows/nsis/stub.nsi
-+++ b/browser/installer/windows/nsis/stub.nsi
-@@ -324,8 +324,8 @@ Function .onInit
-   ; SSE2 instruction set is available.
-   System::Call "kernel32::IsProcessorFeaturePresent(i 10)i .R7"
- 
--  ; Windows 8.1/Server 2012 R2 and lower are not supported.
--  ${Unless} ${AtLeastWin10}
-+  ; Windows NT 6.0 (Vista/Server 2008) and lower are not supported.
-+  ${Unless} ${AtLeastWin7}
-     StrCpy $ExitCode "${ERR_PREINSTALL_SYS_OS_REQ}"
-     ${If} "$R7" == "0"
-       strCpy $R7 "$(WARN_MIN_SUPPORTED_OSVER_CPU_MSG)"
 diff --git a/browser/installer/windows/nsis/uninstaller.nsi b/browser/installer/windows/nsis/uninstaller.nsi
 index 559c8b46ee06..6fb81dfd570a 100755
 --- a/browser/installer/windows/nsis/uninstaller.nsi
@@ -2753,19 +2725,6 @@ index 5996269c03af..01ef89eddf23 100644
  
  
  def main(args):
-diff --git a/build/workspace-hack/Cargo.toml b/build/workspace-hack/Cargo.toml
-index 727220a05948..d33fdb45345f 100644
---- a/build/workspace-hack/Cargo.toml
-+++ b/build/workspace-hack/Cargo.toml
-@@ -163,7 +163,7 @@ features = [
-     "setupapi",
-     "shlobj",
-     "std",
--    "synchapi",
-+    # "synchapi",
-     "sysinfoapi",
-     "taskschd",
-     "timeapi",
 diff --git a/config/rules.mk b/config/rules.mk
 index 0d7dd71be7ed..68598ec8c102 100644
 --- a/config/rules.mk
@@ -3762,36 +3721,6 @@ index d44dedaaae4e..c7af6f363af7 100644
  
    return minimalDays;
  }
-diff --git a/ipc/chromium/src/chrome/common/process_watcher_win.cc b/ipc/chromium/src/chrome/common/process_watcher_win.cc
-index aa05ca4d6880..c0355c13f402 100644
---- a/ipc/chromium/src/chrome/common/process_watcher_win.cc
-+++ b/ipc/chromium/src/chrome/common/process_watcher_win.cc
-@@ -8,7 +8,9 @@
- 
- #include <algorithm>
- #include <processthreadsapi.h>
--#include <synchapi.h>
-+#ifdef MOZ_GECKO_PROFILER
-+#  include <synchapi.h>
-+#endif
- #include "base/message_loop.h"
- #include "base/object_watcher.h"
- #include "prenv.h"
-diff --git a/ipc/glue/ProcessChild.cpp b/ipc/glue/ProcessChild.cpp
-index 9134560c574f..5e045b082ee3 100644
---- a/ipc/glue/ProcessChild.cpp
-+++ b/ipc/glue/ProcessChild.cpp
-@@ -11,7 +11,9 @@
- 
- #ifdef XP_WIN
- #  include <stdlib.h>  // for _exit()
--#  include <synchapi.h>
-+#  ifdef MOZ_GECKO_PROFILER
-+#    include <synchapi.h>
-+#  endif
- #else
- #  include <unistd.h>  // for _exit()
- #  include <time.h>
 diff --git a/js/src/jit/ProcessExecutableMemory.cpp b/js/src/jit/ProcessExecutableMemory.cpp
 index 1565ba5e22af..2f75e6330ac2 100644
 --- a/js/src/jit/ProcessExecutableMemory.cpp
@@ -3947,26 +3876,6 @@ index 5ea05fb643c0..fbdca0fe4def 100755
  # This Source Code Form is subject to the terms of the Mozilla Public
  # License, v. 2.0. If a copy of the MPL was not distributed with this
  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-diff --git a/media/highway/moz.build b/media/highway/moz.build
-index 71e750077bee..90deaa6f4061 100644
---- a/media/highway/moz.build
-+++ b/media/highway/moz.build
-@@ -8,6 +8,15 @@ LOCAL_INCLUDES += [
-     "/third_party/highway/",
- ]
- 
-+# third_party/highway/hwy/contrib/thread_pool/futex.h
-+if CONFIG["OS_ARCH"] == "WINNT" and not CONFIG["MOZ_GECKO_PROFILER"]:
-+    DEFINES["HWY_DISABLE_FUTEX"] = True
-+    # build/moz.configure/toolchain.configure
-+    if CONFIG["CC_TYPE"] == "clang-cl":
-+        CXXFLAGS += ["-std:c++20"]
-+    else:
-+        CXXFLAGS += ["-std=gnu++20"]
-+
- # CMake has check_include_file() but for now we disable this.
- # See bug 1839363 and bug 1903190.
- if CONFIG["TARGET_CPU"] in ("ppc64", "s390x") and CONFIG["OS_TARGET"] == "Linux":
 diff --git a/media/libcubeb/src/cubeb_alsa.c b/media/libcubeb/src/cubeb_alsa.c
 index f114f27d7bee..e46d5baf3d80 100644
 --- a/media/libcubeb/src/cubeb_alsa.c
@@ -4918,7 +4827,7 @@ index b69a10aac521..c64e06146c0f 100644
                  num_jobs = max(1, min(cpus, from_mem))
                  print(
 diff --git a/python/mozbuild/mozbuild/mach_commands.py b/python/mozbuild/mozbuild/mach_commands.py
-index 29ad2a385d53..a96be3a1957e 100644
+index 29ad2a385d53..9cd3b828de51 100644
 --- a/python/mozbuild/mozbuild/mach_commands.py
 +++ b/python/mozbuild/mozbuild/mach_commands.py
 @@ -3251,8 +3251,8 @@ def repackage_desktop_file(
@@ -4941,7 +4850,7 @@ index 29ad2a385d53..a96be3a1957e 100644
 +            command_context.topsrcdir, "browser/locales/shipped-locales",
 +        ), "r") as io:
 +            locales = io.read().splitlines()
-+            print(" ".join(["--locales", *locales]))
++            print(" ".join(["mach", "package-multi-locale", "--locales", *locales]))
 +
      locales = sorted(locale for locale in locales if locale != "en-US")
  
@@ -5056,28 +4965,6 @@ index 485c9a7c480e..bf1039e1eac2 100644
          for path in sorted(files.keys()):
              if path.endswith((".pyc", ".pyd", ".pyo")):
                  continue
-diff --git a/third_party/highway/hwy/contrib/thread_pool/futex.h b/third_party/highway/hwy/contrib/thread_pool/futex.h
-index ff3b77f20264..0e457d7329db 100644
---- a/third_party/highway/hwy/contrib/thread_pool/futex.h
-+++ b/third_party/highway/hwy/contrib/thread_pool/futex.h
-@@ -110,7 +110,7 @@ static inline uint32_t BlockUntilDifferent(const uint32_t prev,
-     }
-   }
- 
--#elif HWY_OS_WIN && !defined(HWY_DISABLE_FUTEX)
-+#elif HWY_OS_WIN && !defined(HWY_DISABLE_FUTEX) && defined(MOZ_GECKO_PROFILER)
-   // It is always safe to cast to void.
-   volatile void* address = static_cast<volatile void*>(&current);
-   // API is not const-correct, but only loads from the pointer.
-@@ -119,6 +119,8 @@ static inline uint32_t BlockUntilDifferent(const uint32_t prev,
-   for (;;) {
-     const uint32_t next = current.load(acq);
-     if (next != prev) return next;
-+    // * api-ms-win-core-synch-l1-2-0.dll
-+    // https://learn.microsoft.com/windows/win32/api/synchapi/nf-synchapi-waitonaddress
-     const BOOL ok = WaitOnAddress(address, pprev, sizeof(prev), max_ms);
-     HWY_DASSERT(ok);
-     (void)ok;
 diff --git a/third_party/libwebrtc/modules/desktop_capture/win/screen_capture_utils.cc b/third_party/libwebrtc/modules/desktop_capture/win/screen_capture_utils.cc
 index f68cfb94c16d..d89842cfc414 100644
 --- a/third_party/libwebrtc/modules/desktop_capture/win/screen_capture_utils.cc
@@ -5415,30 +5302,6 @@ index 9049f695b2a3..57b43279756c 100644
 +      supportsMonochrome: true,
        name: PrintUtils.SAVE_TO_PDF_PRINTER,
      };
- 
-diff --git a/toolkit/components/processtools/src/lib.rs b/toolkit/components/processtools/src/lib.rs
-index 7a648f6b579d..7528db7d7d53 100644
---- a/toolkit/components/processtools/src/lib.rs
-+++ b/toolkit/components/processtools/src/lib.rs
-@@ -172,10 +172,18 @@ impl ProcessToolsService {
-         };
-         let new_thread = Handle::from_raw(new_thread).ok_or(NS_ERROR_FAILURE)?;
- 
-+        // third_party/rust/winapi/src/um/synchapi.rs
-+        extern "system" {
-+            pub fn WaitForSingleObject(
-+                hHandle: winapi::um::winnt::HANDLE,
-+                dwMilliseconds: winapi::shared::minwindef::DWORD,
-+            ) -> winapi::shared::minwindef::DWORD;
-+        }
-         unsafe {
--            winapi::um::synchapi::WaitForSingleObject(
-+            WaitForSingleObject(
-                 new_thread.raw(),
-                 winapi::um::winbase::INFINITE,
-+                // winapi::um::synchapi::WaitForSingleObject
-             );
-         }
  
 diff --git a/toolkit/components/remote/nsDBusRemoteClient.cpp b/toolkit/components/remote/nsDBusRemoteClient.cpp
 index 204b3b9c37dd..cc61dae7899a 100644
@@ -6451,6 +6314,33 @@ index 7563a31995c1..61c3cfb79e13 100644
    "description": "A collection of rules that help enforce JavaScript coding standard in the Mozilla SpiderMonkey project.",
    "keywords": [
      "eslint",
+diff --git a/widget/windows/ToastNotification.cpp b/widget/windows/ToastNotification.cpp
+index 51e094331f9c..eec1cdb10012 100644
+--- a/widget/windows/ToastNotification.cpp
++++ b/widget/windows/ToastNotification.cpp
+@@ -133,9 +133,12 @@ bool ToastNotification::EnsureAumidRegistered() {
+ }
+ 
+ bool ToastNotification::AssignIfMsixAumid(Maybe<nsAutoString>& aAumid) {
++#if 0
+   UINT32 len = 0;
+   // ERROR_INSUFFICIENT_BUFFER signals that we're in an MSIX package, and
+   // therefore should use the package's AUMID.
++  // * kernel32.dll
++  // https://learn.microsoft.com/windows/win32/api/appmodel/nf-appmodel-getcurrentapplicationusermodelid
+   if (GetCurrentApplicationUserModelId(&len, nullptr) !=
+       ERROR_INSUFFICIENT_BUFFER) {
+     MOZ_LOG(sWASLog, LogLevel::Debug, ("Not an MSIX package"));
+@@ -147,6 +150,9 @@ bool ToastNotification::AssignIfMsixAumid(Maybe<nsAutoString>& aAumid) {
+ 
+   aAumid.emplace(buffer.Elements());
+   return true;
++#else
++  return false;
++#endif
+ }
+ 
+ bool ToastNotification::AssignIfNsisAumid(nsAutoString& aInstallHash,
 diff --git a/widget/windows/WinHeaderOnlyUtils.h b/widget/windows/WinHeaderOnlyUtils.h
 index 15861cc73b88..5359a64df482 100644
 --- a/widget/windows/WinHeaderOnlyUtils.h
@@ -6473,6 +6363,29 @@ index 15861cc73b88..5359a64df482 100644
      return LAUNCHER_ERROR_FROM_LAST();
    }
  
+diff --git a/widget/windows/nsWindow.cpp b/widget/windows/nsWindow.cpp
+index 2f6d842c5325..e77295064ec1 100644
+--- a/widget/windows/nsWindow.cpp
++++ b/widget/windows/nsWindow.cpp
+@@ -1025,14 +1025,18 @@ nsresult nsWindow::Create(nsIWidget* aParent, const LayoutDeviceIntRect& aRect,
+       // grouping works properly
+       Unused << NS_WARN_IF(!mozilla::widget::WinTaskbar::GenerateAppUserModelID(
+           aumid, usePrivateAumid));
++#if 0
+       if (!usePrivateAumid && widget::WinUtils::HasPackageIdentity()) {
+         // On MSIX we should always have a provided process AUMID
+         // that we can explicitly assign to a regular window.
+         UINT32 maxLength = MAX_PATH;
+         aumid.SetLength(maxLength);
++        // * kernel32.dll
++        // https://learn.microsoft.com/windows/win32/api/appmodel/nf-appmodel-getcurrentapplicationusermodelid
+         Unused << NS_WARN_IF(
+             GetCurrentApplicationUserModelId(&maxLength, aumid.get()));
+       }
++#endif
+       if (!FAILED(InitPropVariantFromString(aumid.get(), &pv))) {
+         if (!FAILED(pPropStore->SetValue(PKEY_AppUserModel_ID, pv))) {
+           pPropStore->Commit();
 diff --git a/xpcom/base/AvailableMemoryWatcherWin.cpp b/xpcom/base/AvailableMemoryWatcherWin.cpp
 index 1effbe322657..7b3311186d93 100644
 --- a/xpcom/base/AvailableMemoryWatcherWin.cpp

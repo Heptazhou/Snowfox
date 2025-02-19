@@ -4,7 +4,6 @@ ac_add_options --disable-cargo-incremental
 ac_add_options --disable-crashreporter
 ac_add_options --disable-debug
 ac_add_options --disable-default-browser-agent
-ac_add_options --disable-gecko-profiler
 ac_add_options --disable-maintenance-service
 ac_add_options --disable-tests
 ac_add_options --disable-updater
@@ -22,3 +21,6 @@ ac_add_options --with-app-basename=Snowfox
 ac_add_options --with-branding=browser/branding/snowfox
 ac_add_options --with-l10n-base=/moz/l10n
 ac_add_options --with-unsigned-addon-scopes=app,system
+
+# Windows 7
+ac_add_options --disable-gecko-profiler
