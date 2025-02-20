@@ -99,6 +99,7 @@
  gfx/thebes/PrintTargetPDF.cpp                      |   2 +-
  gfx/thebes/PrintTargetSkPDF.cpp                    |   2 +-
  gfx/thebes/gfxWindowsPlatform.cpp                  |   6 +-
+ hal/moz.build                                      |   2 +-
  image/DecoderFactory.cpp                           |   6 +
  image/decoders/nsAVIFDecoder.cpp                   |   4 +
  image/decoders/nsJXLDecoder.cpp                    | 241 +++++++++++++++++++--
@@ -198,7 +199,7 @@
  widget/windows/nsWindow.cpp                        |   8 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
  xpcom/io/nsLocalFileWin.cpp                        |   4 +-
- 200 files changed, 1170 insertions(+), 718 deletions(-)
+ 201 files changed, 1171 insertions(+), 719 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index 3ad70beebf6f..96d017b011a0 100644
@@ -3336,6 +3337,20 @@ index c0a645f19842..bfe9c4f3dd1f 100644
      return;
    }
  
+diff --git a/hal/moz.build b/hal/moz.build
+index 23c20f7593e8..912a157372ea 100644
+--- a/hal/moz.build
++++ b/hal/moz.build
+@@ -64,8 +64,8 @@ elif CONFIG["OS_TARGET"] == "Linux":
+         ]
+ elif CONFIG["OS_TARGET"] == "WINNT":
+     UNIFIED_SOURCES += [
++        "fallback/FallbackHeterogeneousCpuInfo.cpp",
+         "fallback/FallbackVibration.cpp",
+-        "windows/WindowsHeterogeneousCpuInfo.cpp",
+         "windows/WindowsProcessPriority.cpp",
+         "windows/WindowsScreenConfiguration.cpp",
+         "windows/WindowsSensor.cpp",
 diff --git a/image/DecoderFactory.cpp b/image/DecoderFactory.cpp
 index f36f03c7f262..d5eba465cf48 100644
 --- a/image/DecoderFactory.cpp
