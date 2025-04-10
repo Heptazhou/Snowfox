@@ -8,9 +8,13 @@
 // If this is less than 5, then pasting code into the web console is disabled
 pref("devtools.selfxss.count", 5);
 
+// https://firefox.settings.services.mozilla.com/v1
+pref("services.settings.server", "data:,#remote-settings-dummy/v1");
+
 // https://developer.mozilla.org/docs/Web/HTTP/Content_negotiation/List_of_default_Accept_values
+// > netwerk/protocol/http/nsHttpHandler.cpp
 pref("image.http.accept", "image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5");
-pref("network.http.accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8");
+pref("network.http.accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 
 pref("extensions.activeThemeID", "firefox-compact-dark@mozilla.org");
 pref("general.config.filename", "snowfox.cfg");

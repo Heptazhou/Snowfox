@@ -22,7 +22,7 @@
 FROM snowfox:win-base
 
 RUN cd /src && \
-	rustup default 1.84 && \
+	rustup default 1.85 && \
 	ln -sf {x86-64.,}mozconfig && \
 	rustup target add x86_64-pc-windows-msvc && \
 	# ln -sf {x86-32.,}mozconfig && \
