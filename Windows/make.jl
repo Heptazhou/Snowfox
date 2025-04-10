@@ -19,6 +19,6 @@ include("base_func.jl")
 # https://github.com/Heptazhou/Firefox/blob/master/build/rust/windows/Cargo.toml
 # https://releases.rs
 const VPY, _ = "3.11", "../../Firefox/mach"
-const VRS, _ = "1.84", "win-make.dockerfile"
+const VRS, _ = "1.85", "win-make.dockerfile"
 const WRS, _ = "0.58", "win-base.dockerfile"
 
