@@ -20,7 +20,7 @@ const PKG = "pkg/"
 # https://archive.mozilla.org/pub/firefox/
 # https://whattrainisitnow.com
 const ESR = v"128".major # 140
-const VER = v"136.0.4-1"
+const VER = v"137.0.2-1"
 
 const VER_MAJOR = string(:v, VER.major)
 const VER_REGEX = r"^v(?<ver>\d+\.\d+\.\d+)(?:-(?<rel>\d+))?(?:\+(?<pre>[a-z]+\d+))?$"
@@ -53,9 +53,9 @@ const TAR_ZST_18 = "zstdmt -18 -M1024M --long"
 
 const L10N_PKG_DIR = "l10n"
 const L10N_PKG_TAR = "l10n.tar.zst"
-const L10N_SRC_DIR = "firefox-l10n-master-v136"
-const L10N_SRC_TAR = "firefox-l10n-master-v136.tar.gz"
-const L10N_SRC_URL = "https://github.com/Heptazhou/firefox-l10n/archive/refs/heads/master-v136.tar.gz"
+const L10N_SRC_DIR = "firefox-l10n-master-v137"
+const L10N_SRC_TAR = "firefox-l10n-master-v137.tar.gz"
+const L10N_SRC_URL = "https://github.com/Heptazhou/firefox-l10n/archive/refs/heads/master-v137.tar.gz"
 
 const CURL      = @static Sys.iswindows() ? "wsl -- curl" : "curl"
 const CURL_ARGS = let args = [

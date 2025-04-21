@@ -2,10 +2,10 @@
  1 file changed, 15 insertions(+), 15 deletions(-)
 
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index cfbf32f0aeb9..6f760808ac59 100644
+index 1bfa106fb6d2..0d0ef6d52de8 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
-@@ -2105,13 +2105,13 @@ pref("font.size.monospace.x-math", 13);
+@@ -2103,13 +2103,13 @@ pref("font.size.monospace.x-math", 13);
    pref("font.name-list.monospace.he", "Fixed Miriam Transparent, Miriam Fixed, Rod, Consolas, Courier New");
    pref("font.name-list.cursive.he", "Guttman Yad, Ktav, Arial");
  
@@ -25,7 +25,7 @@ index cfbf32f0aeb9..6f760808ac59 100644
    pref("font.name-list.cursive.ko", "Gungsuh");
  
    pref("font.name-list.serif.th", "Tahoma");
-@@ -2134,27 +2134,27 @@ pref("font.size.monospace.x-math", 13);
+@@ -2132,23 +2132,23 @@ pref("font.size.monospace.x-math", 13);
    pref("font.name-list.monospace.x-western", "Consolas");
    pref("font.name-list.cursive.x-western", "Comic Sans MS");
  
@@ -40,14 +40,10 @@ index cfbf32f0aeb9..6f760808ac59 100644
    // Per Taiwanese users' demand. They don't want to use TC fonts for
    // rendering Latin letters. (bug 88579)
 -  pref("font.name-list.serif.zh-TW", "Times New Roman, PMingLiu, MingLiU, MingLiU-ExtB");
-+  pref("font.name-list.serif.zh-TW", "Saranya Roman TC H, Saranya Roman TC, Source Han Serif TC, Noto Serif CJK TC, Times New Roman, PMingLiu, MingLiU, MingLiU-ExtB");
-   #ifdef EARLY_BETA_OR_EARLIER
-     pref("font.name-list.sans-serif.zh-TW", "Arial, Microsoft JhengHei, PMingLiU, MingLiU, MingLiU-ExtB");
-   #else
--    pref("font.name-list.sans-serif.zh-TW", "Arial, PMingLiU, MingLiU, MingLiU-ExtB, Microsoft JhengHei");
-+    pref("font.name-list.sans-serif.zh-TW", "Saranya UI TC H, Saranya UI TC, Source Han Sans TC, Noto Sans CJK TC, Arial, PMingLiU, MingLiU, MingLiU-ExtB, Microsoft JhengHei");
-   #endif
+-  pref("font.name-list.sans-serif.zh-TW", "Arial, Microsoft JhengHei, PMingLiU, MingLiU, MingLiU-ExtB");
 -  pref("font.name-list.monospace.zh-TW", "MingLiU, MingLiU-ExtB");
++  pref("font.name-list.serif.zh-TW", "Saranya Roman TC H, Saranya Roman TC, Source Han Serif TC, Noto Serif CJK TC, Times New Roman, PMingLiu, MingLiU, MingLiU-ExtB");
++  pref("font.name-list.sans-serif.zh-TW", "Saranya UI TC H, Saranya UI TC, Source Han Sans TC, Noto Sans CJK TC, Arial, Microsoft JhengHei, PMingLiU, MingLiU, MingLiU-ExtB");
 +  pref("font.name-list.monospace.zh-TW", "Saranya Mono TC H, Saranya Mono TC, Source Han Mono TC, Noto Sans Mono CJK TC, MingLiU, MingLiU-ExtB");
    pref("font.name-list.cursive.zh-TW", "DFKai-SB");
  

@@ -35,9 +35,9 @@ RUN yes | pacman -Syu git grml-zsh-config julia nano-syntax-highlighting sha3sum
 	cbindgen nasm unzip upx wasi-{compiler-rt,libc++{,abi}} && yes | pacman -Scc
 
 RUN  url=https://github.com/0h7z/aur/releases/download && yes | pacman -U \
-	$url/nsis-v3.10-1/nsis-3.10-1-x86_64.pkg.tar.zst \
+	$url/nsis-v3.11-1/nsis-3.11-1-x86_64.pkg.tar.zst \
 	$url/python311-v3.11.11-1/python311-3.11.11-1-x86_64.pkg.tar.zst \
-	$url/wine64-v10.0-2/wine64-10.0-2-x86_64.pkg.tar.zst && yes | pacman -Scc
+	$url/wine64-v10.6-1/wine64-10.6-1-x86_64.pkg.tar.zst && yes | pacman -Scc
 
 RUN cd /bin && ln -s clear cls && ln -s nano nn && ln -s nano vi && \
 	git config --global safe.directory "*" && \

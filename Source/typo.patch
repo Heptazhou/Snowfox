@@ -20,7 +20,7 @@
  gfx/webrender_bindings/DCLayerTree.cpp             |  2 +-
  media/libsoundtouch/src/TDStretch.cpp              |  2 +-
  media/libvorbis/lib/vorbis_envelope.c              |  2 +-
- modules/libpref/init/StaticPrefList.yaml           | 32 ++++++++---------
+ modules/libpref/init/StaticPrefList.yaml           | 30 ++++++++--------
  modules/libpref/init/all.js                        |  4 +--
  netwerk/protocol/http/nsHttpHandler.h              |  4 +--
  nsprpub/pr/src/misc/prtime.c                       |  2 +-
@@ -39,15 +39,15 @@
  toolkit/content/license.html                       |  2 +-
  toolkit/content/widgets/datepicker.js              |  2 +-
  toolkit/content/widgets/datetimebox.js             |  4 +--
- toolkit/modules/AppConstants.sys.mjs               |  2 +-
  toolkit/modules/PermissionsUtils.sys.mjs           |  6 ++--
  .../mozapps/extensions/internal/XPIInstall.sys.mjs |  4 +--
  toolkit/xre/nsAppRunner.cpp                        |  4 +--
+ tools/@types/substitutions/AppConstants.sys.d.mts  |  2 +-
  uriloader/exthandler/ExtHandlerService.sys.mjs     |  2 +-
- 46 files changed, 113 insertions(+), 113 deletions(-)
+ 46 files changed, 112 insertions(+), 112 deletions(-)
 
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
-index 9a6c7fd0da7d..a0494e1214cf 100644
+index 087d7b9fb7e0..6f6d8abcc0be 100644
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
 @@ -218,7 +218,7 @@ pref("app.update.multiSessionInstallLockout.enabled", true);
@@ -68,7 +68,7 @@ index 9a6c7fd0da7d..a0494e1214cf 100644
  #ifdef XP_MACOSX
    pref("browser.fullscreen.autohide", false);
  #else
-@@ -1025,7 +1025,7 @@ pref("browser.tabs.delayHidingAudioPlayingIconMS", 3000);
+@@ -1027,7 +1027,7 @@ pref("browser.tabs.delayHidingAudioPlayingIconMS", 3000);
  // Pref to control whether we use a separate privileged content process
  // for about: pages. This pref name did not age well: we will have multiple
  // types of privileged content processes, each with different privileges.
@@ -77,7 +77,7 @@ index 9a6c7fd0da7d..a0494e1214cf 100644
  pref("browser.tabs.remote.separatePrivilegedContentProcess", true);
  
  #if defined(NIGHTLY_BUILD) && !defined(MOZ_ASAN)
-@@ -1091,7 +1091,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
+@@ -1094,7 +1094,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
    // implementation, but otherwise the 10s value is arbitrary.
    pref("browser.lowMemoryPollingIntervalMS", 10000);
  
@@ -86,7 +86,7 @@ index 9a6c7fd0da7d..a0494e1214cf 100644
    // pressure. Changes to the pref take effect immediately. Browser restart not
    // required. The pref value is a bitmask:
    // 0x0: No response (other than recording for telemetry, crash reporting)
-@@ -1109,7 +1109,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
+@@ -1112,7 +1112,7 @@ pref("browser.tabs.searchclipboardfor.middleclick", false);
    // Controls which macOS memory-pressure level triggers the browser low memory
    // response. Changes to the pref take effect immediately. Browser restart not
    // required. By default, use the "critical" level as that occurs after "warn"
@@ -95,7 +95,7 @@ index 9a6c7fd0da7d..a0494e1214cf 100644
    // The macOS system memory-pressure level is either none, "warn", or
    // "critical". The OS notifies the browser when the level changes. A false
    // value for the pref indicates the low memory response should occur when
-@@ -2149,7 +2149,7 @@ pref("identity.sync.tokenserver.uri", "https://token.services.mozilla.com/1.0/sy
+@@ -2160,7 +2160,7 @@ pref("identity.sync.tokenserver.uri", "https://token.services.mozilla.com/1.0/sy
  
  // Auto-config URL for FxA self-hosters, makes an HTTP request to
  // [identity.fxaccounts.autoconfig.uri]/.well-known/fxa-client-configuration
@@ -104,7 +104,7 @@ index 9a6c7fd0da7d..a0494e1214cf 100644
  // of making changes to "identity.fxaccounts.*.uri".
  pref("identity.fxaccounts.autoconfig.uri", "");
  
-@@ -2331,19 +2331,19 @@ pref("browser.contentblocking.reject-and-isolate-cookies.preferences.ui.enabled"
+@@ -2342,19 +2342,19 @@ pref("browser.contentblocking.reject-and-isolate-cookies.preferences.ui.enabled"
  //     "fppPrivate": Fingerprinting Protection enabled in private windows
  //     "-fppPrivate": Fingerprinting Protection disabled in private windows
  //   Cookie behavior:
@@ -136,7 +136,7 @@ index 9a6c7fd0da7d..a0494e1214cf 100644
  //   Third-party cookie deprecation behavior:
  //     "3pcd": Third-party cookie deprecation enabled
  //     "-3pcd": Third-party cookie deprecation disabled
-@@ -2801,7 +2801,7 @@ pref("devtools.target-switching.server.enabled", true);
+@@ -2816,7 +2816,7 @@ pref("devtools.target-switching.server.enabled", true);
  // remote frames).
  pref("devtools.every-frame-target.enabled", true);
  
@@ -145,7 +145,7 @@ index 9a6c7fd0da7d..a0494e1214cf 100644
  // of the original tab the popups are coming from
  pref("devtools.popups.debug", true);
  
-@@ -2963,9 +2963,9 @@ pref("devtools.netmonitor.har.multiple-pages", false);
+@@ -2977,9 +2977,9 @@ pref("devtools.netmonitor.har.multiple-pages", false);
  pref("devtools.netmonitor.audits.slow", 500);
  
  // Enable the new Edit and Resend panel
@@ -171,10 +171,10 @@ index 2f9aea9645ae..e583a51f934e 100644
        ];
  
 diff --git a/browser/base/content/browser-sync.js b/browser/base/content/browser-sync.js
-index d72b7ed6696f..7707ae075a7c 100644
+index aed8f918aebc..b6d1a2cf7578 100644
 --- a/browser/base/content/browser-sync.js
 +++ b/browser/base/content/browser-sync.js
-@@ -890,7 +890,7 @@ var gSync = {
+@@ -896,7 +896,7 @@ var gSync = {
      if (!fxAccounts.device.recentDeviceList) {
        if (await this.refreshFxaDevices()) {
          // Assuming we made the call successfully it should be impossible to end
@@ -183,7 +183,7 @@ index d72b7ed6696f..7707ae075a7c 100644
          if (!fxAccounts.device.recentDeviceList) {
            console.warn("Refreshing device list didn't find any devices.");
          }
-@@ -1922,7 +1922,7 @@ var gSync = {
+@@ -1964,7 +1964,7 @@ var gSync = {
  
    // "Send Tab to Device" menu item
    updateTabContextMenu(aPopupMenu, aTargetTab) {
@@ -206,10 +206,10 @@ index c9bdc165ff9a..1356bece100c 100644
        Services.prefs.setBoolPref(gUIDensity.autoTouchModePref, false);
      }
 diff --git a/browser/components/enterprisepolicies/Policies.sys.mjs b/browser/components/enterprisepolicies/Policies.sys.mjs
-index e3eb806145d5..d7e8aaf70540 100644
+index 131922643561..1107e9ee4dc5 100644
 --- a/browser/components/enterprisepolicies/Policies.sys.mjs
 +++ b/browser/components/enterprisepolicies/Policies.sys.mjs
-@@ -653,7 +653,7 @@ export var Policies = {
+@@ -711,7 +711,7 @@ export var Policies = {
          );
        }
  
@@ -232,10 +232,10 @@ index a709e3c3a9ac..5bbb9b5608e6 100644
    if (Services.prefs.getBoolPref("identity.fxaccounts.enabled")) {
      document.getElementById("category-sync").hidden = false;
 diff --git a/browser/components/search/content/searchbar.js b/browser/components/search/content/searchbar.js
-index c52f207333de..aff2e9970125 100644
+index e23c26e2d97f..7c874e06a272 100644
 --- a/browser/components/search/content/searchbar.js
 +++ b/browser/components/search/content/searchbar.js
-@@ -801,7 +801,7 @@
+@@ -803,7 +803,7 @@
            // Initially the panel used for the searchbar (PopupSearchAutoComplete
            // in browser.xhtml) is hidden to avoid impacting startup / new
            // window performance. The base binding's openPopup would normally
@@ -245,7 +245,7 @@ index c52f207333de..aff2e9970125 100644
            // but since we're overriding openPopup we need to unhide the panel
            // ourselves.
 diff --git a/browser/components/sessionstore/SessionStore.sys.mjs b/browser/components/sessionstore/SessionStore.sys.mjs
-index f3a46d2542dc..edf834cf1bc6 100644
+index 9391a70ec6b7..6eea714f5809 100644
 --- a/browser/components/sessionstore/SessionStore.sys.mjs
 +++ b/browser/components/sessionstore/SessionStore.sys.mjs
 @@ -352,7 +352,7 @@ export var SessionStore = {
@@ -284,7 +284,7 @@ index f3a46d2542dc..edf834cf1bc6 100644
     */
    forgetClosedWindowById: function ss_forgetClosedWindowById(aClosedId) {
      SessionStoreInternal.forgetClosedWindowById(aClosedId);
-@@ -2783,7 +2783,7 @@ var SessionStoreInternal = {
+@@ -2794,7 +2794,7 @@ var SessionStoreInternal = {
      // Clear closed tab data.
      if (windowData._closedTabs.length) {
        // Remove all of the closed tabs data.
@@ -293,7 +293,7 @@ index f3a46d2542dc..edf834cf1bc6 100644
        // and removes the tabs from from the _lastClosedActions list
        while (windowData._closedTabs.length) {
          this.removeClosedTabData(windowData, windowData._closedTabs, 0);
-@@ -5848,7 +5848,7 @@ var SessionStoreInternal = {
+@@ -5881,7 +5881,7 @@ var SessionStoreInternal = {
        // Remove all previous tab data.
        tabsDataArray.length = 0;
      } else {
@@ -302,7 +302,7 @@ index f3a46d2542dc..edf834cf1bc6 100644
        tabsDataArray.splice(numTabsInWindow - numTabsToRestore);
      }
  
-@@ -6062,7 +6062,7 @@ var SessionStoreInternal = {
+@@ -6095,7 +6095,7 @@ var SessionStoreInternal = {
        // TAB_LAZY_STATES holds data for lazy-browser tabs to proxy for
        // data unobtainable from the unbound browser.  This only applies to lazy
        // browsers and will be removed once the browser is inserted in the document.
@@ -311,7 +311,7 @@ index f3a46d2542dc..edf834cf1bc6 100644
        let url = "about:blank";
        let title = "";
  
-@@ -8179,7 +8179,7 @@ var TabRestoreQueue = {
+@@ -8232,7 +8232,7 @@ var TabRestoreQueue = {
    },
  };
  
@@ -360,10 +360,10 @@ index 7f251f3fd5b5..30ca768b8339 100644
    Services.prefs.setIntPref("toolkit.startup.max_resumed_crashes", -1);
  }
 diff --git a/devtools/client/fronts/inspector.js b/devtools/client/fronts/inspector.js
-index 48a00cee2425..d14a6606942b 100644
+index 153c05766fcf..a479b3ba684f 100644
 --- a/devtools/client/fronts/inspector.js
 +++ b/devtools/client/fronts/inspector.js
-@@ -228,7 +228,7 @@ class InspectorFront extends FrontClassWithSpec(inspectorSpec) {
+@@ -222,7 +222,7 @@ class InspectorFront extends FrontClassWithSpec(inspectorSpec) {
          // use drawWindow in order to get the screenshot of the page (that's a decent
          // fallback, even if it doesn't handle remote frames).
          console.error(
@@ -373,10 +373,10 @@ index 48a00cee2425..d14a6606942b 100644
          );
        }
 diff --git a/devtools/server/actors/watcher/session-context.js b/devtools/server/actors/watcher/session-context.js
-index 3dae1e7d693d..c80b3ab7694b 100644
+index b49592281c65..19b798726b72 100644
 --- a/devtools/server/actors/watcher/session-context.js
 +++ b/devtools/server/actors/watcher/session-context.js
-@@ -75,7 +75,7 @@ function createBrowserElementSessionContext(browserElement, config) {
+@@ -89,7 +89,7 @@ function createBrowserElementSessionContext(browserElement, config) {
    return {
      type,
      browserId: browserElement.browserId,
@@ -445,10 +445,10 @@ index a3065d4afc2b..fca12dd3248b 100644
    AudioInfo mAudio;
  
 diff --git a/dom/serviceworkers/ServiceWorkerManager.cpp b/dom/serviceworkers/ServiceWorkerManager.cpp
-index adf982ec61d4..cbf20177824d 100644
+index c3b070917119..ee1fd61f469a 100644
 --- a/dom/serviceworkers/ServiceWorkerManager.cpp
 +++ b/dom/serviceworkers/ServiceWorkerManager.cpp
-@@ -2342,7 +2342,7 @@ bool ServiceWorkerManager::IsAvailable(nsIPrincipal* aPrincipal, nsIURI* aURI,
+@@ -2354,7 +2354,7 @@ bool ServiceWorkerManager::IsAvailable(nsIPrincipal* aPrincipal, nsIURI* aURI,
    // If it does, directly return true and handle the client controlling logic
    // in DispatchFetchEvent(). otherwise, do followings then return false.
    // 1. Set the matched service worker as the controller of LoadInfo and
@@ -471,7 +471,7 @@ index 0d23881aa4f3..0df5e018d9be 100644
      // this value can be set within the cfg file adding a level of security.
  
 diff --git a/gfx/webrender_bindings/DCLayerTree.cpp b/gfx/webrender_bindings/DCLayerTree.cpp
-index 40960e0506f7..9105bfa29c8f 100644
+index 7219143ed05e..0974e6fc1fea 100644
 --- a/gfx/webrender_bindings/DCLayerTree.cpp
 +++ b/gfx/webrender_bindings/DCLayerTree.cpp
 @@ -331,7 +331,7 @@ bool DCLayerTree::Initialize(HWND aHwnd, nsACString& aError) {
@@ -510,7 +510,7 @@ index 6d2a7a58bda0..bb7a492c3a7c 100644
    float penalty=gi->stretch_penalty-(ve->stretch/2-VE_MINSTRETCH);
    if(penalty<0.f)penalty=0.f;
 diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
-index a092ad17774a..df3a673539cc 100644
+index 382a444c366c..1dff51216a56 100644
 --- a/modules/libpref/init/StaticPrefList.yaml
 +++ b/modules/libpref/init/StaticPrefList.yaml
 @@ -66,7 +66,7 @@
@@ -522,7 +522,7 @@ index a092ad17774a..df3a673539cc 100644
  #
  #   * `always`: The mirror variable is always kept in sync with the pref value.
  #     This is the most common choice.
-@@ -462,7 +462,7 @@
+@@ -478,7 +478,7 @@
    include: <cmath>
  
  # Whether to lock touch scrolling to one axis at a time. When a new
@@ -531,7 +531,7 @@ index a092ad17774a..df3a673539cc 100644
  # be updated to include the lock mode value.
  # 0 = FREE (No locking at all)
  # 1 = STANDARD (Once locked, remain locked until scrolling ends)
-@@ -1236,7 +1236,7 @@
+@@ -1260,7 +1260,7 @@
    value: "path_user"
    mirror: never
  
@@ -540,7 +540,7 @@ index a092ad17774a..df3a673539cc 100644
  # being checked by content-analysis.  Resources that match are not checked
  # and are always permitted.
  # By default this does not check any about: page except for about:blank
-@@ -1246,7 +1246,7 @@
+@@ -1270,7 +1270,7 @@
    value: "^about:(?!blank|srcdoc).*"
    mirror: never
  
@@ -549,7 +549,7 @@ index a092ad17774a..df3a673539cc 100644
  # being checked by content-analysis.  Resources that match are not checked
  # and are always denied.
  - name: browser.contentanalysis.deny_url_regex_list
-@@ -1646,7 +1646,7 @@
+@@ -1720,7 +1720,7 @@
    value: true
    mirror: always
  
@@ -558,7 +558,7 @@ index a092ad17774a..df3a673539cc 100644
  - name: browser.places.interactions.typing_timeout_ms
    type: RelaxedAtomicUint32
    value: 3000
-@@ -1977,7 +1977,7 @@
+@@ -2057,7 +2057,7 @@
    mirror: never
  
  # When true, soft reloads (including location.reload())
@@ -567,7 +567,7 @@ index a092ad17774a..df3a673539cc 100644
  # be loaded normally as-if users normally navigated to the page.
  - name: browser.soft_reload.only_force_validate_top_level_document
    type: bool
-@@ -2803,7 +2803,7 @@
+@@ -2884,7 +2884,7 @@
    value: true
    mirror: always
  
@@ -576,7 +576,7 @@ index a092ad17774a..df3a673539cc 100644
  # events to be further coalesced in the child side after they
  # are sent.
  - name: dom.events.coalesce.touchmove
-@@ -3643,7 +3643,7 @@
+@@ -3730,7 +3730,7 @@
  
  # An upper limit for the "age" of an origin. Any origin which is older than the
  # threshold is considered as unaccessed. That doesn't necessarily mean that
@@ -585,7 +585,7 @@ index a092ad17774a..df3a673539cc 100644
  # dom.quotaManager.checkQuotaInfoLoadTime is true and loading of quota info
  # takes a long time (dom.quotaManager.longQuotaInfoLoadTimeThresholdMs is used
  # to decide what is a long quota info load time).
-@@ -3788,7 +3788,7 @@
+@@ -3875,7 +3875,7 @@
      mirror: always
      do_not_use_directly: true
  
@@ -594,7 +594,7 @@ index a092ad17774a..df3a673539cc 100644
    # QuotaVFS.
  -   name: dom.quotaManager.overrideXFullPathname
      type: RelaxedAtomicBool
-@@ -4140,7 +4140,7 @@
+@@ -4227,7 +4227,7 @@
    mirror: always
  
  # If true, tries to break upgrade downgrade cycles where https-only tries
@@ -603,16 +603,7 @@ index a092ad17774a..df3a673539cc 100644
  - name: dom.security.https_only_mode_break_upgrade_downgrade_endless_loop
    type: RelaxedAtomicBool
    value: true
-@@ -4248,7 +4248,7 @@
-   value: false
-   mirror: always
- 
--# Pref that controls the Element.setHTML API idenpendetly of the sanitizer
-+# Pref that controls the Element.setHTML API independently of the sanitizer
- # API.
- - name: dom.security.setHTML.enabled
-   type: bool
-@@ -4547,7 +4547,7 @@
+@@ -4627,7 +4627,7 @@
    value: 25 * 1024
    mirror: always
  
@@ -621,7 +612,7 @@ index a092ad17774a..df3a673539cc 100644
  # don't advertise this pref as a way for disabling LSNG. This pref is intended
  # for internal testing only and will be removed in near future. Accidental
  # disabling of LSNG can lead to a data loss in a combination with disabled
-@@ -5477,7 +5477,7 @@
+@@ -5587,7 +5587,7 @@
    mirror: always
  
  # Controls if a double click word selection also deletes one adjacent whitespace
@@ -630,7 +621,7 @@ index a092ad17774a..df3a673539cc 100644
  - name: editor.word_select.delete_space_after_doubleclick_selection
    type: bool
  #ifndef XP_MACOSX
-@@ -10118,7 +10118,7 @@
+@@ -10196,7 +10196,7 @@
    mirror: always
  
  # On Android, don't synth mouse move events after scrolling, as they cause
@@ -639,7 +630,7 @@ index a092ad17774a..df3a673539cc 100644
  # satisfactorily resolved.
  - name: layout.reflow.synthMouseMove
    type: bool
-@@ -15457,13 +15457,13 @@
+@@ -15606,13 +15606,13 @@
    value: 1080
    mirror: always
  
@@ -656,7 +647,7 @@ index a092ad17774a..df3a673539cc 100644
    type: RelaxedAtomicBool
    value: false
 diff --git a/modules/libpref/init/all.js b/modules/libpref/init/all.js
-index 6f760808ac59..0796f97b4b41 100644
+index 0d0ef6d52de8..a29ed50f1c01 100644
 --- a/modules/libpref/init/all.js
 +++ b/modules/libpref/init/all.js
 @@ -652,7 +652,7 @@ pref("devtools.performance.recording.ui-base-url", "https://profiler.firefox.com
@@ -668,7 +659,7 @@ index 6f760808ac59..0796f97b4b41 100644
  // it's a developer focused item. It can still be enabled by going to profiler.firefox.com,
  // but by default it is off on Release and Beta. Note that this only adds it to the
  // the customization palette, not to the navbar.
-@@ -842,7 +842,7 @@ pref("privacy.fingerprintingProtection.overrides", "");
+@@ -840,7 +840,7 @@ pref("privacy.fingerprintingProtection.overrides", "");
  // or remove features on a domain granular level.
  pref("privacy.fingerprintingProtection.granularOverrides", "");
  
@@ -726,7 +717,7 @@ index 39f250adb063..ec91d69b3f77 100644
                      if bf.relobjdir:
                          for tier in ("export", "libs"):
 diff --git a/remote/webdriver-bidi/modules/root/storage.sys.mjs b/remote/webdriver-bidi/modules/root/storage.sys.mjs
-index cc42ed187efb..3d2c361ef351 100644
+index a7df59c24d38..d200f071778b 100644
 --- a/remote/webdriver-bidi/modules/root/storage.sys.mjs
 +++ b/remote/webdriver-bidi/modules/root/storage.sys.mjs
 @@ -750,7 +750,7 @@ class StorageModule extends RootBiDiModule {
@@ -863,10 +854,10 @@ index 31b515f3dff8..a0bde081da0f 100644
   *
   * When comparing times across different seed values: time may go backwards.
 diff --git a/toolkit/components/search/AppProvidedSearchEngine.sys.mjs b/toolkit/components/search/AppProvidedSearchEngine.sys.mjs
-index 5e46a15ef0e3..fe3e34995116 100644
+index 28fb9f61a32c..ed75a38c684e 100644
 --- a/toolkit/components/search/AppProvidedSearchEngine.sys.mjs
 +++ b/toolkit/components/search/AppProvidedSearchEngine.sys.mjs
-@@ -589,7 +589,7 @@ export class AppProvidedSearchEngine extends SearchEngine {
+@@ -599,7 +599,7 @@ export class AppProvidedSearchEngine extends SearchEngine {
     *   An object suitable for serialization as JSON.
     */
    toJSON() {
@@ -876,10 +867,10 @@ index 5e46a15ef0e3..fe3e34995116 100644
      return {
        id: this.id,
 diff --git a/toolkit/components/search/SearchService.sys.mjs b/toolkit/components/search/SearchService.sys.mjs
-index 82b0d5bbadca..6f4809d9cb18 100644
+index 77e9a73e4351..f13b0a457df9 100644
 --- a/toolkit/components/search/SearchService.sys.mjs
 +++ b/toolkit/components/search/SearchService.sys.mjs
-@@ -1006,7 +1006,7 @@ export class SearchService {
+@@ -1009,7 +1009,7 @@ export class SearchService {
    /**
     * A deferred promise that is resolved when initialization has finished.
     *
@@ -887,8 +878,8 @@ index 82b0d5bbadca..6f4809d9cb18 100644
 +   * Resolved when initialization has successfully finished, and rejected if it
     * has failed.
     *
-    * @type {Promise}
-@@ -1019,7 +1019,7 @@ export class SearchService {
+    * @type {PromiseWithResolvers}
+@@ -1022,7 +1022,7 @@ export class SearchService {
     *
     * These are the statuses:
     *   "not initialized" - The SearchService has not started initialization.
@@ -897,7 +888,7 @@ index 82b0d5bbadca..6f4809d9cb18 100644
     *   "success" - The SearchService successfully completed initialization.
     *   "failed" - The SearchService failed during initialization.
     *
-@@ -1110,7 +1110,7 @@ export class SearchService {
+@@ -1113,7 +1113,7 @@ export class SearchService {
  
    /**
     * A Set of installed search extensions reported by AddonManager
@@ -906,7 +897,7 @@ index 82b0d5bbadca..6f4809d9cb18 100644
     * during init(). Does not contain application provided engines.
     *
     * @type {Set<object>}
-@@ -1128,7 +1128,7 @@ export class SearchService {
+@@ -1131,7 +1131,7 @@ export class SearchService {
  
    /**
     * A Set of removed search extensions reported by AddonManager
@@ -915,7 +906,7 @@ index 82b0d5bbadca..6f4809d9cb18 100644
     * during init().
     *
     * @type {Set<object>}
-@@ -1376,7 +1376,7 @@ export class SearchService {
+@@ -1377,7 +1377,7 @@ export class SearchService {
     * with it.
     *
     * This function sets #initDeferredPromise to resolve or reject.
@@ -924,7 +915,7 @@ index 82b0d5bbadca..6f4809d9cb18 100644
     *   | Rejected | when initialization has failed.
     */
    async #init() {
-@@ -1791,7 +1791,7 @@ export class SearchService {
+@@ -1792,7 +1792,7 @@ export class SearchService {
      // If the user's previous engine id is different than the new current
      // engine id, or if the user was using the app default engine and the
      // app default engine id is different than the new current engine id,
@@ -933,7 +924,7 @@ index 82b0d5bbadca..6f4809d9cb18 100644
      if (
        (prevCurrentEngineId && prevCurrentEngineId !== newCurrentEngineId) ||
        (!prevCurrentEngineId &&
-@@ -1837,7 +1837,7 @@ export class SearchService {
+@@ -1838,7 +1838,7 @@ export class SearchService {
  
    /**
     * Loads any engines that have been received from the AddonManager during
@@ -942,7 +933,7 @@ index 82b0d5bbadca..6f4809d9cb18 100644
     *
     * @param {object} [settings]
     *   The saved settings for the user.
-@@ -1970,7 +1970,7 @@ export class SearchService {
+@@ -1971,7 +1971,7 @@ export class SearchService {
          this._maybeReloadEngines(changeReason).catch(console.error);
        }, 10000);
        lazy.logConsole.debug(
@@ -951,7 +942,7 @@ index 82b0d5bbadca..6f4809d9cb18 100644
        );
        return;
      }
-@@ -2000,7 +2000,7 @@ export class SearchService {
+@@ -2001,7 +2001,7 @@ export class SearchService {
     * the default engines, so that we're not removing active defaults or trying
     * to set a default to something that hasn't been added yet. The order is:
     *
@@ -960,7 +951,7 @@ index 82b0d5bbadca..6f4809d9cb18 100644
     * 2) Add any new engines from the new configuration.
     * 3) Check for changes needed to the default engines due to environment changes
     *    and potentially overriding engines as per the override allowlist.
-@@ -2586,7 +2586,7 @@ export class SearchService {
+@@ -2587,7 +2587,7 @@ export class SearchService {
    }
  
    #buildSortedEngineList() {
@@ -969,7 +960,7 @@ index 82b0d5bbadca..6f4809d9cb18 100644
      // in the case of tests which don't define a default search engine.
      // If there's no default defined, then we revert to the first item in the
      // sorted list, but we can't do that if we don't have a list.
-@@ -3119,7 +3119,7 @@ export class SearchService {
+@@ -3120,7 +3120,7 @@ export class SearchService {
      );
  
      // Only do this if we're initialized though - this function can get called
@@ -1010,10 +1001,10 @@ index f57753239cec..28831a8cf8a6 100644
      if (value === undefined) {
        document.l10n.setAttributes(item, l10nId);
 diff --git a/toolkit/content/license.html b/toolkit/content/license.html
-index 70a8d6cda2b1..91f7effe81e0 100644
+index 216fbd21bac6..7a226c58f3cc 100644
 --- a/toolkit/content/license.html
 +++ b/toolkit/content/license.html
-@@ -5920,7 +5920,7 @@ product.
+@@ -5887,7 +5887,7 @@ product.
            <td>
              <pre>
  
@@ -1023,7 +1014,7 @@ index 70a8d6cda2b1..91f7effe81e0 100644
              Permission is hereby granted, free of charge, to any person obtaining
              a copy of this software and associated documentation files (the
 diff --git a/toolkit/content/widgets/datepicker.js b/toolkit/content/widgets/datepicker.js
-index 2e3ae1922659..d9484496958d 100644
+index 5c97b6a30576..46d571db851c 100644
 --- a/toolkit/content/widgets/datepicker.js
 +++ b/toolkit/content/widgets/datepicker.js
 @@ -133,7 +133,7 @@ function DatePicker(context) {
@@ -1051,19 +1042,6 @@ index 1bdb72847fa3..146e9e103b06 100644
        field.setAttribute("max", aMaxValue);
        // Interval when pressing pageUp/pageDown key.
        field.setAttribute("pginterval", aPageUpDownInterval);
-diff --git a/toolkit/modules/AppConstants.sys.mjs b/toolkit/modules/AppConstants.sys.mjs
-index 015160c05787..10ec4830cd17 100644
---- a/toolkit/modules/AppConstants.sys.mjs
-+++ b/toolkit/modules/AppConstants.sys.mjs
-@@ -267,7 +267,7 @@ export var AppConstants = Object.freeze({
-     false,
- #endif
- 
--  // Returns true for CN region build when distibution id set as 'MozillaOnline'
-+  // Returns true for CN region build when distribution id set as 'MozillaOnline'
-   isChinaRepack() {
-     return (
-       Services.prefs
 diff --git a/toolkit/modules/PermissionsUtils.sys.mjs b/toolkit/modules/PermissionsUtils.sys.mjs
 index 593cf97b046c..869e0334a29a 100644
 --- a/toolkit/modules/PermissionsUtils.sys.mjs
@@ -1111,7 +1089,7 @@ index a177f936e9b6..6744672e7812 100644
    async init() {
      this.file = this.sourceURI.QueryInterface(Ci.nsIFileURL).file;
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
-index 4a663a57042e..60002cdfe823 100644
+index bdd95b8939f1..bdd7f550f984 100644
 --- a/toolkit/xre/nsAppRunner.cpp
 +++ b/toolkit/xre/nsAppRunner.cpp
 @@ -424,7 +424,7 @@ void MozExpectedExit() { gIsExpectedExit = true; }
@@ -1132,6 +1110,19 @@ index 4a663a57042e..60002cdfe823 100644
  //     behaviors (e.g. [A]) but not always.
  //
  // [A] Becoming enrolled in the experiment while NonDefaultPref disqualifies
+diff --git a/tools/@types/substitutions/AppConstants.sys.d.mts b/tools/@types/substitutions/AppConstants.sys.d.mts
+index 04273576bd2f..1cfa59ebcbe4 100644
+--- a/tools/@types/substitutions/AppConstants.sys.d.mts
++++ b/tools/@types/substitutions/AppConstants.sys.d.mts
+@@ -175,7 +175,7 @@ export const AppConstants: Readonly<{
+   // #ifdef MOZ_GECKOVIEW
+   MOZ_GECKOVIEW: boolean;
+ 
+-  // Returns true for CN region build when distibution id set as 'MozillaOnline'
++  // Returns true for CN region build when distribution id set as 'MozillaOnline'
+   isChinaRepack(): boolean;
+ }>;
+ 
 diff --git a/uriloader/exthandler/ExtHandlerService.sys.mjs b/uriloader/exthandler/ExtHandlerService.sys.mjs
 index e52266a85eb2..11f47fa77370 100644
 --- a/uriloader/exthandler/ExtHandlerService.sys.mjs
