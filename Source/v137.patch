@@ -10,16 +10,16 @@
  browser/base/content/aboutDialog.css               |  27 ++-
  browser/base/content/aboutDialog.js                |   9 +-
  browser/base/content/aboutDialog.xhtml             |   9 +-
- browser/base/content/overrides/app-license.html    |   6 +-
+ browser/base/content/overrides/app-license.html    |   4 +-
  browser/branding/branding-common.mozbuild          |   3 +-
  .../modules/FeatureCalloutMessages.sys.mjs         |   1 +
  .../enterprisepolicies/content/aboutPolicies.css   |   8 +
  .../enterprisepolicies/content/aboutPolicies.js    |  32 +--
  .../schemas/policies-schema.json                   |   2 -
  .../installerprefs/InstallerPrefs.sys.mjs          |   2 +-
- browser/components/preferences/main.inc.xhtml      |   8 +-
+ browser/components/preferences/main.inc.xhtml      |  10 +-
  browser/components/preferences/main.js             |   2 +-
- browser/components/preferences/preferences.js      |   3 +
+ browser/components/preferences/preferences.js      |   4 +
  browser/components/preferences/preferences.xhtml   |   3 +-
  browser/components/preferences/privacy.inc.xhtml   |   8 +-
  browser/components/preferences/privacy.js          |   4 +-
@@ -137,8 +137,6 @@
  toolkit/components/pdfjs/content/web/viewer.css    |   4 +-
  toolkit/components/pdfjs/content/web/viewer.mjs    |  10 +-
  toolkit/components/printing/content/print.js       |   2 +-
- toolkit/components/remote/nsDBusRemoteClient.cpp   |   8 +-
- toolkit/components/remote/nsDBusRemoteServer.cpp   |  12 +-
  .../resistfingerprinting/RFPHelper.sys.mjs         |  20 ++
  toolkit/components/search/OpenSearchEngine.sys.mjs |   2 +-
  .../components/url-classifier/SafeBrowsing.sys.mjs |   2 +-
@@ -156,7 +154,7 @@
  .../locales/en-US/toolkit/branding/brandings.ftl   |  10 +-
  toolkit/locales/en-US/toolkit/pdfviewer/viewer.ftl |   4 +-
  toolkit/modules/DateTimePickerPanel.sys.mjs        |   4 +-
- toolkit/moz.configure                              |  20 +-
+ toolkit/moz.configure                              |  14 +-
  toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp |   4 +-
  .../extensions/internal/AddonSettings.sys.mjs      |   2 +-
  toolkit/mozapps/installer/package-name.mk          |  12 +-
@@ -167,13 +165,12 @@
  toolkit/themes/shared/aboutServiceWorkers.css      |   5 +
  toolkit/themes/shared/aboutSupport.css             |   8 +
  toolkit/themes/shared/in-content/common-shared.css |   1 +
- toolkit/xre/nsXREDirProvider.cpp                   |  24 +-
  tools/@types/package.json                          |   1 +
  .../eslint-plugin-spidermonkey-js/package.json     |   1 +
  widget/windows/WinHeaderOnlyUtils.h                |   2 +
  widget/windows/WinUtils.h                          |   2 +-
  xpcom/base/AvailableMemoryWatcherWin.cpp           |   6 +-
- 175 files changed, 1080 insertions(+), 680 deletions(-)
+ 172 files changed, 1056 insertions(+), 655 deletions(-)
 
 diff --git a/browser/actors/EncryptedMediaParent.sys.mjs b/browser/actors/EncryptedMediaParent.sys.mjs
 index d9dcfcafdcff..1b2890755086 100644
@@ -1027,7 +1024,7 @@ index c64980810570..c81618013868 100644
        <description id="trademark" data-l10n-id="trademarkInfo"></description>
      </vbox>
 diff --git a/browser/base/content/overrides/app-license.html b/browser/base/content/overrides/app-license.html
-index eafe95498af2..cb02ce718b43 100644
+index eafe95498af2..d1ca2306dd4f 100644
 --- a/browser/base/content/overrides/app-license.html
 +++ b/browser/base/content/overrides/app-license.html
 @@ -1,8 +1,8 @@
@@ -1036,10 +1033,9 @@ index eafe95498af2..cb02ce718b43 100644
 -   - file, You can obtain one at http://mozilla.org/MPL/2.0/.  -->
 +   - file, You can obtain one at https://mozilla.org/MPL/2.0/.  -->
  <p>
--  <b>Binaries</b> of this product have been made available to you by the
+   <b>Binaries</b> of this product have been made available to you by the
 -  <a href="http://www.mozilla.org/">Mozilla Project</a> under the Mozilla Public
-+  <b>Binaries</b> of this product have been made available to you
-+  under the Mozilla Public
++  <a href="https://github.com/0h7z">0h7z Project</a> under the Mozilla Public
    License 2.0 (MPL). <a href="about:rights">Know your rights</a>.
  </p>
 diff --git a/browser/branding/branding-common.mozbuild b/browser/branding/branding-common.mozbuild
@@ -1227,7 +1223,7 @@ index 2eb9d42fdcb3..3627387c12a8 100644
      const xreDirProvider = Cc[
        "@mozilla.org/xre/directory-provider;1"
 diff --git a/browser/components/preferences/main.inc.xhtml b/browser/components/preferences/main.inc.xhtml
-index 640c3742c78a..45128b399443 100644
+index 640c3742c78a..eb0c81021076 100644
 --- a/browser/components/preferences/main.inc.xhtml
 +++ b/browser/components/preferences/main.inc.xhtml
 @@ -58,7 +58,7 @@
@@ -1248,6 +1244,15 @@ index 640c3742c78a..45128b399443 100644
        </hbox>
      </stack>
    </vbox>
+@@ -195,7 +195,7 @@
+   </radiogroup>
+   <checkbox id="browserLayoutShowSidebar" data-l10n-id="browser-layout-show-sidebar"
+             preference="sidebar.revamp"/>
+-  <description class="indent" data-l10n-id="browser-layout-show-sidebar-desc"></description>
++  <description class="indent" data-l10n-id="browser-layout-show-sidebar-desc" hidden="true"></description>
+ </groupbox>
+ 
+ <hbox id="languageAndAppearanceCategory"
 @@ -810,7 +810,7 @@
            support-page="media-keyboard-control"
      />
@@ -1280,14 +1285,15 @@ index 8f6f78419a08..6ea959e88e6d 100644
    },
  
 diff --git a/browser/components/preferences/preferences.js b/browser/components/preferences/preferences.js
-index 78b70a99b001..a709e3c3a9ac 100644
+index 78b70a99b001..4a7d9dda7388 100644
 --- a/browser/components/preferences/preferences.js
 +++ b/browser/components/preferences/preferences.js
-@@ -624,6 +624,9 @@ async function ensureScrollPadding() {
+@@ -624,6 +624,10 @@ async function ensureScrollPadding() {
  }
  
  function maybeDisplayPoliciesNotice() {
 +  if (!Services.prefs.getBoolPref("browser.preferences.policiesNotice", false))
++    // eslint-disable-next-line curly
 +    return;
 +
    if (Services.policies.status == Services.policies.ACTIVE) {
@@ -5044,104 +5050,6 @@ index 9049f695b2a3..57b43279756c 100644
        name: PrintUtils.SAVE_TO_PDF_PRINTER,
      };
  
-diff --git a/toolkit/components/remote/nsDBusRemoteClient.cpp b/toolkit/components/remote/nsDBusRemoteClient.cpp
-index 204b3b9c37dd..cc61dae7899a 100644
---- a/toolkit/components/remote/nsDBusRemoteClient.cpp
-+++ b/toolkit/components/remote/nsDBusRemoteClient.cpp
-@@ -76,7 +76,7 @@ bool nsDBusRemoteClient::GetRemoteDestinationName(const char* aProgram,
-   mozilla::XREAppData::SanitizeNameForDBus(profileName);
- 
-   aDestinationName =
--      nsPrintfCString("org.mozilla.%s.%s", aProgram, profileName.get());
-+      nsPrintfCString("com.0h7z.%s.%s", aProgram, profileName.get());
-   if (aDestinationName.Length() > DBUS_MAXIMUM_NAME_LENGTH)
-     aDestinationName.Truncate(DBUS_MAXIMUM_NAME_LENGTH);
- 
-@@ -90,7 +90,7 @@ bool nsDBusRemoteClient::GetRemoteDestinationName(const char* aProgram,
-   if (!sDBusValidateBusName(aDestinationName.get(), nullptr)) {
-     // We don't have a valid busName yet - try to create a default one.
-     aDestinationName =
--        nsPrintfCString("org.mozilla.%s.%s", aProgram, "default");
-+        nsPrintfCString("com.0h7z.%s.%s", aProgram, "default");
-     if (!sDBusValidateBusName(aDestinationName.get(), nullptr)) {
-       // We failed completelly to get a valid bus name - just quit
-       // to prevent crash at dbus_bus_request_name().
-@@ -121,7 +121,7 @@ nsresult nsDBusRemoteClient::DoSendDBusCommandLine(const char* aProfile,
-   }
- 
-   nsAutoCString pathName;
--  pathName = nsPrintfCString("/org/mozilla/%s/Remote", appName.get());
-+  pathName = nsPrintfCString("/com/0h7z/%s/Remote", appName.get());
- 
-   static auto sDBusValidatePathName = (bool (*)(const char*, DBusError*))dlsym(
-       RTLD_DEFAULT, "dbus_validate_path");
-@@ -132,7 +132,7 @@ nsresult nsDBusRemoteClient::DoSendDBusCommandLine(const char* aProfile,
-   }
- 
-   nsAutoCString remoteInterfaceName;
--  remoteInterfaceName = nsPrintfCString("org.mozilla.%s", appName.get());
-+  remoteInterfaceName = nsPrintfCString("com.0h7z.%s", appName.get());
- 
-   LOG("  DBus destination: %s\n", destinationName.get());
-   LOG("  DBus path: %s\n", pathName.get());
-diff --git a/toolkit/components/remote/nsDBusRemoteServer.cpp b/toolkit/components/remote/nsDBusRemoteServer.cpp
-index 4afb8381d0bc..04c82a7f33ea 100644
---- a/toolkit/components/remote/nsDBusRemoteServer.cpp
-+++ b/toolkit/components/remote/nsDBusRemoteServer.cpp
-@@ -29,7 +29,7 @@ static const char* introspect_template =
-     "1.0//EN\"\n"
-     "\"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd\">\n"
-     "<node>\n"
--    " <interface name=\"org.mozilla.%s\">\n"
-+    " <interface name=\"com.0h7z.%s\">\n"
-     "   <method name=\"OpenURL\">\n"
-     "     <arg name=\"url\" direction=\"in\" type=\"ay\"/>\n"
-     "   </method>\n"
-@@ -39,7 +39,7 @@ static const char* introspect_template =
- bool nsDBusRemoteServer::HandleOpenURL(const gchar* aInterfaceName,
-                                        const gchar* aMethodName,
-                                        Span<const gchar> aParam) {
--  nsPrintfCString ourInterfaceName("org.mozilla.%s", mAppName.get());
-+  nsPrintfCString ourInterfaceName("com.0h7z.%s", mAppName.get());
- 
-   if ((strcmp("OpenURL", aMethodName) != 0) ||
-       (strcmp(ourInterfaceName.get(), aInterfaceName) != 0)) {
-@@ -132,7 +132,7 @@ static const GDBusInterfaceVTable gInterfaceVTable = {
-     HandleMethodCall, HandleGetProperty, HandleSetProperty};
- 
- void nsDBusRemoteServer::OnBusAcquired(GDBusConnection* aConnection) {
--  mPathName = nsPrintfCString("/org/mozilla/%s/Remote", mAppName.get());
-+  mPathName = nsPrintfCString("/com/0h7z/%s/Remote", mAppName.get());
-   static auto sDBusValidatePathName = (bool (*)(const char*, DBusError*))dlsym(
-       RTLD_DEFAULT, "dbus_validate_path");
-   if (!sDBusValidatePathName ||
-@@ -194,7 +194,7 @@ nsresult nsDBusRemoteServer::Startup(const char* aAppName,
-   // Don't even try to start without any profile name
-   if (!aProfileName || aProfileName[0] == '\0') return NS_ERROR_INVALID_ARG;
- 
--  // aAppName is remoting name which can be something like org.mozilla.appname
-+  // aAppName is remoting name which can be something like com.0h7z.appname
-   // or so.
-   // For DBus service we rather use general application DBus identifier
-   // which is shared by all DBus services.
-@@ -206,7 +206,7 @@ nsresult nsDBusRemoteServer::Startup(const char* aAppName,
- 
-   mozilla::XREAppData::SanitizeNameForDBus(profileName);
- 
--  nsPrintfCString busName("org.mozilla.%s.%s", mAppName.get(),
-+  nsPrintfCString busName("com.0h7z.%s.%s", mAppName.get(),
-                           profileName.get());
-   if (busName.Length() > DBUS_MAXIMUM_NAME_LENGTH) {
-     busName.Truncate(DBUS_MAXIMUM_NAME_LENGTH);
-@@ -221,7 +221,7 @@ nsresult nsDBusRemoteServer::Startup(const char* aAppName,
- 
-   // We don't have a valid busName yet - try to create a default one.
-   if (!sDBusValidateBusName(busName.get(), nullptr)) {
--    busName = nsPrintfCString("org.mozilla.%s.%s", mAppName.get(), "default");
-+    busName = nsPrintfCString("com.0h7z.%s.%s", mAppName.get(), "default");
-     if (!sDBusValidateBusName(busName.get(), nullptr)) {
-       // We failed completelly to get a valid bus name - just quit
-       // to prevent crash at dbus_bus_request_name().
 diff --git a/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs b/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs
 index cf5f8daa6d19..2958c1fddcb0 100644
 --- a/toolkit/components/resistfingerprinting/RFPHelper.sys.mjs
@@ -5569,18 +5477,9 @@ index f20f2c1668d6..ac7e3c3ac6e8 100644
      return {
        firstDayOfWeek,
 diff --git a/toolkit/moz.configure b/toolkit/moz.configure
-index 4ebf2e11ff93..5262dfbd1555 100644
+index 4ebf2e11ff93..0516c50678a3 100644
 --- a/toolkit/moz.configure
 +++ b/toolkit/moz.configure
-@@ -90,7 +90,7 @@ set_config("MOZ_INCLUDE_SOURCE_INFO", True, when="MOZ_INCLUDE_SOURCE_INFO")
- option(
-     "--with-distribution-id",
-     nargs=1,
--    default="org.mozilla",
-+    default="com.0h7z",
-     help="Set distribution-specific id",
- )
- set_config("MOZ_DISTRIBUTION_ID", depends("--with-distribution-id")(lambda v: v[0]))
 @@ -121,7 +121,7 @@ def all_configure_options():
          # consecutive.
          # Also ignore OLD_CONFIGURE and MOZCONFIG because they're not
@@ -5630,24 +5529,6 @@ index 4ebf2e11ff93..5262dfbd1555 100644
  
          wasi_sysroot = wasi_sysroot[0]
          if not os.path.isdir(wasi_sysroot):
-@@ -3252,7 +3252,7 @@ set_config("MOZ_APP_REMOTINGNAME", moz_app_remotingname)
- option(
-     env="ANDROID_PACKAGE_NAME",
-     nargs=1,
--    help="Name of the Android package (default org.mozilla.$MOZ_APP_NAME)",
-+    help="Name of the Android package (default com.0h7z.$MOZ_APP_NAME)",
- )
- 
- 
-@@ -3262,7 +3262,7 @@ def android_package_name(value, moz_app_name):
-         return value[0]
-     if moz_app_name == "fennec":
-         return "org.mozilla.fennec_aurora"
--    return "org.mozilla.%s" % moz_app_name
-+    return "com.0h7z.%s" % moz_app_name
- 
- 
- set_config("ANDROID_PACKAGE_NAME", android_package_name)
 diff --git a/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp b/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
 index 2407391e7aea..1cb542e66406 100644
 --- a/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
@@ -5820,91 +5701,6 @@ index b6ec882c19ae..86f84eac7311 100644
  }
  
  @media (prefers-color-scheme: dark) {
-diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
-index 3b4612e02c5b..31c47e47ba12 100644
---- a/toolkit/xre/nsXREDirProvider.cpp
-+++ b/toolkit/xre/nsXREDirProvider.cpp
-@@ -285,16 +285,16 @@ static nsresult GetSystemParentDirectory(nsIFile** aFile) {
-   rv = GetOSXFolderType(kOnSystemDisk, kApplicationSupportFolderType,
-                         getter_AddRefs(localDir));
-   if (NS_SUCCEEDED(rv)) {
--    rv = localDir->AppendNative("Mozilla"_ns);
-+    rv = localDir->AppendNative("Snowfox"_ns);
-   }
- #  else
-   constexpr auto dirname =
- #    ifdef HAVE_USR_LIB64_DIR
--      "/usr/lib64/mozilla"_ns
-+      "/usr/lib64/snowfox"_ns
- #    elif defined(__OpenBSD__) || defined(__FreeBSD__)
--      "/usr/local/lib/mozilla"_ns
-+      "/usr/local/lib/snowfox"_ns
- #    else
--      "/usr/lib/mozilla"_ns
-+      "/usr/lib/snowfox"_ns
- #    endif
-       ;
-   rv = NS_NewNativeLocalFile(dirname, getter_AddRefs(localDir));
-@@ -366,9 +366,9 @@ nsXREDirProvider::GetFile(const char* aProperty, bool* aPersistent,
-     rv = GetUserDataDirectoryHome(getter_AddRefs(file), false);
-     NS_ENSURE_SUCCESS(rv, rv);
- #  if defined(XP_MACOSX)
--    rv = file->AppendNative("Mozilla"_ns);
-+    rv = file->AppendNative("Snowfox"_ns);
- #  else   // defined(XP_MACOSX)
--    rv = file->AppendNative(".mozilla"_ns);
-+    rv = file->AppendNative(".snowfox"_ns);
- #  endif  // defined(XP_MACOSX)
-   }
- #endif  // defined(XP_UNIX) || defined(XP_MACOSX)
-@@ -398,9 +398,9 @@ nsXREDirProvider::GetFile(const char* aProperty, bool* aPersistent,
-   else if (!strcmp(aProperty, XRE_SYS_SHARE_EXTENSION_PARENT_DIR)) {
- #  ifdef ENABLE_SYSTEM_EXTENSION_DIRS
- #    if defined(__OpenBSD__) || defined(__FreeBSD__)
--    static const char* const sysLExtDir = "/usr/local/share/mozilla/extensions";
-+    static const char* const sysLExtDir = "/usr/local/share/snowfox/extensions";
- #    else
--    static const char* const sysLExtDir = "/usr/share/mozilla/extensions";
-+    static const char* const sysLExtDir = "/usr/share/snowfox/extensions";
- #    endif
-     rv = NS_NewNativeLocalFile(nsDependentCString(sysLExtDir),
-                                getter_AddRefs(file));
-@@ -932,7 +932,7 @@ nsresult nsXREDirProvider::GetUpdateRootDir(nsIFile** aResult,
-             nsDependentCString(hasVendor ? GetAppVendor() : GetAppName())))) {
-       return NS_ERROR_FAILURE;
-     }
--  } else if (NS_FAILED(localDir->AppendNative("Mozilla"_ns))) {
-+  } else if (NS_FAILED(localDir->AppendNative("Snowfox"_ns))) {
-     return NS_ERROR_FAILURE;
-   }
- 
-@@ -1192,7 +1192,7 @@ nsresult nsXREDirProvider::AppendSysUserExtensionPath(nsIFile* aFile) {
- 
- #if defined(XP_MACOSX) || defined(XP_WIN)
- 
--  static const char* const sXR = "Mozilla";
-+  static const char* const sXR = "Snowfox";
-   rv = aFile->AppendNative(nsDependentCString(sXR));
-   NS_ENSURE_SUCCESS(rv, rv);
- 
-@@ -1202,7 +1202,7 @@ nsresult nsXREDirProvider::AppendSysUserExtensionPath(nsIFile* aFile) {
- 
- #elif defined(XP_UNIX)
- 
--  static const char* const sXR = ".mozilla";
-+  static const char* const sXR = ".snowfox";
-   rv = aFile->AppendNative(nsDependentCString(sXR));
-   NS_ENSURE_SUCCESS(rv, rv);
- 
-@@ -1266,7 +1266,7 @@ nsresult nsXREDirProvider::AppendProfilePath(nsIFile* aFile, bool aLocal) {
-   // The parent of this directory is set in GetUserDataDirectoryHome
-   // XXX: handle gAppData->profile properly
-   // XXXsmaug ...and the rest of the profile creation!
--  rv = aFile->AppendNative(nsDependentCString("mozilla"));
-+  rv = aFile->AppendNative(nsDependentCString("snowfox"));
-   NS_ENSURE_SUCCESS(rv, rv);
- #elif defined(XP_UNIX)
-   nsAutoCString folder;
 diff --git a/tools/@types/package.json b/tools/@types/package.json
 index 61ad6877c7af..2b03c3ea136a 100644
 --- a/tools/@types/package.json

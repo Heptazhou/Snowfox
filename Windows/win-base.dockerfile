@@ -25,7 +25,7 @@ ENV JULIA_NUM_THREADS=auto
 
 RUN cd /moz && curl -LR -fw"%{url}\n" --retry 3 --retry-delay 5 \
 	https://crates.io/api/v1/crates/windows/${WRS:=0.58.0}/download -o rs.tar.gz \
-	https://github.com/Heptazhou/Firefox/releases/download/v136/vs.tar.zst -O && \
+	https://github.com/Heptazhou/Firefox/releases/download/v137/vs.tar.zst -O && \
 	tar fx rs.tar.gz  && rm rs.tar.gz  && mv windows-{$WRS,rs} && \
 	tar fx vs.tar.zst && rm vs.tar.zst
 

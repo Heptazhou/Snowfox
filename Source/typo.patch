@@ -32,9 +32,12 @@
  .../compare_locales/paths/matcher.py               |  4 +--
  .../python/moz.l10n/moz/l10n/paths/config.py       |  2 +-
  toolkit/components/glean/docs/user/migration.md    |  2 +-
+ toolkit/components/remote/nsDBusRemoteClient.cpp   |  2 +-
+ toolkit/components/remote/nsDBusRemoteServer.cpp   |  2 +-
  .../resistfingerprinting/nsRFPService.cpp          |  4 +--
  .../search/AppProvidedSearchEngine.sys.mjs         |  2 +-
  toolkit/components/search/SearchService.sys.mjs    | 26 +++++++-------
+ .../components/taskscheduler/TaskScheduler.sys.mjs |  2 +-
  toolkit/content/aboutServiceWorkers.js             |  2 +-
  toolkit/content/license.html                       |  2 +-
  toolkit/content/widgets/datepicker.js              |  2 +-
@@ -44,7 +47,7 @@
  toolkit/xre/nsAppRunner.cpp                        |  4 +--
  tools/@types/substitutions/AppConstants.sys.d.mts  |  2 +-
  uriloader/exthandler/ExtHandlerService.sys.mjs     |  2 +-
- 46 files changed, 112 insertions(+), 112 deletions(-)
+ 49 files changed, 115 insertions(+), 115 deletions(-)
 
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
 index 087d7b9fb7e0..6f6d8abcc0be 100644
@@ -219,7 +222,7 @@ index 131922643561..1107e9ee4dc5 100644
        let newCookieBehavior = defaultPref.getIntPref(
          "network.cookie.cookieBehavior"
 diff --git a/browser/components/preferences/preferences.js b/browser/components/preferences/preferences.js
-index a709e3c3a9ac..5bbb9b5608e6 100644
+index 4a7d9dda7388..98b174003153 100644
 --- a/browser/components/preferences/preferences.js
 +++ b/browser/components/preferences/preferences.js
 @@ -219,7 +219,7 @@ function init_all() {
@@ -831,6 +834,32 @@ index 1070fcdc49e6..6ecc75677b28 100644
  
  ```yaml
  js:
+diff --git a/toolkit/components/remote/nsDBusRemoteClient.cpp b/toolkit/components/remote/nsDBusRemoteClient.cpp
+index 204b3b9c37dd..6b35ebcdba40 100644
+--- a/toolkit/components/remote/nsDBusRemoteClient.cpp
++++ b/toolkit/components/remote/nsDBusRemoteClient.cpp
+@@ -92,7 +92,7 @@ bool nsDBusRemoteClient::GetRemoteDestinationName(const char* aProgram,
+     aDestinationName =
+         nsPrintfCString("org.mozilla.%s.%s", aProgram, "default");
+     if (!sDBusValidateBusName(aDestinationName.get(), nullptr)) {
+-      // We failed completelly to get a valid bus name - just quit
++      // We failed completely to get a valid bus name - just quit
+       // to prevent crash at dbus_bus_request_name().
+       LOG("  failed to validate profile DBus name");
+       return false;
+diff --git a/toolkit/components/remote/nsDBusRemoteServer.cpp b/toolkit/components/remote/nsDBusRemoteServer.cpp
+index 4afb8381d0bc..75cd03414f35 100644
+--- a/toolkit/components/remote/nsDBusRemoteServer.cpp
++++ b/toolkit/components/remote/nsDBusRemoteServer.cpp
+@@ -223,7 +223,7 @@ nsresult nsDBusRemoteServer::Startup(const char* aAppName,
+   if (!sDBusValidateBusName(busName.get(), nullptr)) {
+     busName = nsPrintfCString("org.mozilla.%s.%s", mAppName.get(), "default");
+     if (!sDBusValidateBusName(busName.get(), nullptr)) {
+-      // We failed completelly to get a valid bus name - just quit
++      // We failed completely to get a valid bus name - just quit
+       // to prevent crash at dbus_bus_request_name().
+       g_warning("nsDBusRemoteServer: dbus_validate_bus_name() failed!");
+       return NS_ERROR_FAILURE;
 diff --git a/toolkit/components/resistfingerprinting/nsRFPService.cpp b/toolkit/components/resistfingerprinting/nsRFPService.cpp
 index 31b515f3dff8..a0bde081da0f 100644
 --- a/toolkit/components/resistfingerprinting/nsRFPService.cpp
@@ -987,6 +1016,19 @@ index 77e9a73e4351..f13b0a457df9 100644
     * @returns {Promise<boolean>}
     *   Returns true if the existing search engine is allowed to override the
     *   app provided instance.
+diff --git a/toolkit/components/taskscheduler/TaskScheduler.sys.mjs b/toolkit/components/taskscheduler/TaskScheduler.sys.mjs
+index 4de5d0a76c8e..89d431cd82c9 100644
+--- a/toolkit/components/taskscheduler/TaskScheduler.sys.mjs
++++ b/toolkit/components/taskscheduler/TaskScheduler.sys.mjs
+@@ -51,7 +51,7 @@ export var TaskScheduler = {
+   MIN_INTERVAL_SECONDS: 1800,
+ 
+   /**
+-   * Create a scheduled task that will run a command indepedent of the application.
++   * Create a scheduled task that will run a command independent of the application.
+    *
+    * It will run every intervalSeconds seconds, starting intervalSeconds seconds from now.
+    *
 diff --git a/toolkit/content/aboutServiceWorkers.js b/toolkit/content/aboutServiceWorkers.js
 index f57753239cec..28831a8cf8a6 100644
 --- a/toolkit/content/aboutServiceWorkers.js
